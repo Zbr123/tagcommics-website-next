@@ -112,12 +112,12 @@ export default function ComicDetailPage() {
             {/* Main Image */}
             <div className="relative aspect-[3/4] bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl overflow-hidden mb-4 border border-gray-800">
               <div className="absolute top-2 right-2 z-10 flex gap-2">
-                <button className="bg-black/50 backdrop-blur-sm p-2 rounded-lg hover:bg-black/70 transition-colors">
+                <button className="bg-black/50 backdrop-blur-sm p-2 rounded-lg hover:bg-black/70 transition-colors cursor-pointer">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                   </svg>
                 </button>
-                <button className="bg-black/50 backdrop-blur-sm p-2 rounded-lg hover:bg-black/70 transition-colors">
+                <button className="bg-black/50 backdrop-blur-sm p-2 rounded-lg hover:bg-black/70 transition-colors cursor-pointer">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
@@ -143,7 +143,7 @@ export default function ComicDetailPage() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative aspect-[3/4] w-20 bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg overflow-hidden border-2 transition-all ${
+                  className={`relative aspect-[3/4] w-20 bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                     selectedImage === index
                       ? "border-yellow-400"
                       : "border-gray-800 hover:border-gray-700"
@@ -210,7 +210,7 @@ export default function ComicDetailPage() {
                 <div className="flex items-center gap-2 border border-gray-700 rounded-lg">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-2 text-white hover:bg-gray-800 transition-colors"
+                    className="px-3 py-2 text-white hover:bg-gray-800 transition-colors cursor-pointer"
                   >
                     -
                   </button>
@@ -224,7 +224,7 @@ export default function ComicDetailPage() {
                   />
                   <button
                     onClick={() => setQuantity(Math.min(comic.stock, quantity + 1))}
-                    className="px-3 py-2 text-white hover:bg-gray-800 transition-colors"
+                    className="px-3 py-2 text-white hover:bg-gray-800 transition-colors cursor-pointer"
                   >
                     +
                   </button>
@@ -235,17 +235,17 @@ export default function ComicDetailPage() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleBuyNow}
-                  className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition-all"
+                  className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition-all cursor-pointer"
                 >
                   Buy Now
                 </button>
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg border border-gray-700 transition-all"
+                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg border border-gray-700 transition-all cursor-pointer"
                 >
                   Add to Cart
                 </button>
-                <button className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg border border-gray-700 transition-all">
+                <button className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg border border-gray-700 transition-all cursor-pointer">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
@@ -271,7 +271,7 @@ export default function ComicDetailPage() {
                   <p className="text-gray-400 text-sm">Sold by</p>
                   <p className="text-white font-bold">Comics Universe Store</p>
                 </div>
-                <button className="text-yellow-400 hover:text-yellow-300 text-sm font-bold">
+                <button className="text-yellow-400 hover:text-yellow-300 text-sm font-bold cursor-pointer">
                   Chat Now
                 </button>
               </div>

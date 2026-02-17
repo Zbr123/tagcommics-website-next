@@ -6,7 +6,7 @@ import Image from "next/image";
 const slides = [
   "/comic-slider1.png",
   "/comic-slider5.png",
-  "/comic-slider3.png",
+  "/comic-slider6.png",
   "/comic-slide4.png"
 ];
 
@@ -51,7 +51,7 @@ export default function HeroSection() {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white hover:bg-yellow-400 hover:text-black transition-all"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white hover:bg-yellow-400 hover:text-black transition-all cursor-pointer"
         aria-label="Previous slide"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@ export default function HeroSection() {
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white hover:bg-yellow-400 hover:text-black transition-all"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white hover:bg-yellow-400 hover:text-black transition-all cursor-pointer"
         aria-label="Next slide"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +74,7 @@ export default function HeroSection() {
           <button
             key={idx}
             onClick={() => setCurrentSlide(idx)}
-            className="h-2 rounded-full transition-all duration-300"
+            className="h-2 rounded-full transition-all duration-300 cursor-pointer"
             style={{
               width: idx === currentSlide ? "32px" : "12px",
               backgroundColor: idx === currentSlide ? "#facc15" : "rgba(255,255,255,0.5)"

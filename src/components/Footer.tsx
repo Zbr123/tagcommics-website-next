@@ -5,47 +5,29 @@ export default function Footer() {
     <footer className="bg-black border-t border-gray-800">
       {/* Main Footer Content */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
-          {/* Get to Know Us */}
-          <div>
-            <h3 className="text-white font-black text-sm mb-4">Get to Know Us</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/about" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/careers" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link href="/press" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Press Releases
-                </Link>
-              </li>
-              <li>
-                <Link href="/investors" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Investors
-                </Link>
-              </li>
-            </ul>
+          {/* Logo and Description - Left Side */}
+          <div className="lg:col-span-1">
+            <Link href="/" className="inline-block mb-4 group">
+              <img
+                src="/logo-comics.png"
+                alt="Comics Universe Logo"
+                className="h-20 w-72 object-cover drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+              />
+            </Link>
+            <p className="text-gray-400 text-sm leading-relaxed max-w-sm -mt-8">
+              Your ultimate destination for comics, manga, and graphic novels. Discover amazing stories, explore new worlds, and build your collection with the best titles from around the globe.
+            </p>
           </div>
 
-          {/* Shop */}
-          <div>
-            <h3 className="text-white font-black text-sm mb-4">Shop</h3>
+          {/* Browse - Only Existing Pages */}
+          <div className="ml-6">
+            <h3 className="text-white font-black text-sm mb-4">Browse</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/comics" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
                   Comic Books
-                </Link>
-              </li>
-              <li>
-                <Link href="/graphic-novels" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Graphic Novels
                 </Link>
               </li>
               <li>
@@ -76,60 +58,13 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Customer Service */}
+          {/* Account & Orders - Only Existing Pages */}
           <div>
-            <h3 className="text-white font-black text-sm mb-4">Customer Service</h3>
+            <h3 className="text-white font-black text-sm mb-4">Account & Orders</h3>
             <ul className="space-y-2">
-              <li>
-                <Link href="/help" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Help Center
-                </Link>
-              </li>
-              <li>
-                <Link href="/shipping" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Shipping & Delivery
-                </Link>
-              </li>
-              <li>
-                <Link href="/returns" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Returns & Refunds
-                </Link>
-              </li>
-              <li>
-                <Link href="/orders" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Track Your Order
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Account */}
-          <div>
-            <h3 className="text-white font-black text-sm mb-4">Your Account</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/account" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Your Account
-                </Link>
-              </li>
               <li>
                 <Link href="/orders" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
                   Your Orders
-                </Link>
-              </li>
-              <li>
-                <Link href="/wishlist" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Wishlist
-                </Link>
-              </li>
-              <li>
-                <Link href="/subscriptions" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Subscribe & Save
                 </Link>
               </li>
               <li>
@@ -137,31 +72,50 @@ export default function Footer() {
                   Shopping Cart
                 </Link>
               </li>
+              <li>
+                <Link href="/checkout" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                  Checkout
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Newsletter & Social */}
+          {/* Category */}
           <div>
-            <h3 className="text-white font-black text-sm mb-4">Stay Connected</h3>
-            <p className="text-gray-400 text-xs mb-4">
-              Subscribe to get special offers, free giveaways, and new releases.
-            </p>
-            
-            {/* Newsletter Signup */}
-            <div className="mb-6">
-              <form className="flex flex-col gap-2">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 text-sm"
-                />
-                <button
-                  type="submit"
-                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-2 px-4 rounded-lg transition-all text-sm"
-                >
-                  Subscribe
-                </button>
-              </form>
+            <h3 className="text-white font-black text-sm mb-4">Category</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/category/superhero" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                  Superhero Comics
+                </Link>
+              </li>
+              <li>
+                <Link href="/category/manga" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                  Manga Series
+                </Link>
+              </li>
+              <li>
+                <Link href="/category/horror" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                  Horror Stories
+                </Link>
+              </li>
+              <li>
+                <Link href="/category/fantasy" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                  Fantasy Worlds
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="border-t border-gray-800">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Copyright */}
+            <div className="text-gray-400 text-sm text-center md:text-left">
+              <p>&copy; {new Date().getFullYear()} Comics Universe. All rights reserved.</p>
             </div>
 
             {/* Social Media Links */}
@@ -170,7 +124,7 @@ export default function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center bg-gray-900 hover:bg-yellow-400 rounded-lg transition-all group"
+                className="w-10 h-10 flex items-center justify-center bg-gray-900 hover:bg-yellow-400 rounded-lg transition-all group cursor-pointer"
                 aria-label="Facebook"
               >
                 <svg className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" fill="currentColor" viewBox="0 0 24 24">
@@ -181,7 +135,7 @@ export default function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center bg-gray-900 hover:bg-yellow-400 rounded-lg transition-all group"
+                className="w-10 h-10 flex items-center justify-center bg-gray-900 hover:bg-yellow-400 rounded-lg transition-all group cursor-pointer"
                 aria-label="Twitter"
               >
                 <svg className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" fill="currentColor" viewBox="0 0 24 24">
@@ -192,7 +146,7 @@ export default function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center bg-gray-900 hover:bg-yellow-400 rounded-lg transition-all group"
+                className="w-10 h-10 flex items-center justify-center bg-gray-900 hover:bg-yellow-400 rounded-lg transition-all group cursor-pointer"
                 aria-label="Instagram"
               >
                 <svg className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" fill="currentColor" viewBox="0 0 24 24">
@@ -203,59 +157,13 @@ export default function Footer() {
                 href="https://youtube.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center bg-gray-900 hover:bg-yellow-400 rounded-lg transition-all group"
+                className="w-10 h-10 flex items-center justify-center bg-gray-900 hover:bg-yellow-400 rounded-lg transition-all group cursor-pointer"
                 aria-label="YouTube"
               >
                 <svg className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
               </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="border-t border-gray-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-600 text-black shadow-lg group-hover:shadow-yellow-400/50 transition-all">
-                <span className="text-xl font-black">C</span>
-              </div>
-              <div>
-                <h2 className="text-lg font-black text-white leading-tight">
-                  COMICS
-                  <span className="block text-xs font-bold text-yellow-400">
-                    UNIVERSE
-                  </span>
-                </h2>
-              </div>
-            </Link>
-
-            {/* Legal Links */}
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-              <Link href="/privacy" className="text-gray-400 hover:text-yellow-400 transition-colors">
-                Privacy Policy
-              </Link>
-              <span className="text-gray-600">|</span>
-              <Link href="/terms" className="text-gray-400 hover:text-yellow-400 transition-colors">
-                Terms of Service
-              </Link>
-              <span className="text-gray-600">|</span>
-              <Link href="/cookies" className="text-gray-400 hover:text-yellow-400 transition-colors">
-                Cookie Policy
-              </Link>
-              <span className="text-gray-600">|</span>
-              <Link href="/sitemap" className="text-gray-400 hover:text-yellow-400 transition-colors">
-                Sitemap
-              </Link>
-            </div>
-
-            {/* Copyright */}
-            <div className="text-gray-400 text-sm text-center md:text-right">
-              <p>&copy; {new Date().getFullYear()} Comics Universe. All rights reserved.</p>
             </div>
           </div>
         </div>

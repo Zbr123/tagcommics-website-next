@@ -60,10 +60,7 @@ export default function BestSellersPage() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">🏆</span>
-                <h1 className="text-2xl sm:text-3xl font-black text-white">Best Sellers</h1>
-              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-white">Best Sellers</h1>
             </div>
             
             {/* Category Dropdown */}
@@ -107,7 +104,7 @@ export default function BestSellersPage() {
             <p className="text-gray-400 text-lg mb-4">No bestseller products found in this category.</p>
             <button
               onClick={() => setSelectedCategory("All")}
-              className="text-yellow-400 hover:text-yellow-300 font-bold"
+              className="text-yellow-400 hover:text-yellow-300 font-bold cursor-pointer"
             >
               View All Categories
             </button>
@@ -125,7 +122,7 @@ export default function BestSellersPage() {
               <div className="flex justify-center mt-8">
                 <button
                   onClick={handleLoadMore}
-                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-8 rounded-lg transition-all"
+                  className="border-2 border-yellow-400 hover:bg-yellow-400 text-yellow-400 hover:text-black font-bold px-6 py-2.5 rounded-lg transition-all cursor-pointer"
                 >
                   Load More Products
                 </button>

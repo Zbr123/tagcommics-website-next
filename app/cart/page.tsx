@@ -76,7 +76,7 @@ export default function CartPage() {
                       </div>
                       <button
                         onClick={() => removeFromCart(item.id)}
-                        className="text-gray-500 hover:text-red-400 transition-colors shrink-0 ml-4"
+                        className="text-gray-500 hover:text-red-400 transition-colors shrink-0 ml-4 cursor-pointer"
                         aria-label="Remove item"
                       >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,14 +99,14 @@ export default function CartPage() {
                         <div className="flex items-center gap-1 border border-gray-700 rounded-lg">
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="px-3 py-1 text-white hover:bg-gray-800 transition-colors"
+                            className="px-3 py-1 text-white hover:bg-gray-800 transition-colors cursor-pointer"
                           >
                             -
                           </button>
                           <span className="px-3 py-1 text-white min-w-[3rem] text-center">{item.quantity}</span>
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="px-3 py-1 text-white hover:bg-gray-800 transition-colors"
+                            className="px-3 py-1 text-white hover:bg-gray-800 transition-colors cursor-pointer"
                           >
                             +
                           </button>
@@ -128,7 +128,7 @@ export default function CartPage() {
             <div className="flex justify-end">
               <button
                 onClick={clearCart}
-                className="text-red-400 hover:text-red-300 text-sm font-bold transition-colors"
+                className="text-red-400 hover:text-red-300 text-sm font-bold transition-colors cursor-pointer"
               >
                 Clear Cart
               </button>
@@ -175,7 +175,7 @@ export default function CartPage() {
 
               <button
                 onClick={() => router.push("/checkout")}
-                className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition-all mb-3"
+                className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition-all mb-3 cursor-pointer"
               >
                 Proceed to Checkout
               </button>
