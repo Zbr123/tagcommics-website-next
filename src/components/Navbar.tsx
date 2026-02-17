@@ -40,6 +40,7 @@ const allProducts = [
   { id: 31, title: "Demon Slayer Vol.1", author: "Koyoharu Gotouge", category: "Manga" },
   { id: 32, title: "Jujutsu Kaisen Vol.1", author: "Gege Akutami", category: "Manga" },
 ];
+import { useAuth } from "../hooks/use-auth";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,6 +54,7 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { getTotalItems } = useCart();
+  const { user, logout } = useAuth();
   const cartCount = getTotalItems();
 
   // Filter products based on search query
@@ -239,10 +241,12 @@ export default function Navbar() {
 
               {/* Account */}
               <Link
-                href="/account"
+                href={user ? "/account" : "/login"}
                 className="hidden lg:flex flex-col items-start text-white/80 hover:text-white cursor-pointer shrink-0"
               >
-                <span className="text-xs text-white/60">Hello, sign in</span>
+                <span className="text-xs text-white/60">
+                  Hello, {user ? user.name : "sign in"}
+                </span>
                 <span className="text-sm font-bold flex items-center gap-1">
                   Account & Lists
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -395,9 +399,17 @@ export default function Navbar() {
               <Link href="/new-releases" className={`block py-2 text-sm font-semibold transition-colors ${pathname === "/new-releases" ? "text-yellow-400" : "text-white hover:text-yellow-400"}`}>
                 ⭐ New Releases
               </Link>
-              <Link href="/account" className="block py-2 text-sm font-semibold text-white hover:text-yellow-400">
-                👤 Account
+              <Link href={user ? "/account" : "/login"} className="block py-2 text-sm font-semibold text-white hover:text-yellow-400">
+                👤 {user ? "Account" : "Login"}
               </Link>
+              {user && (
+                <button
+                  onClick={() => { setIsMenuOpen(false); logout(); }}
+                  className="block py-2 text-sm font-semibold text-red-400 hover:text-red-300 w-full text-left"
+                >
+                  Log out
+                </button>
+              )}
               <Link href="/orders" className="block py-2 text-sm font-semibold text-white hover:text-yellow-400">
                 📦 Orders
               </Link>
