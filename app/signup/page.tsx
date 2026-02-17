@@ -93,9 +93,9 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6 sm:p-8">
+    <div className="h-screen bg-black flex items-center justify-center overflow-y-auto scrollbar-hide">
+      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6 sm:px-8">
           <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">Create account</h1>
           <p className="text-gray-400 text-sm mb-6">
             Enter your details to create your Comics Universe account.
