@@ -1,4 +1,8 @@
-const userService = require('./user.service')
+const userService = require('./user.service');
+const { StatusCodes } = require("http-status-codes");
+const User = require("../models/user");
+const { signJwt } = require("../utils/jwt-sign");
+
 
 const register = async (body) => {
     const result = await userService.createUser({ ...body });
@@ -6,11 +10,39 @@ const register = async (body) => {
 }
 
 const login = async (body) => {
-    const result = await userService?.loginUser({
-        email: body.email,
-        password: body.password,
+
+    const user = await User.findOne({
+        where: {
+            email: body?.email
+        }
     });
-    return result;
+
+    if (!user) {
+        return {
+            status: StatusCodes.NOT_FOUND,
+            message: "User Not Found",
+            data: userCreate.toJSON()
+        }
+    }
+    const isValid = await user.validatePassword(body?.password);
+
+    if (!isValid) {
+        return {
+            status: StatusCodes.UNAUTHORIZED,
+            message: "Password is wrong",
+        }
+    }
+
+    //create access token for the user
+    const token = signJwt({ email: body?.email, name: user?.name });
+
+    return {
+        status: StatusCodes.OK,
+        message: "User Logged in",
+        data: {
+            accessToken: token
+        }
+    }
 }
 
 module.exports = { register, login }

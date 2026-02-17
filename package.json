@@ -1,5 +1,5 @@
 {
-  "name": "e-commerce-ads-backend",
+  "name": "tagcommics-backend",
   "version": "1.0.0",
   "description": "A backend for E-Commerce",
   "type": "commonjs",
@@ -8,21 +8,20 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed:all": "sequelize-cli db:seed:all",
-    "db:setup": "yarn db:migrate && yarn db:seed:all",
+    "db:setup": "yarn db:migrate",
     "start": "yarn db:setup && nodemon server.js"
   },
   "keywords": [
-    "e-commerce-ads",
-    "e-commerce-ads"
+    "tag-commics"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/aahilalwani25/e-commerce-ads-backend.git"
+    "url": "https://github.com/Zbr123/tagcommics-backend.git"
   },
   "bugs": {
-    "url": "https://github.com/aahilalwani25/e-commerce-ads-backend/issues"
+    "url": "https://github.com/Zbr123/tagcommics-backend/issues"
   },
-  "author": "Aahil Alwani",
+  "author": "Zubair Alam",
   "license": "ISC",
   "dependencies": {
     "@fastify/cors": "^9.0.1",

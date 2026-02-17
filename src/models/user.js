@@ -14,6 +14,9 @@ const User = sequelize.define("user", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  phone:{
+    type: DataTypes.STRING,
+  },
   user_role: {
     type: DataTypes.ENUM("customer", "admin"),
     allowNull: false,
@@ -29,7 +32,7 @@ const User = sequelize.define("user", {
   },
   password: {
     type: DataTypes.STRING,
-
+    allowNull: false,
   },
   created_at: {
     type: DataTypes.DATE,

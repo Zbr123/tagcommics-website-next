@@ -1,4 +1,4 @@
-const userController = require('../controllers/auth.controller')
+const authController = require('../controllers/auth.controller')
 const authValidator = require('../validators/auth.validator')
 
 const authRoutes = [
@@ -6,13 +6,13 @@ const authRoutes = [
         url: '/auth/register',
         method: 'POST',
         preHandler: authValidator.registerValidator,
-        handler: userController.registerController
+        handler: authController.registerController
     },
     {
         url: '/auth/login',
         method: 'POST',
         preHandler: authValidator.loginValidator,
-        handler: userController.loginController
+        handler: authController.loginController
     }
 ]
 

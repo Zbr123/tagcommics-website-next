@@ -16,6 +16,9 @@ module.exports = {
         primaryKey: true,
         unique: true,
       },
+      phone: {
+        type: DataTypes.STRING,
+      },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -35,7 +38,6 @@ module.exports = {
       },
       password: {
         type: DataTypes.STRING,
-
       },
       created_at: {
         type: DataTypes.DATE,
