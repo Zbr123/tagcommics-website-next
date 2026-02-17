@@ -73,7 +73,7 @@ const viewport = { once: true, amount: 0.3 };
 export default function StatsSection() {
   return (
     <section className="py-16 px-4 bg-gradient-to-br from-gray-900 via-black to-gray-900 border-t border-gray-800">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-12xl">
         <motion.div
           className="p-8"
           variants={sectionVariants}

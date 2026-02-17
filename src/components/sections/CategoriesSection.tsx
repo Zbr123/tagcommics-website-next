@@ -58,7 +58,7 @@ const categories: Category[] = [
 export default function CategoriesSection() {
   return (
     <section className="py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-12xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">Shop by Category</h2>

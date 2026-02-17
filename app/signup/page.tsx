@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/src/hooks/use-auth";
-import { getAuthApiUrl, mapBackendUserToAuthUser } from "@/src/lib/auth-api";
+import { registerApi, getCurrentUser, mapBackendUserToAuthUser } from "@/src/lib/auth-api";
 
 const inputBase =
   "w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400";
@@ -63,27 +63,39 @@ function SignupForm() {
 
     setIsLoading(true);
     try {
-      const res = await fetch(getAuthApiUrl("/api/auth/register"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email.trim().toLowerCase(),
-          password,
-          firstName: name.trim(),
-          lastName: "",
-        }),
+      // Call register API with correct format: name, email, phone, password
+      const data = await registerApi({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        password,
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setSubmitError(data?.error || "Sign up failed. Please try again.");
-        setIsLoading(false);
-        return;
+
+      // Get token from response (if provided)
+      const token = data.accessToken;
+
+      // Get user info - either from response or create from form data
+      let authUser;
+      if (data.user) {
+        authUser = mapBackendUserToAuthUser(data.user);
+      } else {
+        // Create user from form data if not provided in response
+        authUser = {
+          id: email.trim(),
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+        };
       }
-      const authUser = mapBackendUserToAuthUser(data.user);
-      login(data.token, authUser);
+
+      // Login if token was provided, otherwise just redirect
+      if (token) {
+        login(token, authUser);
+      }
+
       router.push(redirectTo);
-    } catch {
-      setSubmitError("Something went wrong. Please try again.");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Sign up failed. Please try again.";
+      setSubmitError(errorMessage);
       setIsLoading(false);
     }
   };

@@ -50,6 +50,20 @@ body {
   animation: slide-in-left 0.3s ease-out;
 }
 
+/* Right sidebar slide-in animation */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
 /* Amazon-style scrollbar for sidebar - thinner */
 .sidebar-scrollbar::-webkit-scrollbar {
   width: 5px;

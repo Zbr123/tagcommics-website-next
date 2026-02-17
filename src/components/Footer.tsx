@@ -5,8 +5,107 @@ export default function Footer() {
     <footer className="bg-black border-t border-gray-800">
       {/* Main Footer Content */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          
+        {/* Mobile Layout - Centered (less than md) */}
+        <div className="md:hidden max-w-2xl mx-auto text-center">
+          {/* Logo and Description */}
+          <Link href="/" className="inline-block mb-6 group">
+            <img
+              src="/logo-comics.png"
+              alt="Comics Universe Logo"
+              className="h-20 w-72 object-cover drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+            />
+          </Link>
+          <p className="text-gray-400 text-sm leading-relaxed mb-8">
+            Your ultimate destination for comics, manga, and graphic novels. Discover amazing stories, explore new worlds, and build your collection with the best titles from around the globe.
+          </p>
+
+          {/* Links Grid */}
+          <div className="grid grid-cols-2 gap-6 text-left">
+            {/* Browse */}
+            <div>
+              <h3 className="text-white font-black text-sm mb-3">Browse</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/comics" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Comic Books
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/manga" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Manga
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/new-releases" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    New Releases
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/bestsellers" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Bestsellers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/deals" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Today&apos;s Deals
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Account & Orders */}
+            <div>
+              <h3 className="text-white font-black text-sm mb-3">Account</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/orders" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Your Orders
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cart" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Shopping Cart
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/checkout" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Checkout
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Category */}
+            <div>
+              <h3 className="text-white font-black text-sm mb-3">Category</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/category/superhero" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Superhero Comics
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/category/manga" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Manga Series
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/category/horror" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Horror Stories
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/category/fantasy" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
+                    Fantasy Worlds
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Layout - Multi Column (md and larger) */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo and Description - Left Side */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4 group">
@@ -21,7 +120,7 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Browse - Only Existing Pages */}
+          {/* Browse */}
           <div className="ml-6">
             <h3 className="text-white font-black text-sm mb-4">Browse</h3>
             <ul className="space-y-2">
@@ -46,11 +145,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/flash-sale" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                  Flash Sale
-                </Link>
-              </li>
-              <li>
                 <Link href="/deals" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
                   Today&apos;s Deals
                 </Link>
@@ -58,7 +152,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Account & Orders - Only Existing Pages */}
+          {/* Account & Orders */}
           <div>
             <h3 className="text-white font-black text-sm mb-4">Account & Orders</h3>
             <ul className="space-y-2">

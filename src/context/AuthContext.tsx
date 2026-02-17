@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setUserState(stored.user);
     setToken(stored.token);
-    fetch(getAuthApiUrl("/api/auth/me"), {
+    fetch(getAuthApiUrl("/auth/me"), {
       headers: { Authorization: `Bearer ${stored.token}` },
     })
       .then((res) => {

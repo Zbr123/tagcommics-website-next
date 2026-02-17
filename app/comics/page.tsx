@@ -51,7 +51,7 @@ export default function ComicsPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-20 py-8">
+      <div className="mx-auto max-w-12xl px-4 sm:px-6 lg:px-20 py-8">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -107,9 +107,9 @@ export default function ComicsPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 lg:gap-8 mb-8 mx-auto">
+            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 lg:gap-8 mb-8 mx-auto px-2">
               {displayedComics.map((comic) => (
-                <ProductCard key={comic.id} comic={comic} showSold={true} />
+                <ProductCard key={comic.id} comic={comic} showSold={true} cardWidth="w-full" />
               ))}
             </div>
 

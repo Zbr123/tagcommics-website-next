@@ -32,7 +32,7 @@ export default function ProductCard({
   return (
     <Link
       href={`/comic/${comic.id}`}
-      className={`group flex-shrink-0 ${cardWidth || 'w-[160px] sm:w-[180px] md:w-[200px]'} bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 overflow-hidden hover:border-yellow-400/50 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-400/10`}
+      className={`group flex-shrink-0 ${cardWidth || 'w-[160px] sm:w-[180px] md:w-[200px]'} ${cardWidth === 'w-full' ? 'max-w-[340px] mx-auto' : ''} bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 overflow-hidden hover:border-yellow-400/50 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-400/10`}
     >
       <div className="relative w-full">
         <div className="relative h-[240px] sm:h-[270px] w-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">

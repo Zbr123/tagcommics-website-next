@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ProductCard from "@/src/components/ProductCard";
+import ProductSlider from "@/src/components/ProductSlider";
 
 interface Comic {
   id: number;
@@ -18,7 +19,7 @@ interface NewArrivalsSectionProps {
 export default function NewArrivalsSection({ comics }: NewArrivalsSectionProps) {
   return (
     <section className="py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-12xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">New Arrivals</h2>
@@ -33,16 +34,12 @@ export default function NewArrivalsSection({ comics }: NewArrivalsSectionProps) 
           </Link>
         </div>
         
-        <div className="bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 rounded-2xl p-6">
-          <div className="relative">
-            <div className="overflow-x-auto scrollbar-hide pb-4">
-              <div className="flex gap-4">
-                {comics.map((comic) => (
-                  <ProductCard key={comic.id} comic={comic} showTag={true} />
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 rounded-2xl p-6 py-12">
+          <ProductSlider>
+            {comics.map((comic) => (
+              <ProductCard key={comic.id} comic={comic} showTag={true} />
+            ))}
+          </ProductSlider>
         </div>
       </div>
     </section>

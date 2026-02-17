@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/src/hooks/use-auth";
-import { getAuthApiUrl, mapBackendUserToAuthUser } from "@/src/lib/auth-api";
+import { loginApi, getCurrentUser, mapBackendUserToAuthUser } from "@/src/lib/auth-api";
 
 const inputBase =
   "w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400";
@@ -48,22 +48,36 @@ function LoginForm() {
 
     setIsLoading(true);
     try {
-      const res = await fetch(getAuthApiUrl("/api/auth/login"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setSubmitError(data?.error || "Login failed. Please try again.");
-        setIsLoading(false);
-        return;
+      // Call login API
+      const data = await loginApi({ email: trimmed, password });
+
+      // Get token from response
+      const token = data.accessToken;
+
+      // Get user info - either from response or fetch separately
+      let authUser;
+      if (data.user) {
+        authUser = mapBackendUserToAuthUser(data.user);
+      } else {
+        // Fetch user info separately if not provided in login response
+        try {
+          const userData = await getCurrentUser(token);
+          authUser = mapBackendUserToAuthUser(userData);
+        } catch {
+          // Create basic user from email if fetch fails
+          authUser = {
+            id: trimmed,
+            name: trimmed.split("@")[0],
+            email: trimmed,
+          };
+        }
       }
-      const authUser = mapBackendUserToAuthUser(data.user);
-      login(data.token, authUser);
+
+      login(token, authUser);
       router.push(redirectTo);
-    } catch {
-      setSubmitError("Something went wrong. Please try again.");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Login failed. Please try again.";
+      setSubmitError(errorMessage);
       setIsLoading(false);
     }
   };

@@ -43,8 +43,8 @@ const allProducts = [
 import { useAuth } from "../hooks/use-auth";
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -127,7 +127,7 @@ export default function Navbar() {
             </Link>
 
             {/* Delivery Location */}
-            <div className="hidden md:flex items-center gap-1 text-white/70 hover:text-white cursor-pointer group shrink-0">
+            <div className="hidden xl:flex items-center gap-1 text-white/70 hover:text-white cursor-pointer group shrink-0">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -139,9 +139,10 @@ export default function Navbar() {
             </div>
 
             {/* Search Bar - Center - Amazon Style */}
-            <form onSubmit={handleSearch} className="flex-1 max-w-3xl relative" ref={searchRef}>
+            <form onSubmit={handleSearch} className="flex-1  max-w-2xl xl:max-w-3xl relative" ref={searchRef}>
               <div
-                className={`flex items-center rounded-lg overflow-hidden transition-all duration-300 ${
+                className={`items-center rounded-lg 
+                  hidden lg:flex overflow-hidden transition-all duration-300 ${
                   isSearchFocused
                     ? "ring-2 ring-yellow-400 shadow-2xl shadow-yellow-400/20"
                     : "shadow-lg"
@@ -296,7 +297,7 @@ export default function Navbar() {
 
               {/* Mobile Menu Button */}
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                onClick={() => setIsRightSidebarOpen(true)}
                 className="lg:hidden text-white p-2 hover:bg-white/10 rounded-lg cursor-pointer"
               >
                 <svg
@@ -305,21 +306,12 @@ export default function Navbar() {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  {isMenuOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               </button>
             </div>
@@ -354,68 +346,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden border-t border-white/10 bg-black">
-            <div className="px-4 py-4 space-y-3">
-              <form onSubmit={handleSearch} className="flex gap-2">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search..."
-                  className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                />
-                <button
-                  type="submit"
-                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 px-4 py-3 rounded-lg cursor-pointer"
-                >
-                  <svg className="h-5 w-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
-              </form>
-              <button 
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  setIsSidebarOpen(true);
-                }}
-                className="flex items-center gap-2 w-full py-2 text-sm font-semibold text-white hover:text-yellow-400 cursor-pointer"
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                All
-              </button>
-              <Link href="/comics" className={`block py-2 text-sm font-semibold transition-colors ${pathname === "/comics" ? "text-yellow-400" : "text-white hover:text-yellow-400"}`}>
-                📚 Comic Books
-              </Link>
-              <Link href="/graphic-novels" className={`block py-2 text-sm font-semibold transition-colors ${pathname === "/graphic-novels" ? "text-yellow-400" : "text-white hover:text-yellow-400"}`}>
-                📖 Graphic Novels
-              </Link>
-              <Link href="/manga" className={`block py-2 text-sm font-semibold transition-colors ${pathname === "/manga" ? "text-yellow-400" : "text-white hover:text-yellow-400"}`}>
-                🎌 Manga
-              </Link>
-              <Link href="/new-releases" className={`block py-2 text-sm font-semibold transition-colors ${pathname === "/new-releases" ? "text-yellow-400" : "text-white hover:text-yellow-400"}`}>
-                ⭐ New Releases
-              </Link>
-              <Link href={user ? "/account" : "/login"} className="block py-2 text-sm font-semibold text-white hover:text-yellow-400">
-                👤 {user ? "Account" : "Login"}
-              </Link>
-              {user && (
-                <button
-                  onClick={() => { setIsMenuOpen(false); logout(); }}
-                  className="block py-2 text-sm font-semibold text-red-400 hover:text-red-300 w-full text-left"
-                >
-                  Log out
-                </button>
-              )}
-              <Link href="/orders" className="block py-2 text-sm font-semibold text-white hover:text-yellow-400">
-                📦 Orders
-              </Link>
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* Promotional Banner */}
@@ -627,6 +557,110 @@ export default function Navbar() {
               </div>
             </div>
           </div>
+          </div>
+        </>
+      )}
+
+      {/* Right Sidebar - Account & Orders */}
+      {isRightSidebarOpen && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/50 z-50 lg:z-[60]"
+            onClick={() => setIsRightSidebarOpen(false)}
+          />
+
+          {/* Right Sidebar Container */}
+          <div className="fixed right-0 top-0 h-full z-50 lg:z-[60] animate-slide-in-right">
+            {/* Close Button - Outside Sidebar */}
+            <button
+              onClick={() => setIsRightSidebarOpen(false)}
+              className="absolute -left-8 top-3 mr-6 bg-white border border-black w-8 h-8 flex items-center justify-center hover:bg-yellow-400 hover:border-yellow-500 hover:scale-110 hover:shadow-xl transition-all duration-200 cursor-pointer z-10 shadow-lg"
+              aria-label="Close right sidebar"
+            >
+              <svg className="h-4 w-4 text-black transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Right Sidebar */}
+            <div className="h-full w-80 bg-gradient-to-bl from-gray-900 to-gray-800 shadow-2xl overflow-y-auto sidebar-scrollbar border-l border-gray-800">
+              {/* Right Sidebar Header */}
+              <div className="sticky top-0 bg-gradient-to-b from-gray-900 to-gray-800 border-b border-gray-800 p-4 flex items-center">
+                <div className="flex items-center gap-2">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="text-sm font-semibold text-white">Hello, {user ? user.name : "sign in"}</span>
+                </div>
+              </div>
+
+              {/* Right Sidebar Content */}
+              <div className="p-4">
+                {/* Account Section */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-bold text-white mb-3 uppercase tracking-wide">Your Account</h3>
+                  <ul className="space-y-2">
+                    <li>
+                      <Link
+                        href={user ? "/account" : "/login"}
+                        className="flex items-center justify-between text-sm text-gray-300 hover:text-yellow-400 py-2 group transition-colors"
+                        onClick={() => setIsRightSidebarOpen(false)}
+                      >
+                        <span>{user ? "Account Settings" : "Sign In"}</span>
+                        <svg className="h-4 w-4 text-gray-500 group-hover:text-yellow-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </li>
+                    {user && (
+                      <li>
+                        <button
+                          onClick={() => { setIsRightSidebarOpen(false); logout(); }}
+                          className="flex items-center justify-between w-full text-sm text-red-400 hover:text-red-300 py-2 group transition-colors"
+                        >
+                          <span>Sign Out</span>
+                          <svg className="h-4 w-4 text-gray-500 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+
+                {/* Orders Section */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-bold text-white mb-3 uppercase tracking-wide">Orders</h3>
+                  <ul className="space-y-2">
+                    <li>
+                      <Link
+                        href="/orders"
+                        className="flex items-center justify-between text-sm text-gray-300 hover:text-yellow-400 py-2 group transition-colors"
+                        onClick={() => setIsRightSidebarOpen(false)}
+                      >
+                        <span>Your Orders</span>
+                        <svg className="h-4 w-4 text-gray-500 group-hover:text-yellow-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/cart"
+                        className="flex items-center justify-between text-sm text-gray-300 hover:text-yellow-400 py-2 group transition-colors"
+                        onClick={() => setIsRightSidebarOpen(false)}
+                      >
+                        <span>Shopping Cart</span>
+                        <svg className="h-4 w-4 text-gray-500 group-hover:text-yellow-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </>
       )}
