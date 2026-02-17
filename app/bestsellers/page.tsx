@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/src/components/ProductCard";
 
 // Extended best sellers comics database
 const allBestSellersComics = [

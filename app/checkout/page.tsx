@@ -1,9 +1,9 @@
 "use client";
 
-import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
+import { useCart } from "@/src/hooks/use-cart";
 
 export default function CheckoutPage() {
   const { cartItems, getTotalPrice, clearCart } = useCart();

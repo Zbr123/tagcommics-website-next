@@ -1,9 +1,9 @@
-import HeroSection from "@/components/HeroSection";
-import FlashSaleSection from "@/components/FlashSaleSection";
-import BestSellersSection from "@/components/BestSellersSection";
-import NewArrivalsSection from "@/components/NewArrivalsSection";
-import CategoriesSection from "@/components/CategoriesSection";
-import StatsSection from "@/components/StatsSection";
+import HeroSection from "@/src/components/sections/HeroSection";
+import FlashSaleSection from "@/src/components/sections/FlashSaleSection";
+import BestSellersSection from "@/src/components/sections/BestSellersSection";
+import NewArrivalsSection from "@/src/components/sections/NewArrivalsSection";
+import CategoriesSection from "@/src/components/sections/CategoriesSection";
+import StatsSection from "@/src/components/sections/StatsSection";
 
 // Flash Sale Data
 const flashSaleComics = [

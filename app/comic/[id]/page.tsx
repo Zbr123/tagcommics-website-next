@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/src/hooks/use-cart";
 
 // Mock comics database - In a real app, this would come from an API
 const allComics = [

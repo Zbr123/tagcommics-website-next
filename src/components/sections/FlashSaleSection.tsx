@@ -1,6 +1,6 @@
 import Link from "next/link";
-import ProductCard from "./ProductCard";
-import CountdownTimer from "./CountdownTimer";
+import ProductCard from "../ProductCard";
+import CountdownTimer from "../CountdownTimer";
 
 interface Comic {
   id: number;

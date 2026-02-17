@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/src/components/ProductCard";
 
 // Extended flash sale comics database
 const allFlashSaleComics = [
