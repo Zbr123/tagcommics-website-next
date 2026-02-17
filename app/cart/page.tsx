@@ -4,11 +4,70 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/src/hooks/use-cart";
+import { useAuth } from "@/src/hooks/use-auth";
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
+  const { user, isLoaded } = useAuth();
   const router = useRouter();
 
+  // Wait for auth to resolve before deciding which view to show
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-yellow-400 text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Not signed in: show Amazon-style prompt to sign in or sign up
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-800 p-8 sm:p-12">
+            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+              {/* Illustration / icon block */}
+              <div className="flex-shrink-0 w-40 h-40 sm:w-48 sm:h-48 flex items-center justify-center rounded-2xl bg-gray-800/80 border border-gray-700">
+                <svg className="w-20 h-20 sm:w-24 sm:h-24 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              {/* Message and actions */}
+              <div className="flex-1 text-center md:text-left">
+                <h1 className="text-2xl sm:text-3xl font-black text-white mb-3">Your Comics Cart is empty</h1>
+                <p className="text-gray-400 text-sm sm:text-base mb-4">
+                  Sign in to view your cart and checkout, or create an account to get started.
+                </p>
+                <Link
+                  href="/flash-sale"
+                  className="inline-block text-yellow-400 hover:text-yellow-300 text-sm font-bold underline mb-6"
+                >
+                  Shop today&apos;s deals
+                </Link>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href="/login?redirect=/cart"
+                    className="inline-flex justify-center bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-8 rounded-lg transition-all"
+                  >
+                    Sign in to your account
+                  </Link>
+                  <Link
+                    href="/signup?redirect=/cart"
+                    className="inline-flex justify-center bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg border-2 border-gray-600 hover:border-yellow-400/50 transition-all"
+                  >
+                    Sign up now
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Signed in but cart is empty
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-black">
@@ -20,7 +79,7 @@ export default function CartPage() {
               </svg>
             </div>
             <h1 className="text-3xl font-black text-white mb-4">Your cart is empty</h1>
-            <p className="text-gray-400 mb-8">Looks like you haven't added any comics to your cart yet.</p>
+            <p className="text-gray-400 mb-8">Looks like you haven&apos;t added any comics to your cart yet.</p>
             <Link
               href="/"
               className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-8 rounded-lg transition-all"
