@@ -105,9 +105,17 @@ function SignupForm() {
   };
 
   return (
-    <div className="h-screen bg-black flex items-center justify-center overflow-y-auto scrollbar-hide">
-      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6 sm:px-8">
+    <div className="h-screen bg-black flex items-start justify-center overflow-y-auto scrollbar-hide bg-[url('/bg-auth.svg')] bg-cover bg-center bg-no-repeat relative pt-8 sm:pt-8">
+      {/* Logo - Top Left */}
+      <Link href="/" className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 group">
+        <img
+          src="/logo-comics.png"
+          alt="Comics Universe Logo"
+          className="h-12 w-32 sm:h-16 sm:w-52 object-cover drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
+        />
+      </Link>
+      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 pt-2 pb-6 w-full">
+        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border-2 border-yellow-400 p-6 sm:px-8 shadow-2xl shadow-yellow-400/30">
           <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">Create account</h1>
           <p className="text-gray-400 text-sm mb-6">
             Enter your details to create your Comics Universe account.
