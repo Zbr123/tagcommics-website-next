@@ -3,41 +3,86 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/src/hooks/use-auth";
-import { registerApi, getCurrentUser, mapBackendUserToAuthUser } from "@/src/lib/auth-api";
+import { z } from "zod";
+import { isValidPhoneNumber } from "libphonenumber-js";
+import { registerApi } from "@/src/lib/auth-api";
 
 const inputBase =
   "w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400";
 const inputError = "border-red-500 focus:border-red-500";
 
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
-function getPasswordStrengthError(password: string): string | null {
-  if (password.length < 8) return "Password must be at least 8 characters.";
-  if (!/[a-zA-Z]/.test(password)) return "Password must contain at least one letter.";
-  if (!/\d/.test(password)) return "Password must contain at least one number.";
-  return null;
-}
+// Zod schema for signup form validation
+const signupSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, "Full name is required.")
+      .trim()
+      .min(2, "Full name must be at least 2 characters."),
+    email: z
+      .string()
+      .min(1, "Email is required.")
+      .email("Please enter a valid email address.")
+      .toLowerCase()
+      .trim(),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters.")
+      .regex(/[a-zA-Z]/, "Password must contain at least one letter.")
+      .regex(/\d/, "Password must contain at least one number."),
+    confirmPassword: z.string().min(1, "Please confirm your password."),
+    phone: z
+      .string()
+      .optional()
+      .refine(
+        (val) => {
+          // Skip validation on server side
+          if (typeof window === "undefined") return true;
+          if (!val || val.trim() === "") return true;
+          const trimmed = val.trim();
+          try {
+            // If it starts with +, validate as international number
+            if (trimmed.startsWith("+")) {
+              return isValidPhoneNumber(trimmed);
+            }
+            // Otherwise, try with common default countries
+            // This allows users to enter numbers without country code
+            return (
+              isValidPhoneNumber(trimmed, "US") ||
+              isValidPhoneNumber(trimmed, "GB") ||
+              isValidPhoneNumber(trimmed, "CA")
+            );
+          } catch {
+            return false;
+          }
+        },
+        {
+          message: "Please enter a valid phone number (e.g., +1234567890 or 123-456-7890).",
+        }
+      ),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: "You must accept the Terms and Privacy Policy.",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
+type SignupFormData = z.infer<typeof signupSchema>;
 
 function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [errors, setErrors] = useState<{
-    name?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-    phone?: string;
-    terms?: string;
-  }>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof SignupFormData, string>>>({});
   const [submitError, setSubmitError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,53 +91,43 @@ function SignupForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError("");
-    const nextErrors: typeof errors = {};
+    setErrors({});
 
-    if (!name.trim()) nextErrors.name = "Full name is required.";
-    if (!email.trim()) nextErrors.email = "Email is required.";
-    else if (!isValidEmail(email)) nextErrors.email = "Please enter a valid email address.";
-    const pwdErr = getPasswordStrengthError(password);
-    if (pwdErr) nextErrors.password = pwdErr;
-    if (password !== confirmPassword) {
-      nextErrors.confirmPassword = "Passwords do not match.";
+    // Validate form data using Zod
+    const result = signupSchema.safeParse({
+      name,
+      email,
+      password,
+      confirmPassword,
+      phone,
+      acceptTerms,
+    });
+
+    if (!result.success) {
+      // Map Zod errors to form errors
+      const fieldErrors: Partial<Record<keyof SignupFormData, string>> = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof SignupFormData;
+        if (field) {
+          fieldErrors[field] = issue.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
     }
-    if (!acceptTerms) nextErrors.terms = "You must accept the Terms and Privacy Policy.";
-
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
 
     setIsLoading(true);
     try {
-      // Call register API with correct format: name, email, phone, password
+      // Call register API with validated data
       const data = await registerApi({
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        phone: phone.trim(),
-        password,
+        name: result.data.name,
+        email: result.data.email,
+        phone: result.data.phone?.trim() || "",
+        password: result.data.password,
       });
 
-      // Get token from response (if provided)
-      const token = data.accessToken;
-
-      // Get user info - either from response or create from form data
-      let authUser;
-      if (data.user) {
-        authUser = mapBackendUserToAuthUser(data.user);
-      } else {
-        // Create user from form data if not provided in response
-        authUser = {
-          id: email.trim(),
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-        };
-      }
-
-      // Login if token was provided, otherwise just redirect
-      if (token) {
-        login(token, authUser);
-      }
-
-      router.push(redirectTo);
+      // Navigate to signin page after successful signup
+      router.push("/login");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Sign up failed. Please try again.";
       setSubmitError(errorMessage);
@@ -100,7 +135,7 @@ function SignupForm() {
     }
   };
 
-  const clearError = (field: keyof typeof errors) => {
+  const clearError = (field: keyof SignupFormData) => {
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
@@ -139,8 +174,11 @@ function SignupForm() {
                 autoComplete="tel"
                 placeholder="Phone number"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className={inputBase}
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  clearError("phone");
+                }}
+                className={`${inputBase} ${errors.phone ? inputError : ""}`}
                 disabled={isLoading}
               />
               {errors.phone && (
@@ -198,21 +236,40 @@ function SignupForm() {
               <label htmlFor="signup-password" className="block text-sm font-bold text-white mb-1.5">
                 Password
               </label>
-              <input
-                id="signup-password"
-                type="password"
-                autoComplete="new-password"
-                placeholder="At least 8 characters, one letter and one number"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  clearError("password");
-                  if (errors.confirmPassword && e.target.value === confirmPassword)
-                    clearError("confirmPassword");
-                }}
-                className={`${inputBase} ${errors.password ? inputError : ""}`}
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <input
+                  id="signup-password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="At least 8 characters, one letter and one number"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    clearError("password");
+                    if (errors.confirmPassword && e.target.value === confirmPassword)
+                      clearError("confirmPassword");
+                  }}
+                  className={`${inputBase} pr-12 ${errors.password ? inputError : ""}`}
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition-colors focus:outline-none"
+                  disabled={isLoading}
+                >
+                  {showPassword ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
               {errors.password && (
                 <p className="mt-1.5 text-sm text-red-400">{errors.password}</p>
               )}
@@ -222,19 +279,38 @@ function SignupForm() {
               <label htmlFor="signup-confirm" className="block text-sm font-bold text-white mb-1.5">
                 Confirm Password
               </label>
-              <input
-                id="signup-confirm"
-                type="password"
-                autoComplete="new-password"
-                placeholder="Confirm password"
-                value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  clearError("confirmPassword");
-                }}
-                className={`${inputBase} ${errors.confirmPassword ? inputError : ""}`}
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <input
+                  id="signup-confirm"
+                  type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    clearError("confirmPassword");
+                  }}
+                  className={`${inputBase} pr-12 ${errors.confirmPassword ? inputError : ""}`}
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition-colors focus:outline-none"
+                  disabled={isLoading}
+                >
+                  {showConfirmPassword ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p className="mt-1.5 text-sm text-red-400">{errors.confirmPassword}</p>
               )}
@@ -248,7 +324,7 @@ function SignupForm() {
                   checked={acceptTerms}
                   onChange={(e) => {
                     setAcceptTerms(e.target.checked);
-                    clearError("terms");
+                    clearError("acceptTerms");
                   }}
                   className="mt-1 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
                   disabled={isLoading}
@@ -265,8 +341,8 @@ function SignupForm() {
                   .
                 </span>
               </label>
-              {errors.terms && (
-                <p className="mt-1.5 text-sm text-red-400">{errors.terms}</p>
+              {errors.acceptTerms && (
+                <p className="mt-1.5 text-sm text-red-400">{errors.acceptTerms}</p>
               )}
             </div>
 

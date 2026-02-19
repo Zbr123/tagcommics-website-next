@@ -85,15 +85,7 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-black text-white mb-4">Payment Method</h2>
               <div className="space-y-3">
                 <label className="flex items-center gap-3 p-4 bg-gray-900 border border-gray-700 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
-                  <input type="radio" name="payment" value="card" defaultChecked className="text-yellow-400" />
-                  <span className="text-white">Credit/Debit Card</span>
-                </label>
-                <label className="flex items-center gap-3 p-4 bg-gray-900 border border-gray-700 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
-                  <input type="radio" name="payment" value="paypal" className="text-yellow-400" />
-                  <span className="text-white">PayPal</span>
-                </label>
-                <label className="flex items-center gap-3 p-4 bg-gray-900 border border-gray-700 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
-                  <input type="radio" name="payment" value="cod" className="text-yellow-400" />
+                  <input type="radio" name="payment" value="cod" defaultChecked className="text-yellow-400" />
                   <span className="text-white">Cash on Delivery</span>
                 </label>
               </div>
