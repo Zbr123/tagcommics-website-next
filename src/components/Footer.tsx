@@ -27,7 +27,7 @@ export default function Footer() {
               <ul className="space-y-2">
                 <li>
                   <Link href="/comics" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                    Comic Books
+                    Comic Books 
                   </Link>
                 </li>
                 <li>
@@ -37,7 +37,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link href="/new-releases" className="text-gray-400 hover:text-yellow-400 text-sm transition-colors">
-                    New Releases
+                    New Releases  
                   </Link>
                 </li>
                 <li>

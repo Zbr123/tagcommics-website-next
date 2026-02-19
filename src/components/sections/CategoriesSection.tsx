@@ -82,9 +82,8 @@ export default function CategoriesSection() {
                       
                       <div className="grid grid-cols-2 gap-2 mb-3">
                         {category.items.map((item, itemIndex) => (
-                          <Link
+                          <div
                             key={itemIndex}
-                            href={`${category.link}/${item.name.toLowerCase().replace(/\s+/g, "-")}`}
                             className="group relative"
                           >
                             <div className="relative aspect-square bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 group-hover:border-yellow-400/50 transition-all duration-300">
@@ -102,7 +101,7 @@ export default function CategoriesSection() {
                                 </p>
                               </div>
                             </div>
-                          </Link>
+                          </div>
                         ))}
                       </div>
                       

@@ -14,6 +14,8 @@ interface Comic {
   image: string;
 }
 
+
+
 interface ProductCardProps {
   comic: Comic;
   showDiscount?: boolean;
@@ -37,7 +39,7 @@ export default function ProductCard({
       <div className="relative w-full">
         <div className="relative h-[240px] sm:h-[270px] w-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
           <Image
-            src={comic.image}
+            src={comic.image} 
             alt={comic.title}
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-500"

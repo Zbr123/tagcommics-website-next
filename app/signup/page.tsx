@@ -178,7 +178,7 @@ function SignupForm() {
               <input
                 id="signup-email"
                 type="email"
-                autoComplete="email"
+                autoComplete="email"  
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => {

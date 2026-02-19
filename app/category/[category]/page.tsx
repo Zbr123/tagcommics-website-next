@@ -133,6 +133,7 @@ export default function CategoryPage() {
   const filteredItems = categoryInfo.items.filter(
     (item) => selectedTag === "All" || item.tag === selectedTag.toUpperCase()
   );
+  console.log(filteredItems);
 
   // Get displayed items
   const displayedItems = filteredItems.slice(0, displayCount);

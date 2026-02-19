@@ -120,7 +120,7 @@ export default function MangaPage() {
                   onClick={handleLoadMore}
                   className="border-2 border-yellow-400 hover:bg-yellow-400 text-yellow-400 hover:text-black font-bold px-6 py-2.5 rounded-lg transition-all cursor-pointer"
                 >
-                  Load More Manga
+                  Load More Manga 
                 </button>
               </div>
             )}

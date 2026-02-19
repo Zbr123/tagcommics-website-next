@@ -1,10 +1,17 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/src/hooks/use-cart";
+import DownloadPdfButton from "@/src/components/DownloadPdfButton";
+import ComicDownloadButton from "@/src/components/ComicDownloadButton";
+
+const ComicReader = dynamic(() => import("@/src/components/ComicReader"), { ssr: false });
+
+import { categoryComics } from "@/src/data/category-comics";
 
 // Mock comics database - In a real app, this would come from an API
 const allComics = [
@@ -33,10 +40,28 @@ export default function ComicDetailPage() {
   const router = useRouter();
   const { addToCart, getTotalItems } = useCart();
   const id = parseInt(params.id as string);
-  const comic = allComics.find((c) => c.id === id);
+  const comic = allComics.find((c) => c.id === id) ?? categoryComics.find((c) => c.id === id);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem("tagcomics-favorites");
+      if (s) setFavoriteIds(JSON.parse(s));
+    } catch {}
+  }, []);
+
+  const isFavorite = comic ? favoriteIds.includes(comic.id) : false;
+  const toggleFavorite = () => {
+    if (!comic) return;
+    const next = isFavorite ? favoriteIds.filter((i) => i !== comic.id) : [...favoriteIds, comic.id];
+    setFavoriteIds(next);
+    try {
+      localStorage.setItem("tagcomics-favorites", JSON.stringify(next));
+    } catch {}
+  };
 
   if (!comic) {
     return (
@@ -78,7 +103,8 @@ export default function ComicDetailPage() {
     router.push("/cart");
   };
 
-  const similarComics = allComics
+  const allComicsMerged = [...allComics, ...categoryComics];
+  const similarComics = allComicsMerged
     .filter((c) => c.id !== comic.id && (c.category === comic.category || c.author === comic.author))
     .slice(0, 4);
 
@@ -117,8 +143,18 @@ export default function ComicDetailPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                   </svg>
                 </button>
-                <button className="bg-black/50 backdrop-blur-sm p-2 rounded-lg hover:bg-black/70 transition-colors cursor-pointer">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button
+                  type="button"
+                  onClick={toggleFavorite}
+                  className="bg-black/50 backdrop-blur-sm p-2 rounded-lg hover:bg-black/70 transition-colors cursor-pointer"
+                  aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                >
+                  <svg
+                    className={`w-5 h-5 ${isFavorite ? "text-yellow-400" : "text-white"}`}
+                    fill={isFavorite ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                 </button>
@@ -219,7 +255,7 @@ export default function ComicDetailPage() {
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     className="w-16 text-center bg-transparent text-white border-0 focus:outline-none"
-                    min="1"
+                    min="1" 
                     max={comic.stock}
                   />
                   <button
@@ -245,12 +281,50 @@ export default function ComicDetailPage() {
                 >
                   Add to Cart
                 </button>
-                <button className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg border border-gray-700 transition-all cursor-pointer">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* <DownloadPdfButton
+                  productId={comic.id}
+                  fileName={`${comic.title.replace(/\s+/g, "-")}.pdf`}
+                  variant="secondary"
+                  fullWidth={true}
+                  className="flex-1"
+                /> */}
+                <button
+                  type="button"
+                  onClick={toggleFavorite}
+                  className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg border border-gray-700 transition-all cursor-pointer shrink-0"
+                  aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                >
+                  <svg
+                    className={`w-6 h-6 transition-colors ${isFavorite ? "text-yellow-400" : ""}`}
+                    fill={isFavorite ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                   </svg>
                 </button>
               </div>
+            </div>
+
+            {/* Preview: first 10 pages (ComiXology/Webtoon-style) */}
+            <div className="mb-6">
+              <ComicReader
+                pdfUrl="/comics/Batman 001.pdf"
+                title={comic.title}
+                onPageView={(pageNum, total) => {
+                  // Metrics-ready: e.g. gtag("event", "comic_preview_page_view", { page: pageNum, total })
+                }}
+              />
+            </div>
+
+            {/* Read & Download PDF (Archive.org-style) */}
+            <div className="mb-6">
+              <ComicDownloadButton
+                pdfPath="/comics/Batman 001.pdf"
+                title={comic.title}
+                thumbnailSrc={comic.image}
+              />
             </div>
 
             {/* Delivery Info */}
