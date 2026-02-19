@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/src/hooks/use-auth";
 import { useEffect } from "react";
 
+
 export default function AccountPage() {
   const router = useRouter();
   const { user, isLoaded, logout } = useAuth();
@@ -40,6 +41,7 @@ export default function AccountPage() {
               </>
             )}
           </div>
+        
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href="/orders"

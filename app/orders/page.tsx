@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import DownloadPdfButton from "@/src/components/DownloadPdfButton";
 
 // Mock order data - In a real app, this would come from an API
 const mockOrders = [
@@ -299,6 +300,14 @@ export default function OrdersPage() {
                             </div>
                           </div>
                         </div>
+                        <div className="flex flex-wrap gap-3">
+                        <DownloadPdfButton
+                          fileName={`order-${order.id}.pdf`}
+                          productId={order.id}
+                          variant="secondary"
+                          fullWidth={false}
+                        />
+                      </div>
                         {order.trackingNumber && (
                           <div>
                             <h4 className="text-white font-bold mb-2">Tracking Information</h4>
