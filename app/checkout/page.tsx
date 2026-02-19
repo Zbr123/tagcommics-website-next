@@ -1,14 +1,46 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useCart } from "@/src/hooks/use-cart";
+import { checkoutSchema, type CheckoutFormData } from "@/src/modules/checkout/checkout.schema";
+
+const inputBase =
+  "w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400";
+const inputError = "border-red-500 focus:border-red-500";
 
 export default function CheckoutPage() {
   const { cartItems, getTotalPrice, clearCart } = useCart();
   const router = useRouter();
-  const [isProcessing, setIsProcessing] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CheckoutFormData>({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      address: "",
+      city: "",
+      zipCode: "",
+      payment: "cod",
+    },
+  });
+
+  const placeOrderMutation = useMutation({
+    mutationFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    },
+    onSuccess: () => {
+      clearCart();
+      router.push("/checkout/success");
+    },
+  });
 
   if (cartItems.length === 0) {
     return (
@@ -27,16 +59,11 @@ export default function CheckoutPage() {
   const shipping = subtotal > 50 ? 0 : 9.99;
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
+  const isProcessing = placeOrderMutation.isPending;
 
-  const handleCheckout = async () => {
-    setIsProcessing(true);
-    // Simulate payment processing
-    setTimeout(() => {
-      clearCart();
-      setIsProcessing(false);
-      router.push("/checkout/success");
-    }, 2000);
-  };
+  const onPlaceOrder = handleSubmit(() => {
+    placeOrderMutation.mutate();
+  });
 
   return (
     <div className="min-h-screen bg-black">
@@ -44,55 +71,80 @@ export default function CheckoutPage() {
         <h1 className="text-3xl font-black text-white mb-8">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Checkout Form */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Shipping Address */}
             <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6">
               <h2 className="text-xl font-black text-white mb-4">Shipping Address</h2>
               <div className="space-y-4">
                 <input
                   type="text"
                   placeholder="Full Name"
-                  className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                  {...register("fullName")}
+                  className={`${inputBase} ${errors.fullName ? inputError : ""}`}
                 />
+                {errors.fullName && (
+                  <p className="text-sm text-red-400">{errors.fullName.message}</p>
+                )}
                 <input
                   type="email"
                   placeholder="Email"
-                  className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                  {...register("email")}
+                  className={`${inputBase} ${errors.email ? inputError : ""}`}
                 />
+                {errors.email && (
+                  <p className="text-sm text-red-400">{errors.email.message}</p>
+                )}
                 <input
                   type="text"
                   placeholder="Address"
-                  className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                  {...register("address")}
+                  className={`${inputBase} ${errors.address ? inputError : ""}`}
                 />
+                {errors.address && (
+                  <p className="text-sm text-red-400">{errors.address.message}</p>
+                )}
                 <div className="grid grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="City"
-                    className="px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-                  />
-                  <input
-                    type="text"
-                    placeholder="ZIP Code"
-                    className="px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-                  />
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="City"
+                      {...register("city")}
+                      className={`${inputBase} ${errors.city ? inputError : ""}`}
+                    />
+                    {errors.city && (
+                      <p className="mt-1 text-sm text-red-400">{errors.city.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="ZIP Code"
+                      {...register("zipCode")}
+                      className={`${inputBase} ${errors.zipCode ? inputError : ""}`}
+                    />
+                    {errors.zipCode && (
+                      <p className="mt-1 text-sm text-red-400">{errors.zipCode.message}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Payment Method */}
             <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6">
               <h2 className="text-xl font-black text-white mb-4">Payment Method</h2>
               <div className="space-y-3">
                 <label className="flex items-center gap-3 p-4 bg-gray-900 border border-gray-700 rounded-lg cursor-pointer hover:border-yellow-400 transition-colors">
-                  <input type="radio" name="payment" value="cod" defaultChecked className="text-yellow-400" />
+                  <input
+                    type="radio"
+                    value="cod"
+                    {...register("payment")}
+                    className="text-yellow-400"
+                  />
                   <span className="text-white">Cash on Delivery</span>
                 </label>
               </div>
             </div>
           </div>
 
-          {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6 sticky top-24">
               <h2 className="text-xl font-black text-white mb-6">Order Summary</h2>
@@ -122,7 +174,8 @@ export default function CheckoutPage() {
               </div>
 
               <button
-                onClick={handleCheckout}
+                type="button"
+                onClick={onPlaceOrder}
                 disabled={isProcessing}
                 className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3 px-6 rounded-lg transition-all mb-3 cursor-pointer"
               >
@@ -142,4 +195,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

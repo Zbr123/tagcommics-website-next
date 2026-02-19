@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "@/src/components/LayoutWrapper";
+import { QueryProvider } from "@/src/components/QueryProvider";
 import { CartProvider } from "@/src/context/CartContext";
 import { AuthProvider } from "@/src/context/AuthContext";
 
@@ -30,13 +31,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <CartProvider>
-            <LayoutWrapper>
-              {children}
-            </LayoutWrapper>
-          </CartProvider>
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <CartProvider>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+            </CartProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );
