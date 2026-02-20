@@ -134,19 +134,19 @@ function LoginForm() {
                 Password
               </label>
               <div className="relative">
-                <input
-                  id="login-password"
+              <input
+                id="login-password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
-                  }}
+                autoComplete="current-password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                }}
                   className={`${inputBase} pr-12 ${errors.password ? inputError : ""}`}
-                  disabled={isLoading}
-                />
+                disabled={isLoading}
+              />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}

@@ -237,21 +237,21 @@ function SignupForm() {
                 Password
               </label>
               <div className="relative">
-                <input
-                  id="signup-password"
+              <input
+                id="signup-password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  placeholder="At least 8 characters, one letter and one number"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    clearError("password");
-                    if (errors.confirmPassword && e.target.value === confirmPassword)
-                      clearError("confirmPassword");
-                  }}
+                autoComplete="new-password"
+                placeholder="At least 8 characters, one letter and one number"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  clearError("password");
+                  if (errors.confirmPassword && e.target.value === confirmPassword)
+                    clearError("confirmPassword");
+                }}
                   className={`${inputBase} pr-12 ${errors.password ? inputError : ""}`}
-                  disabled={isLoading}
-                />
+                disabled={isLoading}
+              />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -280,19 +280,19 @@ function SignupForm() {
                 Confirm Password
               </label>
               <div className="relative">
-                <input
-                  id="signup-confirm"
+              <input
+                id="signup-confirm"
                   type={showConfirmPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  placeholder="Confirm password"
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    clearError("confirmPassword");
-                  }}
+                autoComplete="new-password"
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  clearError("confirmPassword");
+                }}
                   className={`${inputBase} pr-12 ${errors.confirmPassword ? inputError : ""}`}
-                  disabled={isLoading}
-                />
+                disabled={isLoading}
+              />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
