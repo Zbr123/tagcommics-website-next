@@ -1,17 +1,26 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/src/hooks/use-auth";
 import { loginApi, getCurrentUser, mapBackendUserToAuthUser } from "@/src/lib/auth-api";
-import type { LoginFormData } from "./login.schema";
+import { loginSchema, type LoginFormData } from "./login.schema";
 import LoginFormView from "./login.view";
+import { useState } from "react";
 
-export function LoginForm() {
+export function LoginFormContainer() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
-  const redirectTo = searchParams.get("redirect") || "/";
+  const [error, setError] = useState<string | null>(null);
+  const redirectTo = searchParams.get("redirect") ?? "/";
+
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
 
   const mutation = useMutation({
     mutationFn: async (credentials: LoginFormData) => {
@@ -41,20 +50,25 @@ export function LoginForm() {
       login(token, authUser);
       router.push(redirectTo);
     },
+    onError: (error) => {
+      setError(error.message);
+    },
   });
 
-  const handleSubmit = async (data: LoginFormData) => {
-    await mutation.mutateAsync(data);
-  };
+  const onSubmit = form.handleSubmit((data) => {
+    mutation.mutate(data);
+  });
 
-  const submitError =
-    mutation.error instanceof Error ? mutation.error.message : mutation.error ? "Login failed. Please try again." : "";
+  
 
   return (
     <LoginFormView
-      onSubmit={handleSubmit}
+      register={form.register}
+      errors={form.formState.errors}
+      onSubmit={onSubmit}
       isPending={mutation.isPending}
-      submitError={submitError}
+      submitError={error}
+      redirectTo={redirectTo}
     />
   );
 }

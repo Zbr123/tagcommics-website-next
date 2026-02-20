@@ -1,40 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { loginSchema, type LoginFormData } from "./login.schema";
+import type { UseFormRegister, FieldErrors } from "react-hook-form";
+import type { LoginFormData } from "./login.schema";
 
 const inputBase =
   "w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400";
 const inputError = "border-red-500 focus:border-red-500";
 
 export interface LoginFormViewProps {
-  onSubmit: (data: LoginFormData) => Promise<void>;
+  register: UseFormRegister<LoginFormData>;
+  errors: FieldErrors<LoginFormData>;
+  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   isPending: boolean;
-  submitError: string;
+  submitError: string | null;
+  redirectTo: string;
 }
 
 export default function LoginFormView({
+  register,
+  errors,
   onSubmit,
   isPending,
   submitError,
+  redirectTo,
 }: LoginFormViewProps) {
-  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
-
-  const redirectTo = searchParams.get("redirect") || "/";
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
-  });
 
   return (
     <div className="h-screen bg-black flex items-center justify-center overflow-y-auto scrollbar-hide bg-[url('/bg-auth.svg')] bg-cover bg-center bg-no-repeat relative">
@@ -59,7 +51,7 @@ export default function LoginFormView({
           )}
 
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={onSubmit}
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
             <div>
