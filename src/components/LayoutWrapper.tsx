@@ -10,7 +10,7 @@ export default function LayoutWrapper({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const hideLayout = pathname === "/login" || pathname === "/signup";
+  const hideLayout = pathname === "/login" || pathname === "/signup" || pathname?.startsWith("/admin");
 
   if (hideLayout) {
     return <>{children}</>;
