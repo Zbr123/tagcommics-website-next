@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/src/hooks/use-auth";
 
 export default function AdminLayout({
   children,
@@ -11,6 +13,8 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { user, logout } = useAuth();
+  const displayName = user?.name?.trim() || "Admin";
 
   const menuItems = [
     {
@@ -73,7 +77,25 @@ export default function AdminLayout({
               />
             </Link>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <div className="flex items-center gap-3 pr-3 sm:pr-4 border-r border-gray-700">
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-yellow-400/50 flex-shrink-0 bg-gray-700">
+                <Image
+                  src="/admin.png"
+                  alt="Admin"
+                  fill
+                  className="object-cover"
+                  sizes="40px"
+                />
+              </div>
+              <div className="hidden sm:block">
+                <p className="text-xs text-gray-400 uppercase tracking-wider">Welcome back</p>
+                <p className="text-sm font-bold text-white truncate max-w-[120px]">Hi, {displayName}</p>
+              </div>
+              <div className="sm:hidden">
+                <p className="text-sm font-bold text-yellow-400">Hi, {displayName.split(" ")[0]}</p>
+              </div>
+            </div>
             <Link
               href="/"
               className="text-sm text-gray-400 hover:text-yellow-400 transition-colors flex items-center gap-2"
@@ -81,7 +103,7 @@ export default function AdminLayout({
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              Back to Site
+              <span className="hidden sm:inline">Back to Site</span>
             </Link>
           </div>
         </div>
@@ -92,10 +114,10 @@ export default function AdminLayout({
         <aside
           className={`${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } fixed inset-y-0 left-0 z-30 w-64 bg-gradient-to-br from-gray-900 to-gray-800 border-r border-gray-800 transition-transform duration-300 ease-in-out lg:translate-x-0`}
+          } fixed inset-y-0 left-0 z-30 w-64 bg-gradient-to-br from-gray-900 to-gray-800 border-r border-gray-800 transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col`}
           style={{ top: "73px" }}
         >
-          <div className="h-full overflow-y-auto py-6">
+          <div className="flex-1 min-h-0 overflow-y-auto py-6 sidebar-scrollbar">
             <nav className="space-y-1 px-3">
               {menuItems.map((item) => {
                 const isActive = pathname === item.href || (item.href !== "/admin" && pathname?.startsWith(item.href));
@@ -115,6 +137,19 @@ export default function AdminLayout({
                 );
               })}
             </nav>
+          </div>
+          {/* Logout at bottom of sidebar */}
+          <div className="flex-shrink-0 border-t border-gray-800 p-4 pt-5">
+            <button
+              type="button"
+              onClick={() => logout()}
+              className="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-200 font-bold text-base"
+            >
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Logout
+            </button>
           </div>
         </aside>
 

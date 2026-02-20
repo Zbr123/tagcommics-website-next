@@ -385,7 +385,7 @@ export default function AdminProducts() {
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
               <div
-                className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-800 w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+                className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-800 w-full max-w-4xl max-h-[90vh] overflow-y-auto scrollbar-hide"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="sticky top-0 bg-gradient-to-br from-gray-900 to-gray-800 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
