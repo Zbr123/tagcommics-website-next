@@ -134,7 +134,7 @@ export default function HeroMangaCarousel({ slides }: HeroMangaCarouselProps) {
               </p>
               <Link
                 href={current.link ? `/comic/${current.link}` : "/manga"}
-                className="mt-6 w-fit bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:scale-105 transition-transform text-sm lg:text-base"
+                className="mt-6 w-fit border-2 border-yellow-400 hover:bg-yellow-400 text-yellow-400 hover:text-black font-bold px-6 py-2.5 rounded-lg transition-all cursor-pointer text-sm lg:text-base"
               >
                 Learn More
               </Link>
@@ -213,7 +213,7 @@ export default function HeroMangaCarousel({ slides }: HeroMangaCarouselProps) {
             </p>
             <Link
               href={current.link ? `/comic/${current.link}` : "/manga"}
-              className="mt-5 w-full max-w-xs mx-auto bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:scale-105 transition-transform block text-center"
+              className="mt-5 w-full max-w-xs mx-auto border-2 border-yellow-400 hover:bg-yellow-400 text-yellow-400 hover:text-black font-bold px-6 py-2.5 rounded-lg transition-all cursor-pointer block text-center"
             >
               Learn More
             </Link>
