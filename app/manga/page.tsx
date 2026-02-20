@@ -7,10 +7,10 @@ import ProductCard from "@/src/components/ProductCard";
 
 /** Hero banner carousel slides (badge, title, subtitle, image, link to detail page) */
 const MANGA_HERO_SLIDES = [
-  { badge: "START", title: "Fragrant Blooms for Dignity", subtitle: "Two rival schools next door", image: "/comic_slider7.png.jpg", link: "7" },
-  { badge: "HOT", title: "Infini Force", subtitle: "All began with mysterious pencil", image: "/comic_slider8.png.jpg", link: "8" },
-  { badge: "NEW", title: "Inactive - Not so ordinary", subtitle: "A new arrival", image: "/comic_slider9.png.jpg", link: "9" },
-  { badge: "START", title: "Best Manga Series", subtitle: "Discover your next favorite", image: "/comic_slider10.png.jpg", link: "10" },
+  { badge: "START", title: "Fragrant Blooms for Dignity", subtitle: "Two rival schools next door", image: "/comic_slider7.png", link: "7" },
+  { badge: "HOT", title: "Infini Force", subtitle: "All began with mysterious pencil", image: "/comic_slider8.png", link: "8" },
+  { badge: "NEW", title: "Inactive - Not so ordinary", subtitle: "A new arrival", image: "/comic_slider9.png", link: "9" },
+  { badge: "START", title: "Best Manga Series", subtitle: "Discover your next favorite", image: "/comic_slider10.png", link: "10" },
 ];
 
 // Manga database

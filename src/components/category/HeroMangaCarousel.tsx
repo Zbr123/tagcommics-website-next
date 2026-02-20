@@ -104,7 +104,7 @@ export default function HeroMangaCarousel({ slides }: HeroMangaCarouselProps) {
   return (
     <section
       ref={containerRef}
-      className="relative h-[50vh] min-h-[260px] w-full overflow-hidden bg-gradient-to-br from-black via-slate-900/90 to-gray-900"
+      className="relative h-[calc(50vh+100px)] min-h-[360px] w-full overflow-hidden bg-gradient-to-br from-black via-slate-900/90 to-gray-900"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}
