@@ -1,0 +1,2 @@
+# Add hero images here: fragrant.jpg, aot.jpg, jjk.jpg
+# Then update mangaHeroItems in app/manga/page.tsx to use /manga/fragrant.jpg etc.
