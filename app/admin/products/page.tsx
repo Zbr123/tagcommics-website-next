@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Product {
@@ -19,6 +19,9 @@ interface Product {
   stock?: number;
   isFlashSale?: boolean;
   isNewItem?: boolean;
+  isEbook?: boolean;
+  isPhysical?: boolean;
+  ebookPdfUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -33,6 +36,8 @@ export default function AdminProducts() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterTag, setFilterTag] = useState("All");
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [formData, setFormData] = useState<Partial<Product>>({
@@ -50,6 +55,9 @@ export default function AdminProducts() {
     stock: 0,
     isFlashSale: false,
     isNewItem: false,
+    isEbook: false,
+    isPhysical: false,
+    ebookPdfUrl: "",
   });
 
   // Load products from localStorage or use mock data
@@ -112,6 +120,9 @@ export default function AdminProducts() {
         stock: 0,
         isFlashSale: false,
         isNewItem: false,
+        isEbook: false,
+        isPhysical: false,
+        ebookPdfUrl: "",
       });
     }
     setIsFormOpen(true);
@@ -120,6 +131,8 @@ export default function AdminProducts() {
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setEditingProduct(null);
+    if (imageInputRef.current) imageInputRef.current.value = "";
+    if (pdfInputRef.current) pdfInputRef.current.value = "";
     setFormData({
       title: "",
       author: "",
@@ -135,11 +148,19 @@ export default function AdminProducts() {
       stock: 0,
       isFlashSale: false,
       isNewItem: false,
+      isEbook: false,
+      isPhysical: false,
+      ebookPdfUrl: "",
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.isEbook && !formData.ebookPdfUrl) {
+      alert("Please select a PDF file for the E-book.");
+      return;
+    }
     
     // Calculate discount if originalPrice is provided
     let calculatedDiscount = formData.discount || 0;
@@ -227,7 +248,7 @@ export default function AdminProducts() {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400 cursor-pointer"
             >
               <option value="All">All Categories</option>
               {CATEGORIES.map((cat) => (
@@ -242,7 +263,7 @@ export default function AdminProducts() {
             <select
               value={filterTag}
               onChange={(e) => setFilterTag(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400 cursor-pointer"
             >
               <option value="All">All Tags</option>
               {TAGS.map((tag) => (
@@ -341,7 +362,7 @@ export default function AdminProducts() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleOpenForm(product)}
-                          className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors"
+                          className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors cursor-pointer"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -349,7 +370,7 @@ export default function AdminProducts() {
                         </button>
                         <button
                           onClick={() => handleDelete(product.id)}
-                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
+                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors cursor-pointer"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -375,7 +396,7 @@ export default function AdminProducts() {
         {isFormOpen && (
           <>
             <div
-              className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm cursor-pointer"
               onClick={handleCloseForm}
             />
             <motion.div
@@ -394,7 +415,7 @@ export default function AdminProducts() {
                   </h2>
                   <button
                     onClick={handleCloseForm}
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-gray-400 hover:text-white transition-colors cursor-pointer"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -443,7 +464,7 @@ export default function AdminProducts() {
                         required
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400 cursor-pointer"
                       >
                         {CATEGORIES.map((cat) => (
                           <option key={cat} value={cat}>
@@ -451,25 +472,6 @@ export default function AdminProducts() {
                           </option>
                         ))}
                       </select>
-                    </div>
-
-                    {/* Price */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-400 mb-2">
-                        Price ($) *
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        required
-                        min="0"
-                        value={formData.price || ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
-                        }
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-                        placeholder="0.00"
-                      />
                     </div>
 
                     {/* Original Price */}
@@ -493,37 +495,22 @@ export default function AdminProducts() {
                       />
                     </div>
 
-                    {/* Rating */}
+                    {/* Discounted Price (selling price) */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-400 mb-2">
-                        Rating *
+                        Discounted Price ($) *
                       </label>
                       <input
                         type="number"
-                        step="0.1"
+                        step="0.01"
                         required
                         min="0"
-                        max="5"
-                        value={formData.rating || ""}
+                        value={formData.price || ""}
                         onChange={(e) =>
-                          setFormData({ ...formData, rating: parseFloat(e.target.value) || 0 })
+                          setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
                         }
                         className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-                        placeholder="0.0 - 5.0"
-                      />
-                    </div>
-
-                    {/* Sold */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-400 mb-2">
-                        Sold Count
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.sold || "0"}
-                        onChange={(e) => setFormData({ ...formData, sold: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-                        placeholder="e.g., 2.5k, 1.2k"
+                        placeholder="0.00"
                       />
                     </div>
 
@@ -552,7 +539,7 @@ export default function AdminProducts() {
                       <select
                         value={formData.tag}
                         onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400 cursor-pointer"
                       >
                         {TAGS.map((tag) => (
                           <option key={tag} value={tag}>
@@ -562,18 +549,36 @@ export default function AdminProducts() {
                       </select>
                     </div>
 
-                    {/* Image URL */}
+                    {/* Product Image (file upload) */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-semibold text-gray-400 mb-2">
-                        Image URL
+                        Product Image
                       </label>
                       <input
-                        type="text"
-                        value={formData.image}
-                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-                        placeholder="/comic-slider1.png"
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () =>
+                              setFormData({ ...formData, image: reader.result as string });
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-400 file:text-black file:font-semibold file:cursor-pointer focus:outline-none focus:border-yellow-400"
                       />
+                      {formData.image && (
+                        <div className="mt-3">
+                          <p className="text-xs text-gray-500 mb-1">Preview</p>
+                          <img
+                            src={formData.image}
+                            alt="Product preview"
+                            className="h-24 w-24 object-cover rounded-lg border border-gray-700"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     {/* Description */}
@@ -590,30 +595,98 @@ export default function AdminProducts() {
                       />
                     </div>
 
+                    {/* Book type: E-book / Physical */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Book type
+                      </label>
+                      <div className="flex flex-wrap gap-6">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={formData.isEbook || false}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                isEbook: e.target.checked,
+                                ...(e.target.checked ? {} : { ebookPdfUrl: "" }),
+                              })
+                            }
+                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
+                          />
+                          <span className="text-white font-semibold">E-book</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={formData.isPhysical || false}
+                            onChange={(e) =>
+                              setFormData({ ...formData, isPhysical: e.target.checked })
+                            }
+                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
+                          />
+                          <span className="text-white font-semibold">Physical / Hard book</span>
+                        </label>
+                      </div>
+                      {formData.isEbook && (
+                        <div className="pt-2">
+                          <label className="block text-sm font-semibold text-gray-400 mb-2">
+                            E-book PDF file *
+                          </label>
+                          <input
+                            ref={pdfInputRef}
+                            type="file"
+                            accept=".pdf,application/pdf"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () =>
+                                  setFormData({
+                                    ...formData,
+                                    ebookPdfUrl: reader.result as string,
+                                  });
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-400 file:text-black file:font-semibold file:cursor-pointer focus:outline-none focus:border-yellow-400"
+                          />
+                          {formData.ebookPdfUrl && (
+                            <p className="mt-2 text-xs text-green-400">PDF file selected</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Checkboxes */}
-                    <div className="md:col-span-2 space-y-3">
-                      <label className="flex items-center gap-3 cursor-pointer group">
-                        <input
-                          type="checkbox"
-                          checked={formData.isFlashSale || false}
-                          onChange={(e) =>
-                            setFormData({ ...formData, isFlashSale: e.target.checked })
-                          }
-                          className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
-                        />
-                        <span className="text-white font-semibold">Flash Sale</span>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Sale / Promo
                       </label>
-                      <label className="flex items-center gap-3 cursor-pointer group">
-                        <input
-                          type="checkbox"
-                          checked={formData.isNewItem || false}
-                          onChange={(e) =>
-                            setFormData({ ...formData, isNewItem: e.target.checked })
-                          }
-                          className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
-                        />
-                        <span className="text-white font-semibold">New Item</span>
-                      </label>
+                      <div className="space-y-3">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={formData.isFlashSale || false}
+                            onChange={(e) =>
+                              setFormData({ ...formData, isFlashSale: e.target.checked })
+                            }
+                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
+                          />
+                          <span className="text-white font-semibold">Flash Sale</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={formData.isNewItem || false}
+                            onChange={(e) =>
+                              setFormData({ ...formData, isNewItem: e.target.checked })
+                            }
+                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
+                          />
+                          <span className="text-white font-semibold">New Item</span>
+                        </label>
+                      </div>
                     </div>
                   </div>
 
@@ -622,13 +695,13 @@ export default function AdminProducts() {
                     <button
                       type="button"
                       onClick={handleCloseForm}
-                      className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors"
+                      className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold rounded-lg transition-all"
+                      className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold rounded-lg transition-all cursor-pointer"
                     >
                       {editingProduct ? "Update Product" : "Add Product"}
                     </button>

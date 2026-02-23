@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/src/hooks/use-auth";
 
 export default function AdminLayout({
@@ -12,9 +12,15 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { user, logout } = useAuth();
   const displayName = user?.name?.trim() || "Admin";
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
 
   const menuItems = [
     {
@@ -63,13 +69,13 @@ export default function AdminLayout({
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-white hover:text-yellow-400 transition-colors lg:hidden"
+              className="text-white hover:text-yellow-400 transition-colors lg:hidden cursor-pointer"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <Link href="/admin" className="flex items-center gap-2 group">
+            <Link href="/admin" className="flex items-center gap-2 group cursor-pointer">
               <img
                 src="/logo-comics.png"
                 alt="Tag Comics Logo"
@@ -98,7 +104,7 @@ export default function AdminLayout({
             </div>
             <Link
               href="/"
-              className="text-sm text-gray-400 hover:text-yellow-400 transition-colors flex items-center gap-2"
+              className="text-sm text-gray-400 hover:text-yellow-400 transition-colors flex items-center gap-2 cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -125,7 +131,7 @@ export default function AdminLayout({
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all cursor-pointer ${
                       isActive
                         ? "bg-yellow-400 text-black font-bold"
                         : "text-gray-300 hover:bg-gray-800 hover:text-yellow-400"
@@ -142,8 +148,8 @@ export default function AdminLayout({
           <div className="flex-shrink-0 border-t border-gray-800 p-4 pt-5">
             <button
               type="button"
-              onClick={() => logout()}
-              className="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-200 font-bold text-base"
+              onClick={handleLogout}
+              className="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl text-gray-300 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-200 font-bold text-base cursor-pointer"
             >
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -156,7 +162,7 @@ export default function AdminLayout({
         {/* Overlay for mobile */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+            className="fixed inset-0 bg-black/50 z-20 lg:hidden cursor-pointer"
             onClick={() => setIsSidebarOpen(false)}
             style={{ top: "73px" }}
           />

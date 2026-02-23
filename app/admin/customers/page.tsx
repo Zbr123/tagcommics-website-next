@@ -113,7 +113,7 @@ export default function AdminCustomers() {
           <button
             onClick={loadCustomers}
             disabled={loading}
-            className="w-full sm:w-auto px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 font-semibold rounded-lg transition-colors border border-yellow-500/30 disabled:opacity-50 flex items-center justify-center gap-2 flex-shrink-0"
+            className="w-full sm:w-auto px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 font-semibold rounded-lg transition-colors border border-yellow-500/30 disabled:opacity-50 flex items-center justify-center gap-2 flex-shrink-0 cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -223,7 +223,7 @@ export default function AdminCustomers() {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleViewDetails(customer)}
-                        className="px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 font-semibold rounded-lg transition-colors text-sm whitespace-nowrap"
+                        className="px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 font-semibold rounded-lg transition-colors text-sm whitespace-nowrap cursor-pointer"
                       >
                         View Details
                       </button>
@@ -248,7 +248,7 @@ export default function AdminCustomers() {
         {isDetailModalOpen && selectedCustomer && (
           <>
             <div
-              className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm cursor-pointer"
               onClick={() => setIsDetailModalOpen(false)}
             />
             <motion.div
@@ -267,7 +267,7 @@ export default function AdminCustomers() {
                   </h2>
                   <button
                     onClick={() => setIsDetailModalOpen(false)}
-                    className="text-gray-400 hover:text-white transition-colors flex-shrink-0"
+                    className="text-gray-400 hover:text-white transition-colors flex-shrink-0 cursor-pointer"
                   >
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

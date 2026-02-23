@@ -633,7 +633,7 @@ export default function AdminOrders() {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleViewDetails(order)}
-                        className="px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 font-semibold rounded-lg transition-colors text-sm whitespace-nowrap"
+                        className="px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 font-semibold rounded-lg transition-colors text-sm whitespace-nowrap cursor-pointer"
                       >
                         View Details
                       </button>
@@ -656,7 +656,7 @@ export default function AdminOrders() {
         {isDetailModalOpen && selectedOrder && (
           <>
             <div
-              className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm cursor-pointer"
               onClick={() => setIsDetailModalOpen(false)}
             />
             <motion.div
@@ -678,7 +678,7 @@ export default function AdminOrders() {
                   </div>
                   <button
                     onClick={() => setIsDetailModalOpen(false)}
-                    className="text-gray-400 hover:text-white transition-colors flex-shrink-0"
+                    className="text-gray-400 hover:text-white transition-colors flex-shrink-0 cursor-pointer"
                   >
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
