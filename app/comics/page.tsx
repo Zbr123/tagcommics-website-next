@@ -19,7 +19,7 @@ const COMICS_SLIDER_SLIDES = [
   { image: "/comic-slider5.png", link: "3" },
   { image: "/comic_page_slider.png", link: "4" },
   { image: "/comic_page_slider2.png", link: "5" },
-  { image: "/comic_page_slider3.jpg", link: "6" },
+  { image: "/comic_page_slider3.png", link: "6" },
 ];
 
 // Comics database

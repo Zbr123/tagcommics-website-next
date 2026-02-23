@@ -144,7 +144,7 @@ export default function ComicsCenterCarousel({
               src={current.image}
               alt=""
               fill
-              className="object-fill rounded-[12px]"
+              className="object-cover rounded-[12px]"
               sizes="(max-width: 768px) 100vw, 46vw"
               priority
             />
