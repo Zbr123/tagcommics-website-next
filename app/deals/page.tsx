@@ -2,7 +2,23 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import HeroMangaCarousel from "@/src/components/category/HeroMangaCarousel";
+// import ComicsCenterCarousel from "@/src/components/category/ComicsCenterCarousel";
 import ProductCard from "@/src/components/ProductCard";
+
+const DEALS_HERO_SLIDES = [
+  { badge: "DEAL", title: "Today's Deals", subtitle: "Limited-time savings on comics & manga", image: "/comic-slider1.png", link: "1" },
+  { badge: "HOT", title: "Spider-Man #1", subtitle: "50% off — Your friendly neighborhood hero", image: "/comic-slider5.png", link: "2" },
+  { badge: "SAVE", title: "Attack on Titan", subtitle: "40% off — Humanity's last stand", image: "/comic-slider3.png", link: "3" },
+  { badge: "DEAL", title: "One Piece Vol.1", subtitle: "50% off — Start your journey", image: "/comic-slide4.png", link: "4" },
+];
+
+const DEALS_SLIDER_SLIDES = [
+  { image: "/comic-slider1.png", link: "1" },
+  { image: "/comic-slider5.png", link: "2" },
+  { image: "/comic-slider3.png", link: "3" },
+  { image: "/comic-slide4.png", link: "4" },
+];
 
 // Deals database
 const allDeals = [
@@ -51,6 +67,11 @@ export default function DealsPage() {
 
   return (
     <div className="min-h-screen bg-black">
+      {/* Hero: manga-style slider (text left, images right, badges, Learn More) */}
+      <HeroMangaCarousel slides={DEALS_HERO_SLIDES} heightVh={50} />
+
+      {/* <ComicsCenterCarousel slides={DEALS_SLIDER_SLIDES} sectionTitle="Deals" /> */}
+
       <div className="mx-auto max-w-12xl px-4 sm:px-6 lg:px-20 py-8">
         {/* Header Section */}
         <div className="mb-8">

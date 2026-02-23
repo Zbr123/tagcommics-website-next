@@ -34,9 +34,11 @@ function getBadgeClass(badge: string): string {
 
 interface HeroMangaCarouselProps {
   slides: MangaHeroSlide[];
+  /** Height in vh for short variant (e.g. 28 on comics page). Default 44. */
+  heightVh?: number;
 }
 
-export default function HeroMangaCarousel({ slides }: HeroMangaCarouselProps) {
+export default function HeroMangaCarousel({ slides, heightVh = 52 }: HeroMangaCarouselProps) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -101,10 +103,13 @@ export default function HeroMangaCarousel({ slides }: HeroMangaCarouselProps) {
   const trackWidthPx = n * cardWidthPx + (n - 1) * CARD_MARGIN_PX;
   const translateXPx = index * slotPx;
 
+  const minH = heightVh >= 40 ? 400 : 300;
+
   return (
     <section
       ref={containerRef}
-      className="relative h-[calc(50vh+100px)] min-h-[360px] w-full overflow-hidden bg-gradient-to-br from-black via-slate-900/90 to-gray-900"
+      className="relative w-full overflow-hidden bg-gradient-to-br from-black via-slate-900/90 to-gray-900"
+      style={{ height: `${heightVh}vh`, minHeight: `${minH}px` }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}
@@ -250,7 +255,7 @@ export default function HeroMangaCarousel({ slides }: HeroMangaCarouselProps) {
 
       {/* Arrows */}
       <button
-        type="button"
+        type="button" 
         onClick={() => go("prev")}
         className="absolute bottom-10 left-4 md:left-6 p-2.5 rounded-full bg-white/20 backdrop-blur text-white hover:bg-white/40 transition-colors z-20"
         aria-label="Previous slide"

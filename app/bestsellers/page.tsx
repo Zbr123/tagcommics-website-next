@@ -3,7 +3,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import ComicsCenterCarousel from "@/src/components/category/ComicsCenterCarousel";
 import ProductCard from "@/src/components/ProductCard";
+
+// const heroData = {
+//   title: "Top Best Sellers",
+//   subtitle: "Shop the most popular comics & graphic novels",
+//   overlayImage: "/comic-hero-overlay.png",
+// };
+
+const BESTSELLERS_SLIDER_SLIDES = [
+  { image: "/comic-slider1.png", link: "1" },
+  { image: "/comic-slider5.png", link: "2" },
+  { image: "/comic-slider3.png", link: "3" },
+  { image: "/comic-slide4.png", link: "4" },
+];
 
 // Extended best sellers comics database
 const allBestSellersComics = [
@@ -56,6 +71,33 @@ export default function BestSellersPage() {
 
   return (
     <div className="min-h-screen bg-black">
+      {/* Hero: premium gold theme, compact */}
+      {/* <section className="px-4 pt-6 pb-2 md:px-8 lg:px-4">
+        <div className="relative h-[22vh] md:h-[24vh] lg:h-[26vh] w-full overflow-hidden rounded-3xl shadow-2xl mx-auto lg:max-w-7xl">
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={heroData.overlayImage}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="100vw"
+              priority
+            />
+          </div>
+          <div className="absolute inset-0 z-[1] bg-gradient-to-r from-amber-500/60 via-yellow-400/50 to-amber-500/60" />
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white leading-tight drop-shadow-lg">
+              {heroData.title}
+            </h2>
+            <p className="mt-1.5 md:mt-2 text-sm sm:text-base md:text-lg lg:text-xl font-light text-white/95 drop-shadow-md">
+              {heroData.subtitle}
+            </p>
+          </div>
+        </div>
+      </section> */}
+
+      <ComicsCenterCarousel slides={BESTSELLERS_SLIDER_SLIDES}  />
+
       <div className="mx-auto max-w-12xl px-4 sm:px-6 lg:px-20 py-8">
         {/* Header Section */}
         <div className="mb-8">

@@ -2,7 +2,25 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import ComicsCenterCarousel from "@/src/components/category/ComicsCenterCarousel";
 import ProductCard from "@/src/components/ProductCard";
+
+const heroData = {
+  title: "Read Comics on TagComics",
+  subtitle: "Explore thousands of epic series!",
+  overlayImage: "/comic-hero-overlay.png",
+};
+
+/** Comics slider: center = current (one in focus), left = previous, right = upcoming; infinite loop */
+const COMICS_SLIDER_SLIDES = [
+  { image: "/comic-slider1.png", link: "1" },
+  { image: "/comic-slider3.png", link: "2" },
+  { image: "/comic-slider5.png", link: "3" },
+  { image: "/comic_page_slider.png", link: "4" },
+  { image: "/comic_page_slider2.png", link: "5" },
+  { image: "/comic_page_slider3.jpg", link: "6" },
+];
 
 // Comics database
 const allComics = [
@@ -51,12 +69,43 @@ export default function ComicsPage() {
 
   return (
     <div className="min-h-screen bg-black">
+      {/* Hero: full bg image + theme overlay (light yellow transparent), text centered, short height */}
+      <section className="px-4 pt-6 pb-2 md:px-8 lg:px-4">
+        <div className="relative h-[22vh] md:h-[24vh] lg:h-[26vh] w-full overflow-hidden rounded-3xl shadow-2xl mx-auto lg:max-w-7xl">
+          {/* Full-width background image (comic art) */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={heroData.overlayImage}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="100vw"
+              priority
+            />
+          </div>
+          {/* Theme overlay: light yellow transparent (or use black/50 for dark tint) */}
+          <div className="absolute inset-0 z-[1] bg-gradient-to-r from-amber-400/50 via-yellow-500/40 to-amber-400/50" />
+          {/* Text centered on image */}
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white leading-tight drop-shadow-lg">
+              {heroData.title}
+            </h2>
+            <p className="mt-1.5 md:mt-2 text-sm sm:text-base md:text-lg lg:text-xl font-light text-white/90 drop-shadow-md">
+              {heroData.subtitle}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Comics slider: center image full, prev/next small, images only (no text) */}
+      <ComicsCenterCarousel slides={COMICS_SLIDER_SLIDES} sectionTitle="Comics" heightVh={18} />
+
       <div className="mx-auto max-w-12xl px-4 sm:px-6 lg:px-20 py-8">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl sm:text-3xl font-black text-white">Comic Books</h1>
+              <h1 className="text-2xl sm:text-3xl font-black text-white">Popular Comics Books</h1>
             </div>
 
             {/* Genre Dropdown */}
