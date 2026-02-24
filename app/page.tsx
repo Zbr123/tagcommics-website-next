@@ -4,6 +4,7 @@ import BestSellersSection from "@/src/components/sections/BestSellersSection";
 import NewArrivalsSection from "@/src/components/sections/NewArrivalsSection";
 import CategoriesSection from "@/src/components/sections/CategoriesSection";
 import StatsSection from "@/src/components/sections/StatsSection";
+import LogoSlider, { LogoImageItem } from "@/src/components/LogoSlider";
 
 // Flash Sale Data
 const flashSaleComics = [
@@ -49,6 +50,17 @@ export default function Home() {
 
       {/* Flash Sale Section */}
       <FlashSaleSection comics={flashSaleComics} />
+
+      {/* Company Logos Slider (infinite) */}
+      <div className="py-8">
+        <LogoSlider direction="right" speedSeconds={60}>
+          <LogoImageItem src="/logos/company1.png" alt="Company 1" />
+          <LogoImageItem src="/logos/company2.png" alt="Company 2" />
+          <LogoImageItem src="/logos/company3.png" alt="Company 3" />
+          <LogoImageItem src="/logos/company4.png" alt="Company 4" />
+          <LogoImageItem src="/logos/company5.png" alt="Company 5" />
+        </LogoSlider>
+      </div>
 
       {/* Best Sellers Section */}
       <BestSellersSection comics={bestSellersComics} />
