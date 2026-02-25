@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type React from "react";
-
+import React from "react";
+import Image from 'next/image';
 interface LogoSliderProps {
   children: React.ReactNode;
   direction: "left" | "right";
@@ -18,21 +18,37 @@ export default function LogoSlider({
   single = false,
   speedSeconds = 60,
 }: LogoSliderProps) {
+  // normalize children to array so we can clone the duplicates with unique keys
+  const items = React.Children.toArray(children);
+
+  const initialX = direction === "left" ? "0%" : "-50%";
+  const animateX = direction === "left" ? "-50%" : "0%";
+
   return (
     <div className={`relative overflow-hidden w-full ${className}`}>
       <motion.div
         className="flex w-max"
-        animate={{
-          x: direction === "left" ? ["0%", "-50%"] : ["-50%", "0%"],
-        }}
+        initial={{ x: initialX }}
+        animate={{ x: animateX }}
         transition={{
           duration: speedSeconds,
           repeat: Infinity,
           ease: "linear",
         }}
       >
-        <div className="flex">{children}</div>
-        {!single && <div className="flex">{children}</div>}
+        <div className="flex">{items}</div>
+
+        {!single && (
+          // duplicate the set for a seamless loop; clone elements to avoid duplicate keys
+          <div className="flex pointer-events-none" aria-hidden>
+            {items.map((child, idx) => {
+              if (React.isValidElement(child)) {
+                return React.cloneElement(child, { key: `dup-${idx}` });
+              }
+              return child;
+            })}
+          </div>
+        )}
       </motion.div>
     </div>
   );
@@ -68,11 +84,20 @@ export function LogoImageItem({
   className?: string;
 }) {
   return (
-    <img
-      src={src}
-      alt={alt}
-      className={`mx-4 h-16 w-auto object-contain inline-block ${className}`}
-      style={{ flex: "0 0 auto" }}
-    />
+    <div className={`mx-4 md:mx-6 inline-block ${className}`}>
+      <div className="w-28 md:w-36 h-12 md:h-16 flex items-center justify-center">
+        <Image
+          src={src}
+          alt={alt}
+          width={160}
+          height={64}
+          className="w-auto h-full object-contain"
+          sizes="(max-width: 768px) 80px, 160px"
+        />
+      </div>
+    </div>
   );
 }
+
+
+
