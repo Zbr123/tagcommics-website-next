@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,8 +14,17 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { user, logout } = useAuth();
-  const displayName = user?.name?.trim() || "Admin";
+  const { user, logout, isLoaded } = useAuth();
+  const displayName = user?.name?.trim() ?? "";
+
+  // Redirect unauthenticated users to login (preserve target via `redirect` param)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isLoaded && !user) {
+      const target = pathname || "/admin";
+      router.push(`/login?redirect=${encodeURIComponent(target)}`);
+    }
+  }, [isLoaded, user, pathname, router]);
 
   const handleLogout = () => {
     logout();
@@ -61,6 +70,19 @@ export default function AdminLayout({
     },
   ];
 
+  // while auth state is resolving or redirecting, show a simple loading state
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-white">Redirecting to login...</div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black overflow-x-hidden">
       {/* Top Bar */}
@@ -88,19 +110,23 @@ export default function AdminLayout({
               <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-yellow-400/50 flex-shrink-0 bg-gray-700">
                 <Image
                   src="/admin.png"
-                  alt="Admin"
+                  alt={user?.name ?? "User"}
                   fill
                   className="object-cover"
                   sizes="40px"
                 />
               </div>
-              <div className="hidden sm:block">
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Welcome back</p>
-                <p className="text-sm font-bold text-white truncate max-w-[120px]">Hi, {displayName}</p>
-              </div>
-              <div className="sm:hidden">
-                <p className="text-sm font-bold text-yellow-400">Hi, {displayName.split(" ")[0]}</p>
-              </div>
+              {displayName ? (
+                <>
+                  <div className="hidden sm:block">
+                    <p className="text-xs text-gray-400 uppercase tracking-wider">Welcome back</p>
+                    <p className="text-sm font-bold text-white truncate max-w-[120px]">Hi, {displayName}</p>
+                  </div>
+                  <div className="sm:hidden">
+                    <p className="text-sm font-bold text-yellow-400">Hi, {displayName.split(" ")[0]}</p>
+                  </div>
+                </>
+              ) : null}
             </div>
             <Link
               href="/"

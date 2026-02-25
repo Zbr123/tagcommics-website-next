@@ -39,10 +39,17 @@ export default function LoginFormView({
       </Link>
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 w-full">
         <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border-2 border-yellow-400 p-6 sm:p-8 shadow-2xl shadow-yellow-400/30">
-          <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">Sign in</h1>
-          <p className="text-gray-400 text-sm mb-6">
-            Enter your email and password to access your account.
-          </p>
+          {redirectTo && redirectTo.startsWith("/admin") ? (
+            <>
+              <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">Admin Login</h1>
+              <p className="text-gray-400 text-sm mb-6">Enter your admin email and password to access the admin panel.</p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">Sign in</h1>
+              <p className="text-gray-400 text-sm mb-6">Enter your email and password to access your account.</p>
+            </>
+          )}
 
           {submitError && (
             <div className="mb-6 bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">

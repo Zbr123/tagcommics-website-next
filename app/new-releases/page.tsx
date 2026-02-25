@@ -3,14 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import ProductCard from "@/src/components/ProductCard";
+import NewArrivalsHero from "@/src/components/sections/NewArrivalsHero";
 
 // Extended new arrivals comics database
 const allNewArrivals = [
-  { id: 1, title: "The Walking Dead Vol.1", author: "Robert Kirkman", price: 12.99, rating: 4.8, image: "/comic-slider1.png", category: "Graphic Novels", tag: "NEW" },
-  { id: 2, title: "Saga Deluxe Edition", author: "Brian K. Vaughan", price: 24.99, rating: 4.9, image: "/comic-slider5.png", category: "Graphic Novels", tag: "HOT" },
-  { id: 3, title: "Invincible Compendium", author: "Robert Kirkman", price: 39.99, rating: 4.7, image: "/comic-slider3.png", category: "Graphic Novels", tag: "NEW" },
-  { id: 4, title: "Watchmen Absolute", author: "Alan Moore", price: 29.99, rating: 5.0, image: "/comic-slide4.png", category: "Graphic Novels", tag: "CLASSIC" },
-  { id: 5, title: "Sin City Library", author: "Frank Miller", price: 34.99, rating: 4.8, image: "/comic-slider1.png", category: "Graphic Novels", tag: "SALE" },
+  { id: 1, title: "THE NEW GIRL", author: "Jane Doe", price: 24.99, rating: 4.8, image: "/THE_NEW_GIRL.webp", category: "Graphic Novels", tag: "NEW" },
+  { id: 2, title: "THE LONG GAME", author: "John Smith", price: 19.99, rating: 4.9, image: "/The-LONG_GAME.webp", category: "Graphic Novels", tag: "HOT" },
+  { id: 3, title: "I SURVIVED", author: "Sarah Connor", price: 29.99, rating: 4.7, image: "/I-SURVIVED.webp", category: "Graphic Novels", tag: "NEW" },
+  { id: 4, title: "THE WOMEN OF RIDGE", author: "Emily Ridge", price: 22.99, rating: 5.0, image: "/THE_WOMEN_OF_RIDGE.webp", category: "Graphic Novels", tag: "BESTSELLER" },
+  { id: 5, title: "THE HEART LOVER", author: "Love Story", price: 18.99, rating: 4.8, image: "/THE _HEART_LOVER.webp", category: "Graphic Novels", tag: "NEW" },
   { id: 6, title: "Preacher Omnibus", author: "Garth Ennis", price: 49.99, rating: 4.9, image: "/comic-slider5.png", category: "Graphic Novels", tag: "BESTSELLER" },
   { id: 7, title: "Y: The Last Man", author: "Brian K. Vaughan", price: 19.99, rating: 4.8, image: "/comic-slider3.png", category: "Graphic Novels", tag: "NEW" },
   { id: 8, title: "Sandman Omnibus", author: "Neil Gaiman", price: 44.99, rating: 5.0, image: "/comic-slide4.png", category: "Graphic Novels", tag: "CLASSIC" },
@@ -34,6 +35,13 @@ const allNewArrivals = [
 
 const ITEMS_PER_PAGE = 12;
 
+// Get first 5 comics for hero section
+const heroComicsData = allNewArrivals.slice(0, 5).map(comic => ({
+  id: comic.id,
+  image: comic.image,
+  title: comic.title,
+}));
+
 export default function NewArrivalsPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
@@ -55,13 +63,14 @@ export default function NewArrivalsPage() {
 
   return (
     <div className="min-h-screen bg-black">
+      {/* Unique Diagonal Cascade Hero Section */}
+      <NewArrivalsHero heroComics={heroComicsData} />
+
       <div className="mx-auto max-w-12xl px-4 sm:px-6 lg:px-20 py-8">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl sm:text-3xl font-black text-white">New Arrivals</h1>
-            </div>
+            {/* Category Filter Only - Title is in Hero */}
             
             {/* Category Dropdown */}
             <div className="flex items-center gap-3">
