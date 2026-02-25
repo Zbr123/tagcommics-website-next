@@ -183,6 +183,9 @@ export default function ComicsPage() {
                 </p>
               </div>
             )}
+          
+            {/* Trusted by logos section */}
+            {/* <TrustedByLogos /> */}
           </>
         )}
       </div>

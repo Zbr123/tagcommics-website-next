@@ -4,6 +4,7 @@ import BestSellersSection from "@/src/components/sections/BestSellersSection";
 import NewArrivalsSection from "@/src/components/sections/NewArrivalsSection";
 import CategoriesSection from "@/src/components/sections/CategoriesSection";
 import StatsSection from "@/src/components/sections/StatsSection";
+import LogoSlider, { LogoImageItem } from "@/src/components/LogoSlider";
 
 // Flash Sale Data
 const flashSaleComics = [
@@ -48,8 +49,44 @@ export default function Home() {
       <HeroSection />
 
       {/* Flash Sale Section */}
-      <FlashSaleSection comics={flashSaleComics} />
+      
 
+      {/* Publisher Logos Dual Slider — top row scrolls left, bottom row scrolls right */}
+      <div className="text-center mb-12 mt-10">
+        <h2 className="text-center text-white text-2xl md:text-5xl font-black">Comic Book Publishers</h2>
+      </div>
+      <section className="py-8 w-full">
+        <div className="w-full px-4 md:px-6 lg:px-12 mx-auto">
+          {/* Top row — scrolls left (faster) */}
+          <div className="mb-6">
+            <LogoSlider direction="left" speedSeconds={30}>
+              <LogoImageItem src="/comics-logos/DC_Comics_logo.png" alt="DC" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/AC-Comics-logo.png" alt="AC Comics" className="h-10 md:h-14" />
+               <LogoImageItem src="/comics-logos/Marvel-logo.png" alt="Wonder Woman" className="h-10 md:h-14" />
+                <LogoImageItem src="/comics-logos/valiant-comics-logo.jpg" alt="Wonder Woman" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/batman-logo1.png" alt="Batman" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/superman-logo.png" alt="Superman" className="h-10 md:h-14" />
+              {/* <LogoImageItem src="/comics-logos/Ww-logos.jpg" alt="Wonder Woman" className="h-10 md:h-14" /> */}
+            </LogoSlider>
+          </div>
+
+          {/* Bottom row — scrolls right (slightly different speed) */}
+          <div>
+            <LogoSlider direction="right" speedSeconds={28}>
+              <LogoImageItem src="/comics-logos/DC_Comics_logo.png" alt="DC" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/AC_comics1-logo.png" alt="AC Comics" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/batman-logo2.png" alt="Batman" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/spider-man-logo.png" alt="Batman" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/Dc2-logo.jpg" alt="DC" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/superman-logo.png" alt="Superman" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/marvel2-logo.png" alt="Superman" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/Ww-logos.jpg" alt="Wonder Woman" className="h-10 md:h-14" />
+            </LogoSlider>
+          </div>
+        </div>
+      </section>
+
+<FlashSaleSection comics={flashSaleComics} />
       {/* Best Sellers Section */}
       <BestSellersSection comics={bestSellersComics} />
 
