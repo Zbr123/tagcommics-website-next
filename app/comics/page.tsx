@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import ComicsCenterCarousel from "@/src/components/category/ComicsCenterCarousel";
 import ProductCard from "@/src/components/ProductCard";
-import TrustedByLogos from "@/src/components/TrustedByLogos";
 
 const heroData = {
   title: "Read Comics on TagComics",

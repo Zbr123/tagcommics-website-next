@@ -78,7 +78,7 @@ export default function Home() {
               <LogoImageItem src="/comics-logos/batman-logo2.png" alt="Batman" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/spider-man-logo.png" alt="Batman" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/Dc2-logo.jpg" alt="DC" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/Superman1_logo.png" alt="Superman" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/superman-logo.png" alt="Superman" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/marvel2-logo.png" alt="Superman" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/Ww-logos.jpg" alt="Wonder Woman" className="h-10 md:h-14" />
             </LogoSlider>
