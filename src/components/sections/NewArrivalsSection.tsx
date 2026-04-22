@@ -23,11 +23,11 @@ export default function NewArrivalsSection({ comics }: NewArrivalsSectionProps) 
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-black text-white mb-1">New Arrivals</h2>
-            <p className="text-gray-400 text-sm">Fresh comics just released</p>
+            <p className="text-sm text-zinc-400">Fresh comics just released</p>
           </div>
-          <Link 
-            href="/new-releases" 
-            className="text-yellow-400 hover:text-yellow-300 font-bold flex items-center gap-1 group transition-colors whitespace-nowrap"
+          <Link
+            href="/new-releases"
+            className="group flex items-center gap-1 whitespace-nowrap text-sm font-bold text-brand transition-colors hover:text-white sm:text-base"
           >
             See All
             <span className="group-hover:translate-x-1 transition-transform">→</span>

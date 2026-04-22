@@ -56,7 +56,7 @@ export default function ProductSlider({ children, className = "" }: ProductSlide
       {/* Left Navigation Button */}
       <button
         onClick={() => scroll("left")}
-        className={`absolute -left-6 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/80 backdrop-blur-sm border border-white/20 text-white hover:bg-yellow-400 hover:text-black transition-all cursor-pointer ${
+        className={`absolute -left-6 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/80 backdrop-blur-sm border border-white/20 text-white transition-all hover:border-brand/50 hover:bg-brand hover:text-brand-foreground cursor-pointer ${
           canScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         aria-label="Scroll left"
@@ -79,7 +79,7 @@ export default function ProductSlider({ children, className = "" }: ProductSlide
       {/* Right Navigation Button */}
       <button
         onClick={() => scroll("right")}
-        className={`absolute -right-6 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/80 backdrop-blur-sm border border-white/20 text-white hover:bg-yellow-400 hover:text-black transition-all cursor-pointer ${
+        className={`absolute -right-6 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/80 backdrop-blur-sm border border-white/20 text-white transition-all hover:border-brand/50 hover:bg-brand hover:text-brand-foreground cursor-pointer ${
           canScrollRight ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         aria-label="Scroll right"

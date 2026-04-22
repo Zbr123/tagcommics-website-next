@@ -14,8 +14,6 @@ interface Comic {
   image: string;
 }
 
-
-
 interface ProductCardProps {
   comic: Comic;
   showDiscount?: boolean;
@@ -24,67 +22,95 @@ interface ProductCardProps {
   cardWidth?: string;
 }
 
+const tagBadgeClass = (tag: string) => {
+  switch (tag) {
+    case "NEW":
+      return "bg-emerald-500/12 border border-emerald-400/25 text-emerald-300";
+    case "HOT":
+      return "bg-red-500/12 border border-red-400/25 text-red-300";
+    case "CLASSIC":
+      return "bg-violet-500/12 border border-violet-400/25 text-violet-300";
+    case "SALE":
+      return "bg-orange-500/12 border border-orange-400/25 text-orange-300";
+    case "BESTSELLER":
+      return "bg-brand/12 border border-brand/25 text-brand";
+    default:
+      return "bg-sky-500/12 border border-sky-400/25 text-sky-300";
+  }
+};
+
+const badgePill =
+  "inline-flex rounded-lg px-3 py-1 text-[11px] font-bold tracking-wider backdrop-blur-sm";
+
 export default function ProductCard({
   comic,
   showDiscount = false,
   showTag = false,
   showSold = false,
-  cardWidth
+  cardWidth,
 }: ProductCardProps) {
+  const widthClass =
+    cardWidth ||
+    "w-[160px] sm:w-[180px] md:w-[200px] min-w-[160px] sm:min-w-[180px] md:min-w-[200px]";
+
   return (
     <Link
       href={`/comic/${comic.id}`}
-      className={`group flex-shrink-0 ${cardWidth || 'w-[160px] sm:w-[180px] md:w-[200px]'} ${cardWidth === 'w-full' ? 'max-w-[340px] mx-auto' : ''} bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 overflow-hidden hover:border-yellow-400/50 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-400/10`}
+      className={`group relative block flex-shrink-0 overflow-hidden rounded-2xl glass-card aspect-[2/3] ${widthClass} ${
+        cardWidth === "w-full" ? "max-w-[340px] min-w-0 mx-auto w-full" : ""
+      }`}
     >
-      <div className="relative w-full">
-        <div className="relative h-[240px] sm:h-[270px] w-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
-          <Image
-            src={comic.image} 
-            alt={comic.title}
-            fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
-            sizes="(max-width: 640px) 160px, (max-width: 768px) 180px, 200px"
-          />
-          {showDiscount && comic.discount && (
-            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-black px-2.5 py-1 rounded-full shadow-lg z-10">
+      <Image
+        src={comic.image}
+        alt={comic.title}
+        fill
+        className="object-cover opacity-80 transition-all duration-700 ease-out group-hover:scale-110 group-hover:opacity-100"
+        sizes="(max-width: 640px) 160px, (max-width: 768px) 180px, 200px"
+      />
+
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-100"
+        aria-hidden
+      />
+
+      <div className="absolute bottom-0 left-0 right-0 translate-y-2 transform p-4 transition-transform duration-500 group-hover:translate-y-0 sm:p-5">
+        <div className="mb-2 flex flex-wrap gap-2">
+          {showDiscount && comic.discount ? (
+            <span
+              className={`${badgePill} bg-red-500/12 border border-red-400/25 text-red-300`}
+            >
               -{comic.discount}%
-            </div>
-          )}
-          {showTag && comic.tag && (
-            <div className={`absolute top-2 left-2 text-xs font-black px-2.5 py-1 rounded-full shadow-lg z-10 ${
-              comic.tag === "NEW" ? "bg-green-500 text-white" :
-              comic.tag === "HOT" ? "bg-red-500 text-white" :
-              comic.tag === "CLASSIC" ? "bg-purple-500 text-white" :
-              comic.tag === "SALE" ? "bg-orange-500 text-white" :
-              comic.tag === "BESTSELLER" ? "bg-yellow-500 text-black" :
-              "bg-blue-500 text-white"
-            }`}>
-              {comic.tag}
-            </div>
-          )}
+            </span>
+          ) : null}
+          {showTag && comic.tag ? (
+            <span className={`${badgePill} ${tagBadgeClass(comic.tag)}`}>{comic.tag}</span>
+          ) : null}
         </div>
-        <div className="p-3 sm:p-4">
-          <h3 className="font-bold text-white text-sm mb-1.5 group-hover:text-yellow-400 transition-colors">
-            {comic.title}
-          </h3>
-          {comic.author && (
-            <p className="text-gray-400 text-xs mb-2 truncate">{comic.author}</p>
-          )}
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-base sm:text-lg font-black text-yellow-400">${comic.price}</span>
-              {comic.originalPrice && (
-                <span className="text-xs text-gray-500 line-through">${comic.originalPrice}</span>
-              )}
-            </div>
-            {comic.rating && (
-              <div className="flex items-center gap-1">
-                <span className="text-yellow-400 text-xs">⭐</span>
-                <span className="text-xs text-gray-300">{comic.rating}</span>
-              </div>
-            )}
+
+        <h3 className="text-base font-bold leading-tight text-white md:text-lg">{comic.title}</h3>
+
+        {comic.author ? (
+          <p className="mt-1 truncate text-sm text-zinc-400">{comic.author}</p>
+        ) : null}
+
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-2">
+            <span className="text-base font-black text-brand sm:text-lg">${comic.price}</span>
+            {comic.originalPrice != null ? (
+              <span className="text-xs text-zinc-500 line-through">${comic.originalPrice}</span>
+            ) : null}
           </div>
+          {comic.rating ? (
+            <div className="flex shrink-0 items-center gap-1">
+              <span className="text-xs text-brand">⭐</span>
+              <span className="text-xs text-zinc-300">{comic.rating}</span>
+            </div>
+          ) : null}
         </div>
+
+        {showSold && comic.sold ? (
+          <p className="mt-1.5 text-xs text-zinc-500">{comic.sold}</p>
+        ) : null}
       </div>
     </Link>
   );

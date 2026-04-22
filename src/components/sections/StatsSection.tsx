@@ -70,9 +70,11 @@ const arrowVariants = {
 
 const viewport = { once: true, amount: 0.3 };
 
+const brandStroke = "#58e8c1";
+
 export default function StatsSection() {
   return (
-    <section className="py-16 px-4 bg-gradient-to-br from-gray-900 via-black to-gray-900 border-t border-gray-800">
+    <section className="border-t border-white/[0.06] bg-gradient-to-br from-black via-zinc-950 to-black px-4 py-16">
       <div className="mx-auto max-w-12xl">
         <motion.div
           className="p-8"
@@ -90,15 +92,15 @@ export default function StatsSection() {
                   variants={stepVariants}
                   custom={index}
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <div className="text-black">
+                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-brand/35 bg-brand text-brand-foreground shadow-[0_0_28px_rgba(88,232,193,0.28)]">
+                    <div className="text-brand-foreground [&_svg]:stroke-[2]">
                       {stat.icon}
                     </div>
                   </div>
-                  <h4 className="font-black text-3xl sm:text-4xl text-yellow-400 mb-4">
+                  <h4 className="mb-4 text-3xl font-black text-brand sm:text-4xl">
                     {stat.title}
                   </h4>
-                  <p className="text-gray-400 text-sm sm:text-base">
+                  <p className="text-sm text-zinc-400 sm:text-base">
                     {stat.description}
                   </p>
                 </motion.div>
@@ -113,20 +115,20 @@ export default function StatsSection() {
               preserveAspectRatio="none"
             >
               <defs>
-                <marker 
-                  id="chevron-arrow-yellow" 
-                  markerWidth="4.5" 
-                  markerHeight="4.5" 
-                  refX="1.7" 
-                  refY="4" 
+                <marker
+                  id="chevron-arrow-brand"
+                  markerWidth="4.5"
+                  markerHeight="4.5"
+                  refX="1.7"
+                  refY="4"
                   orient="auto"
                   markerUnits="userSpaceOnUse"
                   viewBox="0 0 3 8"
                 >
-                  <polyline 
-                    points="0,0 1.9,4 0,8" 
-                    fill="none" 
-                    stroke="#facc15" 
+                  <polyline
+                    points="0,0 1.9,4 0,8"
+                    fill="none"
+                    stroke={brandStroke}
                     strokeWidth="0.4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -141,9 +143,9 @@ export default function StatsSection() {
                   y1="10"
                   x2={arrow.x2}
                   y2="10"
-                  stroke="#facc15"
+                  stroke={brandStroke}
                   strokeWidth="0.5"
-                  markerEnd="url(#chevron-arrow-yellow)"
+                  markerEnd="url(#chevron-arrow-brand)"
                   variants={arrowVariants}
                   custom={index}
                   strokeLinecap="round"

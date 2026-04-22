@@ -51,7 +51,7 @@ export default function HeroSection() {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white hover:bg-yellow-400 hover:text-black transition-all cursor-pointer"
+        className="absolute left-4 top-1/2 z-20 -translate-y-1/2 cursor-pointer rounded-full border border-white/20 bg-black/50 p-3 text-white backdrop-blur-sm transition-all hover:border-brand/50 hover:bg-brand hover:text-brand-foreground"
         aria-label="Previous slide"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@ export default function HeroSection() {
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white hover:bg-yellow-400 hover:text-black transition-all cursor-pointer"
+        className="absolute right-4 top-1/2 z-20 -translate-y-1/2 cursor-pointer rounded-full border border-white/20 bg-black/50 p-3 text-white backdrop-blur-sm transition-all hover:border-brand/50 hover:bg-brand hover:text-brand-foreground"
         aria-label="Next slide"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +77,7 @@ export default function HeroSection() {
             className="h-2 rounded-full transition-all duration-300 cursor-pointer"
             style={{
               width: idx === currentSlide ? "32px" : "12px",
-              backgroundColor: idx === currentSlide ? "#facc15" : "rgba(255,255,255,0.5)"
+              backgroundColor: idx === currentSlide ? "var(--brand)" : "rgba(255,255,255,0.5)",
             }}
             aria-label={`Go to slide ${idx + 1}`}
           />

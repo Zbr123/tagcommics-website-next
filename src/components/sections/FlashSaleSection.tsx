@@ -27,15 +27,15 @@ export default function FlashSaleSection({ comics }: FlashSaleSectionProps) {
               <CountdownTimer />
             </div>
           </div>
-          <Link 
-            href="/flash-sale" 
-            className="border-2 border-yellow-400 hover:bg-yellow-400 text-yellow-400 hover:text-black font-bold px-6 py-2.5 rounded-lg transition-all whitespace-nowrap text-sm sm:text-base"
+          <Link
+            href="/flash-sale"
+            className="rounded-xl border-2 border-brand/55 bg-transparent px-6 py-2.5 text-sm font-bold text-brand transition-all hover:border-brand hover:bg-brand hover:text-brand-foreground sm:text-base whitespace-nowrap"
           >
             SHOP ALL PRODUCTS
           </Link>
         </div>
-        
-        <div className="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 rounded-2xl p-6 py-12">
+
+        <div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-black via-zinc-950 to-black p-6 py-12">
           <ProductSlider>
             {comics.map((comic) => (
               <ProductCard key={comic.id} comic={comic} showDiscount={true} />
