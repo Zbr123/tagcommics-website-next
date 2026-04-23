@@ -1,5 +1,7 @@
 "use client";
 
+import MultiverseSearchField from "@/src/components/ui/MultiverseSearchField";
+
 type RoleFilter = "all" | "heroes" | "villains";
 
 export type SortKey = "featured" | "name-asc" | "name-desc" | "popularity-desc";
@@ -38,22 +40,13 @@ export default function CharactersFilterBar({
       id="search-filters"
       className="glass-panel relative z-20 flex w-full flex-col gap-4 rounded-2xl border border-white/10 p-4 shadow-[0_20px_40px_rgba(0,0,0,0.5)] md:flex-row md:items-center md:justify-between"
     >
-      <div className="relative w-full md:w-1/3">
-        <svg
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          type="search"
+      <div className="w-full md:w-1/3">
+        <MultiverseSearchField
+          id="characters-search"
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={onSearchChange}
           placeholder="Search characters..."
-          className="w-full rounded-xl border border-white/10 bg-black/50 py-2.5 pl-10 pr-3 text-sm text-white placeholder:text-zinc-500 focus:border-cyan-500/40 focus:outline-none focus:ring-1 focus:ring-cyan-500/30"
+          aria-label="Search characters"
         />
       </div>
 

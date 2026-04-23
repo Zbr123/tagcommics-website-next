@@ -17,20 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Comics Website",
-  description: "Your ultimate destination for digital comics",
-  icons: {
-    icon: [
-      { url: "/comic-icon.png", sizes: "any", type: "image/png" },
-      { url: "/comic-icon.png", sizes: "32x32", type: "image/png" },
-      { url: "/comic-icon.png", sizes: "96x96", type: "image/png" },
-      { url: "/comic-icon.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: [
-      { url: "/comic-icon.png", sizes: "180x180", type: "image/png" },
-      { url: "/comic-icon.png", sizes: "192x192", type: "image/png" },
-    ],
-  },
+  title: "ComicVerse",
+  description: "Premium digital comics — discover series, characters, and new releases.",
+  /** Favicons: `app/icon.svg` + `app/apple-icon.svg` (bolt mark, matches nav). */
 };
 
 export default function RootLayout({

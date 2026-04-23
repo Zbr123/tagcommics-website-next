@@ -28,21 +28,18 @@ export default function CountdownTimer() {
     return () => clearInterval(timer);
   }, []);
 
+  const digitClass =
+    "min-w-[2.5rem] rounded-lg border border-brand/35 bg-brand/10 px-3 py-1.5 text-center text-sm font-bold text-brand tabular-nums";
+
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-gray-400 font-medium">Ends in:</span>
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-sm font-medium text-zinc-400">Ends in:</span>
       <div className="flex items-center gap-1.5">
-        <span className="bg-red-500/20 text-red-400 border border-red-500/50 px-3 py-1.5 rounded-lg font-bold text-sm min-w-[2.5rem] text-center">
-          {String(time.hours).padStart(2, "0")}
-        </span>
-        <span className="text-red-400 font-bold">:</span>
-        <span className="bg-red-500/20 text-red-400 border border-red-500/50 px-3 py-1.5 rounded-lg font-bold text-sm min-w-[2.5rem] text-center">
-          {String(time.minutes).padStart(2, "0")}
-        </span>
-        <span className="text-red-400 font-bold">:</span>
-        <span className="bg-red-500/20 text-red-400 border border-red-500/50 px-3 py-1.5 rounded-lg font-bold text-sm min-w-[2.5rem] text-center">
-          {String(time.seconds).padStart(2, "0")}
-        </span>
+        <span className={digitClass}>{String(time.hours).padStart(2, "0")}</span>
+        <span className="font-bold text-brand">:</span>
+        <span className={digitClass}>{String(time.minutes).padStart(2, "0")}</span>
+        <span className="font-bold text-brand">:</span>
+        <span className={digitClass}>{String(time.seconds).padStart(2, "0")}</span>
       </div>
     </div>
   );

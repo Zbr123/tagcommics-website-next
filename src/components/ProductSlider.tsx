@@ -71,7 +71,7 @@ export default function ProductSlider({ children, className = "" }: ProductSlide
         ref={scrollContainerRef}
         className="overflow-x-auto scrollbar-hide"
       >
-        <div className="flex gap-4">
+        <div className="flex gap-6 lg:gap-8">
           {children}
         </div>
       </div>

@@ -30,16 +30,12 @@ const bestSellersComics = [
   { id: 8, title: "Saga Deluxe", author: "Brian K. Vaughan", price: 34.99, rating: 4.9, sold: "1.7k", image: "/comic-slide4.png" },
 ];
 
-// New Arrivals Data
-const newArrivals = [
-  { id: 1, title: "The Walking Dead Vol.1", author: "Robert Kirkman", price: 12.99, rating: 4.8, image: "/comic-slider1.png", tag: "NEW" },
-  { id: 2, title: "Saga Deluxe Edition", author: "Brian K. Vaughan", price: 24.99, rating: 4.9, image: "/comic-slider5.png", tag: "HOT" },
-  { id: 3, title: "Invincible Compendium", author: "Robert Kirkman", price: 39.99, rating: 4.7, image: "/comic-slider3.png", tag: "NEW" },
-  { id: 4, title: "Watchmen Absolute", author: "Alan Moore", price: 29.99, rating: 5.0, image: "/comic-slide4.png", tag: "CLASSIC" },
-  { id: 5, title: "Sin City Library", author: "Frank Miller", price: 34.99, rating: 4.8, image: "/comic-slider1.png", tag: "SALE" },
-  { id: 6, title: "Preacher Omnibus", author: "Garth Ennis", price: 49.99, rating: 4.9, image: "/comic-slider5.png", tag: "BESTSELLER" },
-  { id: 7, title: "Y: The Last Man", author: "Brian K. Vaughan", price: 19.99, rating: 4.8, image: "/comic-slider3.png", tag: "NEW" },
-  { id: 8, title: "Sandman Omnibus", author: "Neil Gaiman", price: 44.99, rating: 5.0, image: "/comic-slide4.png", tag: "CLASSIC" },
+/** Homepage Latest Releases — single row of four; `/comic/[id]` routes */
+const latestReleases = [
+  { id: 1, title: "Shadows of Aethelgard", image: "/shadows.png", issue: "#42", genre: "Fantasy", status: "Ongoing" },
+  { id: 2, title: "The Vanguard", image: "/vanguard.png", issue: "#12", genre: "Action", status: "New Issue" },
+  { id: 3, title: "Crimson Noir", image: "/crimsin.png", issue: "#08", genre: "Mystery", status: "Completed" },
+  { id: 4, title: "Urban Echoes", image: "/urban.png", issue: "#03", genre: "Drama", status: "Ongoing" },
 ];
 
 export default function Home() {
@@ -48,50 +44,38 @@ export default function Home() {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Flash Sale Section */}
-      
+      <NewArrivalsSection releases={latestReleases} />
+      <FlashSaleSection comics={flashSaleComics} />
+      <BestSellersSection comics={bestSellersComics} />
 
-      {/* Publisher Logos Dual Slider — top row scrolls left, bottom row scrolls right */}
-      <div className="text-center mb-12 mt-10">
-        <h2 className="text-center text-white text-2xl md:text-5xl font-black">Comic Book Publishers</h2>
-      </div>
-      <section className="py-8 w-full">
-        <div className="w-full px-4 md:px-6 lg:px-12 mx-auto">
-          {/* Top row — scrolls left (faster) */}
+      {/* Publisher logos — after product rows: reads as “trusted by” before browse-by-category */}
+      <section className="w-full border-t border-white/[0.06] bg-black py-10 md:py-14">
+        <div className="mx-auto mb-8 max-w-[1440px] px-4 text-center sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-black text-white md:text-4xl lg:text-5xl">Comic Book Publishers</h2>
+          <p className="mt-2 text-sm text-zinc-400 md:text-base">Imprints and partners behind the titles in our catalog.</p>
+        </div>
+        <div className="mx-auto w-full max-w-[1440px] px-4 md:px-6 lg:px-8">
           <div className="mb-6">
             <LogoSlider direction="left" speedSeconds={30}>
-              <LogoImageItem src="/comics-logos/DC_Comics_logo.png" alt="DC" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/DC_Comics_logo.png" alt="DC Comics" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/AC-Comics-logo.png" alt="AC Comics" className="h-10 md:h-14" />
-               <LogoImageItem src="/comics-logos/Marvel-logo.png" alt="Wonder Woman" className="h-10 md:h-14" />
-                <LogoImageItem src="/comics-logos/valiant-comics-logo.jpg" alt="Wonder Woman" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/batman-logo1.png" alt="Batman" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/Marvel-logo.png" alt="Marvel" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/valiant-comics-logo.jpg" alt="Valiant Comics" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/superman-logo.png" alt="Superman" className="h-10 md:h-14" />
-              {/* <LogoImageItem src="/comics-logos/Ww-logos.jpg" alt="Wonder Woman" className="h-10 md:h-14" /> */}
             </LogoSlider>
           </div>
-
-          {/* Bottom row — scrolls right (slightly different speed) */}
           <div>
             <LogoSlider direction="right" speedSeconds={28}>
-              <LogoImageItem src="/comics-logos/DC_Comics_logo.png" alt="DC" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/DC_Comics_logo.png" alt="DC Comics" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/AC_comics1-logo.png" alt="AC Comics" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/batman-logo2.png" alt="Batman" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/spider-man-logo.png" alt="Batman" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/Dc2-logo.jpg" alt="DC" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/spider-man-logo.png" alt="Spider-Man" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/Dc2-logo.jpg" alt="DC Comics" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/superman-logo.png" alt="Superman" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/marvel2-logo.png" alt="Superman" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/Ww-logos.jpg" alt="Wonder Woman" className="h-10 md:h-14" />
             </LogoSlider>
           </div>
         </div>
       </section>
-
-<FlashSaleSection comics={flashSaleComics} />
-      {/* Best Sellers Section */}
-      <BestSellersSection comics={bestSellersComics} />
-
-      {/* New Arrivals Section */}
-      <NewArrivalsSection comics={newArrivals} />
 
       {/* Categories Section */}
       <CategoriesSection />

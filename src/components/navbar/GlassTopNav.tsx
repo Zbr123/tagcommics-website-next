@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBolt } from "@fortawesome/free-solid-svg-icons";
+import MultiverseSearchField from "@/src/components/ui/MultiverseSearchField";
 
 export interface GlassTopNavProps {
   pathname: string;
@@ -14,42 +17,82 @@ export interface GlassTopNavProps {
 
 /**
  * Minimal fixed top bar: bolt home, Characters + Design Team links, profile avatar.
- * Matches reference layout: `fixed top-0 … glass-panel border-b border-white/5 px-6 py-4`, inner `max-w-[1440px]`.
+ * Catalog search on `/` and `/search`: pill → `/search?q=…` (single source of truth in URL).
  */
 export default function GlassTopNav({ pathname, profileHref, userName }: GlassTopNavProps) {
-  const onCharacters = pathname === "/characters" || pathname.startsWith("/characters/");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlQ = searchParams.get("q") ?? "";
+  const isHome = pathname === "/";
+  const isSearch = pathname === "/search";
+  const isCharacters = pathname.startsWith("/characters");
+  const showCatalogSearch = isHome || isSearch;
+  const [navQuery, setNavQuery] = useState(() => (pathname === "/search" ? urlQ : ""));
+
+  useEffect(() => {
+    if (isSearch) {
+      setNavQuery(urlQ);
+    }
+  }, [isSearch, urlQ]);
+
+  const handleCatalogSearch = (e: FormEvent) => {
+    e.preventDefault();
+    const q = navQuery.trim();
+    router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+  };
 
   return (
     <nav
       id="global-nav"
-      className="fixed top-0 left-0 right-0 z-50 bg-black/95 border-b border-white/5 px-6 py-4"
+      className="fixed left-0 right-0 top-0 z-50 border-b border-white/5 bg-black/95 px-4 py-4 sm:px-6"
     >
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-        <div className="flex items-center gap-8">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-shrink-0 items-center gap-6 md:gap-8">
           <Link
             href="/"
-            className="inline-flex items-center justify-center w-[52px] h-[52px] rounded-xl bg-black/40 border border-[rgba(88,232,193,0.28)] transition-transform hover:scale-105"
+            className="inline-flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-xl border border-[rgba(88,232,193,0.28)] bg-black/40 transition-transform hover:scale-105"
             aria-label="Home"
           >
             <FontAwesomeIcon icon={faBolt} style={{ color: "rgb(88,232,193)" }} className="h-5 w-5" aria-hidden />
           </Link>
 
           <div className="hidden items-center gap-6 md:flex">
-            <Link href="/characters" className="text-sm font-semibold text-white">
+            <Link
+              href="/characters"
+              className={`text-sm font-semibold transition-colors ${
+                isCharacters ? "text-white" : "text-zinc-400 hover:text-white"
+              }`}
+            >
               Characters
             </Link>
             <span className="cursor-default text-sm font-medium text-zinc-400 hover:text-white">Design Team</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-0 items-center justify-end gap-3 sm:gap-8">
+          {showCatalogSearch ? (
+            <form
+              onSubmit={handleCatalogSearch}
+              className="min-w-0 max-w-[10rem] flex-1 sm:max-w-[14rem] md:max-w-[18rem] lg:max-w-[22rem]"
+            >
+              <MultiverseSearchField
+                variant="pill"
+                id="nav-catalog-search"
+                name="q"
+                value={navQuery}
+                onChange={setNavQuery}
+                placeholder="Search series, creators, or characters…"
+                aria-label="Search catalog"
+              />
+            </form>
+          ) : null}
           <Link
             href={profileHref}
-            className="relative h-10 w-10 overflow-hidden rounded-full border border-white/10 transition-colors hover:border-[rgba(88,232,193,0.35)]"
+            className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-white/10 transition-colors hover:border-[rgba(88,232,193,0.35)]"
             aria-label={userName ? `Account (${userName})` : "Account"}
           >
             <Image
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&auto=format"
+              src="/profile_avatar.jpg"
               alt=""
               fill
               className="object-cover"

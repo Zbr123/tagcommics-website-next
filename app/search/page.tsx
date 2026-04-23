@@ -3,9 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, Suspense } from "react";
+import { useMemo, Suspense } from "react";
 
-// Mock comics database - In a real app, this would come from an API
 const allComics = [
   { id: 1, title: "Spider-Man #1", author: "Stan Lee", price: 4.99, originalPrice: 9.99, discount: 50, rating: 4.9, sold: "2.5k", image: "/comic-slider1.png", category: "Comics", tag: "BESTSELLER" },
   { id: 2, title: "Batman Annual", author: "Bob Kane", price: 6.99, originalPrice: 12.99, discount: 46, rating: 4.7, sold: "1.8k", image: "/comic-slider5.png", category: "Comics", tag: "NEW" },
@@ -29,200 +28,109 @@ const allComics = [
 
 function SearchContent() {
   const searchParams = useSearchParams();
-  const query = searchParams.get("q") || "";
-  const category = searchParams.get("category") || "All";
-  const [sortBy, setSortBy] = useState("featured");
+  const query = (searchParams.get("q") ?? "").trim();
 
-  // Filter comics based on search query
-  const filteredComics = allComics.filter((comic) => {
-    const matchesQuery = query === "" || 
-      comic.title.toLowerCase().includes(query.toLowerCase()) ||
-      comic.author.toLowerCase().includes(query.toLowerCase()) ||
-      comic.category.toLowerCase().includes(query.toLowerCase());
-    
-    const matchesCategory = category === "All" || comic.category === category;
-    
-    return matchesQuery && matchesCategory;
-  });
-
-  // Sort comics
-  const sortedComics = [...filteredComics].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "rating":
-        return (b.rating || 0) - (a.rating || 0);
-      case "newest":
-        return b.id - a.id;
-      default:
-        return 0;
-    }
-  });
+  const filteredComics = useMemo(() => {
+    if (!query) return allComics;
+    const q = query.toLowerCase();
+    return allComics.filter(
+      (c) =>
+        c.title.toLowerCase().includes(q) ||
+        c.author.toLowerCase().includes(q) ||
+        c.category.toLowerCase().includes(q),
+    );
+  }, [query]);
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search Results Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">
-                {query ? `Search results for "${query}"` : "All Comics"}
-              </h1>
-              <p className="text-gray-400 text-sm">
-                {sortedComics.length} {sortedComics.length === 1 ? "result" : "results"} found
-              </p>
+    <div className="min-h-screen bg-black pb-16 pt-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <header className="mb-8">
+          <h1 className="sr-only">Catalog search results</h1>
+          {query ? (
+            <p className="text-sm text-zinc-500">
+              Results for <span className="font-semibold text-zinc-300">&quot;{query}&quot;</span>
+            </p>
+          ) : (
+            <p className="text-sm text-zinc-500">Browse the full catalog — use the search field in the header to filter.</p>
+          )}
+        </header>
+
+        <div className="mx-auto max-w-7xl">
+          {filteredComics.length === 0 ? (
+            <div className="py-16 text-center">
+              <p className="text-lg text-zinc-400">No comics match that search.</p>
+              <p className="mt-2 text-sm text-zinc-600">Try another title or name in the bar above.</p>
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-gray-400 text-sm">Sort by:</label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-gray-900 border border-gray-700 text-white px-4 py-2 rounded-lg text-sm focus:outline-none focus:border-yellow-400"
-              >
-                <option value="featured">Featured</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Customer Rating</option>
-                <option value="newest">Newest Arrivals</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-6">
-          {/* Sidebar Filters */}
-          <aside className="hidden lg:block w-64 shrink-0">
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6">
-              <h2 className="text-white font-black text-lg mb-4">Filters</h2>
-              
-              {/* Category Filter */}
-              <div className="mb-6">
-                <h3 className="text-white font-bold text-sm mb-3">Category</h3>
-                <div className="space-y-2">
-                  {["All", "Comics", "Graphic Novels", "Manga"].map((cat) => (
-                    <Link
-                      key={cat}
-                      href={`/search?q=${encodeURIComponent(query)}&category=${encodeURIComponent(cat)}`}
-                      className={`block text-sm py-1 ${
-                        category === cat
-                          ? "text-yellow-400 font-bold"
-                          : "text-gray-400 hover:text-yellow-400"
-                      } transition-colors`}
-                    >
-                      {cat}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-6">
-                <h3 className="text-white font-bold text-sm mb-3">Price</h3>
-                <div className="space-y-2">
-                  {["$0 - $10", "$10 - $20", "$20 - $30", "$30+"].map((range) => (
-                    <label key={range} className="flex items-center gap-2 text-gray-400 text-sm cursor-pointer hover:text-yellow-400">
-                      <input type="checkbox" className="rounded" />
-                      {range}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Customer Rating */}
-              <div>
-                <h3 className="text-white font-bold text-sm mb-3">Customer Rating</h3>
-                <div className="space-y-2">
-                  {[4, 3, 2, 1].map((stars) => (
-                    <label key={stars} className="flex items-center gap-2 text-gray-400 text-sm cursor-pointer hover:text-yellow-400">
-                      <input type="checkbox" className="rounded" />
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i} className={i < stars ? "text-yellow-400" : "text-gray-600"}>
-                            ⭐
-                          </span>
-                        ))}
-                        <span className="ml-1">& Up</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          {/* Main Results */}
-          <div className="flex-1">
-            {sortedComics.length === 0 ? (
-              <div className="text-center py-16">
-                <p className="text-gray-400 text-lg mb-4">No comics found matching your search.</p>
-                <p className="text-gray-500 text-sm">Try adjusting your search terms or filters.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {sortedComics.map((comic) => (
-                  <Link
-                    key={comic.id}
-                    href={`/comic/${comic.id}`}
-                    className="group bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 overflow-hidden hover:border-yellow-400/50 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-400/10"
-                  >
-                    <div className="relative">
-                      <div className="aspect-[3/4] relative overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
-                        <Image
-                          src={comic.image}
-                          alt={comic.title}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        />
-                        {comic.discount && (
-                          <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-black px-2.5 py-1 rounded-full shadow-lg z-10">
-                            -{comic.discount}%
-                          </div>
-                        )}
-                        {comic.tag && (
-                          <div className={`absolute top-2 ${comic.discount ? "right-2" : "left-2"} text-xs font-black px-2.5 py-1 rounded-full shadow-lg z-10 ${
-                            comic.tag === "NEW" ? "bg-green-500 text-white" :
-                            comic.tag === "HOT" ? "bg-red-500 text-white" :
-                            comic.tag === "CLASSIC" ? "bg-purple-500 text-white" :
-                            comic.tag === "BESTSELLER" ? "bg-yellow-500 text-black" :
-                            "bg-blue-500 text-white"
-                          }`}>
-                            {comic.tag}
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-bold text-white text-sm mb-1.5 line-clamp-2 group-hover:text-yellow-400 transition-colors min-h-[2.5rem]">
-                          {comic.title}
-                        </h3>
-                        <p className="text-gray-400 text-xs mb-2 truncate">{comic.author}</p>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-base font-black text-yellow-400">${comic.price}</span>
-                            {comic.originalPrice && (
-                              <span className="text-xs text-gray-500 line-through">${comic.originalPrice}</span>
-                            )}
-                          </div>
-                          {comic.rating && (
-                            <div className="flex items-center gap-1">
-                              <span className="text-yellow-400 text-xs">⭐</span>
-                              <span className="text-xs text-gray-300">{comic.rating}</span>
-                            </div>
-                          )}
+          ) : (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredComics.map((comic) => (
+                <Link
+                  key={comic.id}
+                  href={`/comic/${comic.id}`}
+                  className="group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-zinc-950 to-zinc-900 transition hover:border-brand/40 hover:shadow-lg hover:shadow-brand/5"
+                >
+                  <div className="relative">
+                    <div className="relative aspect-[3/4] overflow-hidden bg-black/40">
+                      <Image
+                        src={comic.image}
+                        alt={comic.title}
+                        fill
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                      {comic.discount ? (
+                        <div className="absolute left-2 top-2 z-10 rounded-full bg-red-500 px-2.5 py-1 text-xs font-black text-white shadow-lg">
+                          -{comic.discount}%
                         </div>
-                        {comic.sold && (
-                          <p className="text-xs text-gray-500">{comic.sold} sold</p>
-                        )}
-                      </div>
+                      ) : null}
+                      {comic.tag ? (
+                        <div
+                          className={`absolute z-10 rounded-full px-2.5 py-1 text-xs font-black shadow-lg ${
+                            comic.discount ? "right-2 top-2" : "left-2 top-2"
+                          } ${
+                            comic.tag === "NEW"
+                              ? "bg-emerald-600 text-white"
+                              : comic.tag === "HOT"
+                                ? "bg-red-600 text-white"
+                                : comic.tag === "CLASSIC"
+                                  ? "bg-violet-600 text-white"
+                                  : comic.tag === "BESTSELLER"
+                                    ? "bg-brand/90 text-brand-foreground"
+                                    : "bg-sky-600 text-white"
+                          }`}
+                        >
+                          {comic.tag}
+                        </div>
+                      ) : null}
                     </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+                    <div className="p-4">
+                      <h3 className="mb-1.5 line-clamp-2 min-h-[2.5rem] text-sm font-bold text-white transition group-hover:text-brand">
+                        {comic.title}
+                      </h3>
+                      <p className="mb-2 truncate text-xs text-zinc-400">{comic.author}</p>
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-base font-black text-brand">${comic.price}</span>
+                          {"originalPrice" in comic && comic.originalPrice != null ? (
+                            <span className="text-xs text-zinc-500 line-through">${comic.originalPrice}</span>
+                          ) : null}
+                        </div>
+                        {comic.rating != null ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-brand">★</span>
+                            <span className="text-xs text-zinc-300">{comic.rating}</span>
+                          </div>
+                        ) : null}
+                      </div>
+                      {"sold" in comic && comic.sold ? (
+                        <p className="text-xs text-zinc-500">{comic.sold} sold</p>
+                      ) : null}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -231,13 +139,14 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-yellow-400 text-xl">Loading search results...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-black">
+          <p className="text-lg text-brand">Loading…</p>
+        </div>
+      }
+    >
       <SearchContent />
     </Suspense>
   );
 }
-
