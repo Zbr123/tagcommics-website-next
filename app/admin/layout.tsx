@@ -130,7 +130,7 @@ export default function AdminLayout({
             </div>
             <Link
               href="/"
-              className="text-sm text-gray-400 hover:text-yellow-400 transition-colors flex items-center gap-2 cursor-pointer"
+              className="text-sm text-gray-400 hover:text-brand transition-colors flex items-center gap-2 cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

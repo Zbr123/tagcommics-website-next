@@ -96,7 +96,7 @@ export default function HeroCarousel({ items }: HeroCarouselProps) {
                   {slide.subtitle}
                 </p>
                 <Link
-                  href={slide.link ? `/comic/${slide.link}` : "/manga"}
+                  href={slide.link ? `/reader/${slide.link}` : "/manga"}
                   className="inline-flex w-fit bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   Read More

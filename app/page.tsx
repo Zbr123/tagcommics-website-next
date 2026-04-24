@@ -30,7 +30,7 @@ const bestSellersComics = [
   { id: 8, title: "Saga Deluxe", author: "Brian K. Vaughan", price: 34.99, rating: 4.9, sold: "1.7k", image: "/comic-slide4.png" },
 ];
 
-/** Homepage Latest Releases — single row of four; `/comic/[id]` routes */
+/** Homepage Latest Releases — single row of four; cards link to `/reader/[id]` */
 const latestReleases = [
   { id: 1, title: "Shadows of Aethelgard", image: "/shadows.png", issue: "#42", genre: "Fantasy", status: "Ongoing" },
   { id: 2, title: "The Vanguard", image: "/vanguard.png", issue: "#12", genre: "Action", status: "New Issue" },

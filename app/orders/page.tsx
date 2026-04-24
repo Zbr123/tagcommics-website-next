@@ -228,7 +228,7 @@ export default function OrdersPage() {
                           }`}
                         >
                           <Link
-                            href={`/comic/${item.id}`}
+                            href={`/reader/${item.id}`}
                             className="relative w-full sm:w-24 h-32 sm:h-32 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0"
                           >
                             <Image
@@ -240,7 +240,7 @@ export default function OrdersPage() {
                             />
                           </Link>
                           <div className="flex-1">
-                            <Link href={`/comic/${item.id}`}>
+                            <Link href={`/reader/${item.id}`}>
                               <h3 className="text-white font-bold text-base mb-1 hover:text-yellow-400 transition-colors">
                                 {item.title}
                               </h3>

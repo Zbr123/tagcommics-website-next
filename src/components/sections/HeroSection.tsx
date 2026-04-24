@@ -19,7 +19,7 @@ const featuredBySlide = [
     title2: "The Awakening",
     description:
       "In a cyberpunk metropolis where memories are currency, a rogue detective uncovers a conspiracy that threatens the very fabric of reality.",
-    href: "/comic/1",
+    href: "/reader/1",
     cta: "Read Issue #1",
   },
   {
@@ -29,7 +29,7 @@ const featuredBySlide = [
     title2: "Legacy in Orbit",
     description:
       "When stellar empires collide, one pilot holds the key to peace—or total annihilation across the outer rim.",
-    href: "/comic/2",
+    href: "/reader/2",
     cta: "Read Issue #1",
   },
 ];

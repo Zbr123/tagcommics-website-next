@@ -1,6 +1,6 @@
 /**
  * Flattened list of comics from category pages (Shop by Category).
- * Used by the comic detail page so /comic/[id] works for category card links (e.g. /comic/409).
+ * Category carousel `link` values open `/reader/[link]` (PDF reader); comic storefront remains at `/comic/[id]` when linked explicitly.
  */
 
 export interface CategoryComic {

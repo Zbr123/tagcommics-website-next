@@ -112,7 +112,7 @@ export default function CartPage() {
               >
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Image */}
-                  <Link href={`/comic/${item.id}`} className="relative w-full sm:w-32 h-48 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0">
+                  <Link href={`/reader/${item.id}`} className="relative w-full sm:w-32 h-48 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0">
                     <Image
                       src={item.image}
                       alt={item.title}
@@ -126,7 +126,7 @@ export default function CartPage() {
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <Link href={`/comic/${item.id}`}>
+                        <Link href={`/reader/${item.id}`}>
                           <h3 className="text-white font-bold text-lg mb-1 hover:text-yellow-400 transition-colors">
                             {item.title}
                           </h3>

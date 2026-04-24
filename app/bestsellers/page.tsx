@@ -103,7 +103,7 @@ export default function BestSellersPage() {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
-              <h1 className="text-2xl sm:text-3xl font-black text-white">Best Sellers</h1>
+              <h1 className="text-2xl sm:text-3xl font-black text-brand">Best Sellers</h1>
             </div>
             
             {/* Category Dropdown */}
@@ -115,7 +115,7 @@ export default function BestSellersPage() {
                   setSelectedCategory(e.target.value);
                   setDisplayCount(ITEMS_PER_PAGE); // Reset display count when category changes
                 }}
-                className="bg-gray-900 border border-gray-700 text-white px-4 py-2 rounded-lg text-sm focus:outline-none focus:border-yellow-400 min-w-[150px]"
+                className="bg-gray-900 border border-gray-700 text-white px-4 py-2 rounded-lg text-sm focus:outline-none focus:border-brand min-w-[150px]"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -134,7 +134,7 @@ export default function BestSellersPage() {
             </p>
             <Link
               href="/"
-              className="text-yellow-400 hover:text-yellow-300 font-bold text-sm flex items-center gap-1"
+              className="text-brand hover:text-white font-bold text-sm flex items-center gap-1"
             >
               ← Back to Home
             </Link>
@@ -147,7 +147,7 @@ export default function BestSellersPage() {
             <p className="text-gray-400 text-lg mb-4">No bestseller products found in this category.</p>
             <button
               onClick={() => setSelectedCategory("All")}
-              className="text-yellow-400 hover:text-yellow-300 font-bold cursor-pointer"
+              className="text-brand hover:text-white font-bold cursor-pointer"
             >
               View All Categories
             </button>
@@ -165,7 +165,7 @@ export default function BestSellersPage() {
               <div className="flex justify-center mt-8">
                 <button
                   onClick={handleLoadMore}
-                  className="border-2 border-yellow-400 hover:bg-yellow-400 text-yellow-400 hover:text-black font-bold px-6 py-2.5 rounded-lg transition-all cursor-pointer"
+                  className="border-2 border-brand hover:bg-brand text-brand hover:text-black font-bold px-6 py-2.5 rounded-lg transition-all cursor-pointer"
                 >
                   Load More Products
                 </button>

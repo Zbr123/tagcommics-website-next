@@ -138,7 +138,7 @@ export default function HeroMangaCarousel({ slides, heightVh = 52 }: HeroMangaCa
                 {current.subtitle}
               </p>
               <Link
-                href={current.link ? `/comic/${current.link}` : "/manga"}
+                href={current.link ? `/reader/${current.link}` : "/manga"}
                 className="mt-6 w-fit border-2 border-yellow-400 hover:bg-yellow-400 text-yellow-400 hover:text-black font-bold px-6 py-2.5 rounded-lg transition-all cursor-pointer text-sm lg:text-base"
               >
                 Learn More
@@ -166,7 +166,7 @@ export default function HeroMangaCarousel({ slides, heightVh = 52 }: HeroMangaCa
             {slides.map((slide, i) => (
               <Link
                 key={i}
-                href={slide.link ? `/comic/${slide.link}` : "/manga"}
+                href={slide.link ? `/reader/${slide.link}` : "/manga"}
                 className="relative flex-shrink-0 h-full rounded-xl overflow-hidden shadow-2xl box-border block cursor-pointer"
                 style={{
                   width: sliderWidth ? `${cardWidthPx}px` : `${CARD_WIDTH_PERCENT}%`,
@@ -217,14 +217,14 @@ export default function HeroMangaCarousel({ slides, heightVh = 52 }: HeroMangaCa
               {current.subtitle}
             </p>
             <Link
-              href={current.link ? `/comic/${current.link}` : "/manga"}
+              href={current.link ? `/reader/${current.link}` : "/manga"}
               className="mt-5 w-full max-w-xs mx-auto border-2 border-yellow-400 hover:bg-yellow-400 text-yellow-400 hover:text-black font-bold px-6 py-2.5 rounded-lg transition-all cursor-pointer block text-center"
             >
               Learn More
             </Link>
             <div className="relative mt-6 w-full flex-1 min-h-[200px] max-w-sm mx-auto">
               <Link
-                href={current.link ? `/comic/${current.link}` : "/manga"}
+                href={current.link ? `/reader/${current.link}` : "/manga"}
                 className="block relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-2xl box-border cursor-pointer"
               >
                 <span

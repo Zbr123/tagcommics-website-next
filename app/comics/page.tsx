@@ -98,7 +98,7 @@ export default function ComicsPage() {
       </section>
 
       {/* Comics slider: center image full, prev/next small, images only (no text) */}
-      <ComicsCenterCarousel slides={COMICS_SLIDER_SLIDES} sectionTitle="Comics" heightVh={18} />
+      {/* <ComicsCenterCarousel slides={COMICS_SLIDER_SLIDES} sectionTitle="Comics" heightVh={18} /> */}
 
       <div className="mx-auto max-w-12xl px-4 sm:px-6 lg:px-20 py-8">
         {/* Header Section */}
@@ -136,7 +136,7 @@ export default function ComicsPage() {
             </p>
             <Link
               href="/"
-              className="text-yellow-400 hover:text-yellow-300 font-bold text-sm flex items-center gap-1"
+              className="text-brand hover:text-white font-bold text-sm flex items-center gap-1"
             >
               ← Back to Home
             </Link>

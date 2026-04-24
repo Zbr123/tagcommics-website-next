@@ -66,7 +66,7 @@ function SearchContent() {
               {filteredComics.map((comic) => (
                 <Link
                   key={comic.id}
-                  href={`/comic/${comic.id}`}
+                  href={`/reader/${comic.id}`}
                   className="group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-zinc-950 to-zinc-900 transition hover:border-brand/40 hover:shadow-lg hover:shadow-brand/5"
                 >
                   <div className="relative">

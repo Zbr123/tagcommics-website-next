@@ -94,7 +94,7 @@ export default function CharactersHub() {
             <button
               type="button"
               onClick={() => setVisibleCount((n) => Math.min(n + PAGE_SIZE, filtered.length))}
-              className="rounded-xl border border-white/[0.1] bg-zinc-900/90 px-10 py-3.5 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition hover:border-cyan-500/50 hover:text-cyan-50"
+              className="cursor-pointer rounded-xl border border-white/15 bg-zinc-900/90 px-10 py-3.5 text-sm font-semibold text-zinc-100 shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition duration-200 ease-out hover:scale-[1.02] hover:border-brand/40 hover:bg-zinc-800/95 hover:text-brand hover:shadow-[0_12px_36px_rgba(0,0,0,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black active:scale-[0.98]"
             >
               Load more characters
             </button>

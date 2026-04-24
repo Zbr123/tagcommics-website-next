@@ -388,7 +388,7 @@ export default function ComicDetailPage() {
               {similarComics.map((similar) => (
                 <Link
                   key={similar.id}
-                  href={`/comic/${similar.id}`}
+                  href={`/reader/${similar.id}`}
                   className="group bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 overflow-hidden hover:border-yellow-400/50 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-400/10"
                 >
                   <div className="relative aspect-[3/4] bg-gradient-to-br from-gray-800 to-gray-900">

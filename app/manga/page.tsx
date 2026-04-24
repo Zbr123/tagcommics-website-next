@@ -99,7 +99,7 @@ export default function MangaPage() {
             </p>
             <Link
               href="/"
-              className="text-yellow-400 hover:text-yellow-300 font-bold text-sm flex items-center gap-1"
+              className="text-brand hover:text-white font-bold text-sm flex items-center gap-1"
             >
               ← Back to Home
             </Link>

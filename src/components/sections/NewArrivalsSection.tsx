@@ -47,7 +47,7 @@ export default function NewArrivalsSection({ releases }: NewArrivalsSectionProps
             {releases.map((item) => (
               <Link
                 key={item.id}
-                href={`/comic/${item.id}`}
+                href={`/reader/${item.id}`}
                 className="group block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <div className="relative aspect-[2/3] overflow-hidden rounded-2xl glass-card">

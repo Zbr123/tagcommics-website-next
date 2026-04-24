@@ -24,6 +24,9 @@ const roles: { id: RoleFilter; label: string }[] = [
   { id: "villains", label: "Villains" },
 ];
 
+const filterSelectClass =
+  "min-w-[10.5rem] cursor-pointer appearance-none rounded-xl border border-white/15 bg-zinc-900/90 py-2.5 pl-3 pr-9 text-xs font-semibold text-zinc-100 shadow-sm transition duration-200 ease-out hover:border-brand/40 hover:bg-zinc-800/95 hover:text-brand hover:shadow-md focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/45 focus:ring-offset-2 focus:ring-offset-zinc-950 md:min-w-[12rem] md:text-sm";
+
 export default function CharactersFilterBar({
   search,
   onSearchChange,
@@ -57,10 +60,10 @@ export default function CharactersFilterBar({
               key={r.id}
               type="button"
               onClick={() => onRoleFilterChange(r.id)}
-              className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wide transition md:text-sm ${
+              className={`cursor-pointer rounded-full px-4 py-2 text-xs font-semibold tracking-wide transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 md:text-sm ${
                 roleFilter === r.id
-                  ? "bg-white text-black shadow"
-                  : "border border-white/15 bg-zinc-900/80 text-white hover:border-white/25 hover:bg-zinc-800"
+                  ? "bg-white text-black shadow-md hover:bg-zinc-100 hover:shadow-lg hover:brightness-[1.02]"
+                  : "border border-white/15 bg-zinc-900/80 text-zinc-100 hover:scale-[1.02] hover:border-brand/40 hover:bg-zinc-800/95 hover:text-brand active:scale-[0.98]"
               }`}
             >
               {r.label}
@@ -69,21 +72,21 @@ export default function CharactersFilterBar({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 md:gap-3">
-          <div className="relative">
+          <div className="group relative">
             <select
               value={universe}
               onChange={(e) => onUniverseChange(e.target.value)}
-              className="appearance-none rounded-xl border border-white/15 bg-zinc-900/90 py-2.5 pl-3 pr-9 text-xs font-semibold text-white hover:border-cyan-500/30 focus:border-cyan-500/40 focus:outline-none focus:ring-1 focus:ring-cyan-500/25 md:text-sm"
-              aria-label="Universe"
+              className={filterSelectClass}
+              aria-label="Filter by universe"
             >
               {universeOptions.map((u) => (
                 <option key={u} value={u}>
-                  {u === "all" ? "All universes" : u}
+                  {u === "all" ? "All Universes" : u}
                 </option>
               ))}
             </select>
             <svg
-              className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400"
+              className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400 transition-colors duration-200 group-hover:text-brand"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -93,12 +96,12 @@ export default function CharactersFilterBar({
             </svg>
           </div>
 
-          <div className="relative">
+          <div className="group relative">
             <select
               value={sortKey}
               onChange={(e) => onSortChange(e.target.value as SortKey)}
-              className="appearance-none rounded-xl border border-white/15 bg-zinc-900/90 py-2.5 pl-3 pr-9 text-xs font-semibold text-white hover:border-cyan-500/30 focus:border-cyan-500/40 focus:outline-none focus:ring-1 focus:ring-cyan-500/25 md:text-sm"
-              aria-label="Sort by popularity"
+              className={filterSelectClass}
+              aria-label="Sort order"
             >
               <option value="featured">Popularity</option>
               <option value="popularity-desc">Popularity: high → low</option>
@@ -106,7 +109,7 @@ export default function CharactersFilterBar({
               <option value="name-desc">Name Z–A</option>
             </select>
             <svg
-              className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400"
+              className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400 transition-colors duration-200 group-hover:text-brand"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

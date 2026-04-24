@@ -114,7 +114,7 @@ export default function ComicsCenterCarousel({
         {/* Left: hidden on mobile; 28% width md+, only right half visible */}
         <div className="hidden md:block w-[28%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[10px]">
           <Link
-            href={prev.link ? `/comic/${prev.link}` : "#"}
+            href={prev.link ? `/reader/${prev.link}` : "#"}
             className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400 rounded-[10px] overflow-hidden"
             aria-label="Previous comic"
           >
@@ -136,7 +136,7 @@ export default function ComicsCenterCarousel({
         {/* Center: full-width on mobile (single image), 44% on md+. object-cover, maintain aspect ratio. */}
         <div className="w-full md:w-[44%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[12px] z-10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
           <Link
-            href={current.link ? `/comic/${current.link}` : "#"}
+            href={current.link ? `/reader/${current.link}` : "#"}
             className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400 rounded-[12px] overflow-hidden"
             aria-label="View current comic"
           >
@@ -155,7 +155,7 @@ export default function ComicsCenterCarousel({
         {/* Right: hidden on mobile; 28% width md+, only left half visible */}
         <div className="hidden md:block w-[28%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[10px]">
           <Link
-            href={next.link ? `/comic/${next.link}` : "#"}
+            href={next.link ? `/reader/${next.link}` : "#"}
             className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400 rounded-[10px] overflow-hidden"
             aria-label="Next comic"
           >

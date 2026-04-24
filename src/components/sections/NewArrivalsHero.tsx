@@ -94,7 +94,7 @@ export default function NewArrivalsHero({ heroComics = defaultHeroComics }: NewA
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="text-lg sm:text-xl md:text-2xl text-yellow-400 font-semibold tracking-wide"
+              className="text-lg sm:text-xl md:text-2xl text-brand font-semibold tracking-wide "
             >
               Fresh Comics • Hot Releases • Limited Editions
             </motion.p>
@@ -130,7 +130,7 @@ export default function NewArrivalsHero({ heroComics = defaultHeroComics }: NewA
                     transition: { duration: 0.3 },
                   }}
                 >
-                  <Link href={`/comic/${comic.id}`} className="block w-full h-full">
+                  <Link href={`/reader/${comic.id}`} className="block w-full h-full">
                     <div className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl border-2 border-yellow-400/30 hover:border-yellow-400 transition-colors">
                       <Image
                         src={comic.image}

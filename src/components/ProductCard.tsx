@@ -55,7 +55,7 @@ export default function ProductCard({
 
   return (
     <Link
-      href={`/comic/${comic.id}`}
+      href={`/reader/${comic.id}`}
       className={`group relative block flex-shrink-0 overflow-hidden rounded-2xl glass-card aspect-[2/3] ${widthClass} ${
         cardWidth === "w-full" ? "max-w-[340px] min-w-0 mx-auto w-full" : ""
       }`}

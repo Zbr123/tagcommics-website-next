@@ -1,15 +1,26 @@
-import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getCharacterBySlug } from "@/src/data/characters";
+import { CHARACTERS, getCharacterBySlug } from "@/src/data/characters";
+import { buildCharacterDetailProfile } from "@/src/data/characterDetailProfile";
+import CharacterHeroSpotlight from "@/src/components/characters/detail/CharacterHeroSpotlight";
+import CharacterKeyAttributes from "@/src/components/characters/detail/CharacterKeyAttributes";
+import CharacterLoreAccordion from "@/src/components/characters/detail/CharacterLoreAccordion";
+import CharacterComicsSection from "@/src/components/characters/detail/CharacterComicsSection";
+import CharacterRelatedEntities from "@/src/components/characters/detail/CharacterRelatedEntities";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export function generateStaticParams() {
+  return CHARACTERS.map((c) => ({ slug: c.slug }));
+}
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const c = getCharacterBySlug(slug);
-  if (!c) return { title: "Character" };
-  return { title: `${c.name} | Multiverse Hub`, description: c.tagline };
+  if (!c) return { title: "Character | ComicVerse" };
+  return {
+    title: `${c.name} | ComicVerse`,
+    description: c.tagline,
+  };
 }
 
 export default async function CharacterDetailPage({ params }: Props) {
@@ -17,23 +28,15 @@ export default async function CharacterDetailPage({ params }: Props) {
   const character = getCharacterBySlug(slug);
   if (!character) notFound();
 
+  const profile = buildCharacterDetailProfile(character);
+
   return (
-    <div className="min-h-screen bg-black px-6 pb-20 pt-24 text-white">
-      <div className="mx-auto max-w-3xl">
-        <Link href="/characters" className="mb-8 inline-block text-sm font-semibold text-cyan-400 hover:text-cyan-300">
-          ← Back to characters
-        </Link>
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40">
-          <div className="relative aspect-[2/1] w-full">
-            <Image src={character.image} alt="" fill className="object-cover" priority sizes="896px" />
-          </div>
-          <div className="p-8">
-            <p className="text-sm text-cyan-400">{character.universe}</p>
-            <h1 className="mt-2 text-3xl font-black">{character.name}</h1>
-            <p className="mt-4 text-zinc-400">{character.bio}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <main className="bg-black text-white">
+      <CharacterHeroSpotlight profile={profile} />
+      <CharacterComicsSection comics={profile.comics} />
+      <CharacterKeyAttributes attributes={profile.attributes} />
+      <CharacterLoreAccordion items={profile.lore} />
+      <CharacterRelatedEntities entities={profile.related} />
+    </main>
   );
 }
