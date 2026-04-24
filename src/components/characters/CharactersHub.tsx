@@ -47,7 +47,7 @@ export default function CharactersHub() {
     return copy;
   }, [search, roleFilter, universe, sortKey]);
 
-  useEffect(() => {
+  useEffect(() => { 
     setVisibleCount(PAGE_SIZE);
   }, [search, roleFilter, universe, sortKey]);
 
@@ -86,7 +86,7 @@ export default function CharactersHub() {
           ))}
         </div>
         {filtered.length === 0 && (
-          <p className="py-16 text-center text-zinc-500">No characters match your filters.</p>
+          <p className="py-16 text-center text-zinc-500">No characters match your filters...</p>
         )}
 
         {filtered.length > 0 && canLoadMore && (
