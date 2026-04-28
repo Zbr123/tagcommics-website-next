@@ -94,7 +94,7 @@ export default function ComicsCenterCarousel({
 
   return (
     <section
-      className="relative w-full overflow-hidden bg-black flex flex-col h-[45vh] sm:h-[50vh] md:h-[55vh] lg:h-[60vh] max-h-[65vh]"
+      className="relative w-full overflow-hidden bg-black flex flex-col h-[50vh] sm:h-[56vh] md:h-[62vh] lg:h-[68vh] max-h-[72vh]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}
@@ -113,10 +113,10 @@ export default function ComicsCenterCarousel({
       {/* Slider row: fills container; mobile = single full-width image, md+ = three panels. object-cover, aspect ratio preserved. */}
       <div className="w-full flex-1 min-h-0 flex items-end justify-center gap-3 md:gap-4 px-2 sm:px-4 py-2 md:py-3 box-border">
         {/* Left: hidden on mobile; 28% width md+, only right half visible */}
-        <div className="hidden md:block w-[28%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[10px]">
+        <div className="hidden md:block w-[27%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[10px]">
           <Link
             href={prev.link ? buildReaderHref({ id: prev.link, coverImage: prev.image }) : "#"}
-            className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400 rounded-[10px] overflow-hidden"
+            className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand rounded-[10px] overflow-hidden"
             aria-label="Previous comic"
           >
             <span className="absolute right-0 top-0 w-[200%] h-full">
@@ -125,7 +125,7 @@ export default function ComicsCenterCarousel({
                   src={prev.image}
                   alt=""
                   fill
-                  className="object-fill object-right rounded-[10px]"
+                  className="object-contain object-right rounded-[10px] bg-black"
                   sizes="30vw"
                 />
               </span>
@@ -135,17 +135,17 @@ export default function ComicsCenterCarousel({
 
 
         {/* Center: full-width on mobile (single image), 44% on md+. object-cover, maintain aspect ratio. */}
-        <div className="w-full md:w-[44%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[12px] z-10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+        <div className="w-full md:w-[46%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[12px] z-10 shadow-[0_10px_36px_rgba(0,0,0,0.55)]">
           <Link
             href={current.link ? buildReaderHref({ id: current.link, coverImage: current.image }) : "#"}
-            className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400 rounded-[12px] overflow-hidden"
+            className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand rounded-[12px] overflow-hidden"
             aria-label="View current comic"
           >
             <Image
               src={current.image}
               alt=""
               fill
-              className="object-cover rounded-[12px]"
+              className="object-contain rounded-[12px] bg-black"
               sizes="(max-width: 768px) 100vw, 46vw"
               priority
             />
@@ -154,10 +154,10 @@ export default function ComicsCenterCarousel({
 
 
         {/* Right: hidden on mobile; 28% width md+, only left half visible */}
-        <div className="hidden md:block w-[28%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[10px]">
+        <div className="hidden md:block w-[27%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[10px]">
           <Link
             href={next.link ? buildReaderHref({ id: next.link, coverImage: next.image }) : "#"}
-            className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400 rounded-[10px] overflow-hidden"
+            className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand rounded-[10px] overflow-hidden"
             aria-label="Next comic"
           >
             <span className="absolute left-0 top-0 w-[200%] h-full">
@@ -166,7 +166,7 @@ export default function ComicsCenterCarousel({
                   src={next.image}
                   alt=""
                   fill
-                  className="object-fill object-left rounded-[10px]"
+                  className="object-contain object-left rounded-[10px] bg-black"
                   sizes="22vw"
                 />
               </span>
@@ -207,8 +207,8 @@ export default function ComicsCenterCarousel({
             type="button"
             onClick={() => setIndex(i)}
             className={`rounded-full transition-all cursor-pointer ${i === index
-                ? "w-3 h-3 bg-amber-400 scale-110"
-                : "w-2.5 h-2.5 bg-white/40 hover:bg-white/60"
+                ? "w-3 h-3 bg-brand scale-110"
+                : "w-2.5 h-2.5 bg-brand/35 hover:bg-brand/55"
               }`}
             aria-label={`Go to slide ${i + 1}`}
           />

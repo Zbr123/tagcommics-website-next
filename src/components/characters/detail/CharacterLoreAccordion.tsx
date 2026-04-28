@@ -21,15 +21,15 @@ export default function CharacterLoreAccordion({ items }: { items: LoreAccordion
           return (
             <div
               key={item.id}
-              className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-900/70 to-black/70 shadow-[0_12px_38px_rgba(0,0,0,0.4)] backdrop-blur-md transition hover:border-white/15"
+              className="group overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-900/70 to-black/70 shadow-[0_12px_38px_rgba(0,0,0,0.4)] backdrop-blur-md transition-[border-color,box-shadow,background-color] duration-300 hover:border-brand/35 hover:shadow-[0_16px_44px_rgba(0,0,0,0.45),0_0_24px_rgba(88,232,193,0.08)]"
             >
               <button
                 type="button"
                 onClick={() => toggleItem(item.id)}
-                className="flex w-full items-center justify-between gap-4 px-5 py-4.5 text-left sm:px-6 sm:py-5"
+                className="flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-4.5 text-left sm:px-6 sm:py-5"
                 aria-expanded={open}
               >
-                <span className="text-[1.05rem] font-black uppercase tracking-[0.08em] text-white sm:text-lg">
+                <span className="text-[1.05rem] font-black uppercase tracking-[0.08em] text-white transition-colors duration-300 group-hover:text-brand sm:text-lg">
                   {item.title}
                 </span>
                 <span
@@ -37,7 +37,7 @@ export default function CharacterLoreAccordion({ items }: { items: LoreAccordion
                     open
                       ? "rotate-180"
                       : ""
-                  }`}
+                  } group-hover:scale-110`}
                   aria-hidden
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

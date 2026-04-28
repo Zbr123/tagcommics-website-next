@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PhoneInput } from "react-international-phone";
@@ -50,9 +50,43 @@ export default function JoinInitiativeSection() {
     setPhoneError("");
   };
 
+  const openModal = () => {
+    setIsOpen(true);
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (url.hash !== "#contact-team") {
+      window.history.pushState({ modal: "contact-team" }, "", `${url.pathname}${url.search}#contact-team`);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // If user lands on design-team with hash, restore modal state.
+    if (window.location.hash === "#contact-team") {
+      setIsOpen(true);
+    }
+
+    const onPopState = () => {
+      // Browser Back should close modal and remain on /design-team.
+      if (window.location.hash === "#contact-team") {
+        setIsOpen(true);
+      } else {
+        closeModal();
+      }
+    };
+
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   /** Close modal and return user to the design team page (explicit route). */
   const dismissToDesignTeam = () => {
     closeModal();
+    if (typeof window !== "undefined" && window.location.hash === "#contact-team") {
+      const url = new URL(window.location.href);
+      window.history.replaceState({}, "", `${url.pathname}${url.search}`);
+    }
     router.replace("/design-team");
   };
 
@@ -70,7 +104,7 @@ export default function JoinInitiativeSection() {
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
             <button
               type="button"
-              onClick={() => setIsOpen(true)}
+              onClick={openModal}
               className="inline-flex h-11 cursor-pointer items-center justify-center rounded-xl border border-white/12 bg-[#0f1318] px-8 text-sm font-bold uppercase tracking-[0.06em] text-white transition hover:border-[#58E8C1]/35 hover:-translate-y-0.5"
             >
               Contact Team

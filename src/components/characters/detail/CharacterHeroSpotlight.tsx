@@ -1,3 +1,6 @@
+ "use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import type { CharacterDetailProfile } from "@/src/data/characterDetailProfile";
 import type { CharacterRole } from "@/src/data/characters";
@@ -5,7 +8,7 @@ import type { CharacterRole } from "@/src/data/characters";
 function FloatingFact({ label, value }: { label: string; value: string }) {
   return (
     <div
-      className="group relative w-full max-w-[20rem] cursor-default overflow-hidden rounded-2xl border border-white/[0.1] border-l-[3px] border-l-brand bg-white/[0.06] py-5 pl-6 pr-5 shadow-[0_20px_56px_rgba(0,0,0,0.5)] backdrop-blur-xl transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform [transition-property:transform,box-shadow,background-color,border-color] hover:-translate-y-2 hover:border-white/[0.14] hover:bg-white/[0.09] hover:shadow-[0_28px_72px_rgba(0,0,0,0.55),0_0_48px_rgba(88,232,193,0.1)] lg:max-w-none"
+      className="group relative w-full max-w-[20rem] cursor-default overflow-hidden rounded-2xl border border-white/[0.1] border-l-[3px] border-l-brand bg-white/[0.06] py-5 pl-6 pr-5 shadow-[0_20px_56px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-[box-shadow,background-color,border-color] duration-500 ease-out hover:border-white/[0.16] hover:bg-white/[0.09] hover:shadow-[0_24px_64px_rgba(0,0,0,0.55),0_0_38px_rgba(88,232,193,0.12)] lg:max-w-none"
       style={{ WebkitBackdropFilter: "blur(22px)" }}
     >
       <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-zinc-500 transition-colors duration-500 group-hover:text-zinc-400">
@@ -38,9 +41,9 @@ function roleBadge(role: CharacterRole, label: string) {
   );
 }
 
-function IconBookmark({ className = "h-5 w-5" }: { className?: string }) {
+function IconBookmark({ className = "h-5 w-5", filled = false }: { className?: string; filled?: boolean }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+    <svg className={className} fill={filled ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
       <path
         strokeWidth={2}
         strokeLinecap="round"
@@ -51,23 +54,11 @@ function IconBookmark({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-function IconShare({ className = "h-5 w-5" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-      <path
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-      />
-    </svg>
-  );
-}
-
 export default function CharacterHeroSpotlight({ profile }: { profile: CharacterDetailProfile }) {
   const { character, universeBadge, titleLine1, titleLine2, spotlightBody, firstAppearance, creator, alignment } =
     profile;
   const roleLabel = character.role.replaceAll("_", "-");
+  const [isSaved, setIsSaved] = useState(false);
 
   return (
     <section className="relative h-[100vh] min-h-[100vh] w-full overflow-hidden bg-black">
@@ -145,18 +136,16 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
             <div className="mt-11 flex flex-wrap items-center gap-4">
               <button
                 type="button"
-                className="inline-flex min-h-[52px] min-w-[12rem] items-center justify-center gap-2.5 rounded-full bg-white px-10 text-sm font-black uppercase tracking-[0.1em] text-black shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_20px_50px_rgba(0,0,0,0.5)] transition duration-300 hover:scale-[1.02] hover:bg-zinc-100 hover:shadow-[0_0_60px_rgba(255,255,255,0.18)] active:scale-[0.99]"
+                onClick={() => setIsSaved((prev) => !prev)}
+                aria-pressed={isSaved}
+                className={`inline-flex min-h-[52px] min-w-[12rem] items-center justify-center gap-2.5 rounded-full px-10 text-sm font-black uppercase tracking-[0.1em] shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_20px_50px_rgba(0,0,0,0.5)] transition duration-300 active:scale-[0.99] ${
+                  isSaved
+                    ? "border border-brand/60 bg-brand text-brand-foreground hover:scale-[1.02] hover:bg-[#63f3cf] hover:shadow-[0_0_60px_rgba(88,232,193,0.4)]"
+                    : "bg-white text-black hover:scale-[1.02] hover:bg-zinc-100 hover:shadow-[0_0_60px_rgba(255,255,255,0.18)]"
+                }`}
               >
-                <IconBookmark className="h-5 w-5 shrink-0" />
+                <IconBookmark className="h-5 w-5 shrink-0" filled={isSaved} />
                 Save Character
-              </button>
-              <button
-                type="button"
-                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full border border-white/[0.18] bg-black/40 px-8 text-sm font-black uppercase tracking-[0.1em] text-white shadow-[0_16px_48px_rgba(0,0,0,0.45)] backdrop-blur-xl transition duration-300 hover:border-white/30 hover:bg-black/55 hover:shadow-[0_20px_56px_rgba(0,0,0,0.55)] active:scale-[0.99]"
-                style={{ WebkitBackdropFilter: "blur(18px)" }}
-              >
-                <IconShare className="h-[18px] w-[18px] shrink-0 opacity-90" />
-                Share
               </button>
             </div>
           </div>

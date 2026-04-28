@@ -14,10 +14,10 @@ import ProductCard from "@/src/components/ProductCard";
 // };
 
 const BESTSELLERS_SLIDER_SLIDES = [
-  { image: "/comic-slider1.png", link: "1" },
-  { image: "/comic-slider5.png", link: "2" },
-  { image: "/comic-slider3.png", link: "3" },
-  { image: "/comic-slide4.png", link: "4" },
+  { image: "/comic_page_slider.png", link: "1" },
+  { image: "/comic_page_slider2.png", link: "2" },
+  { image: "/comic_page_slider3.png", link: "3" },
+  { image: "/character-book3.png", link: "4" },
 ];
 
 // Extended best sellers comics database

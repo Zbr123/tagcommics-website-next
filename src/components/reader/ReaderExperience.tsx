@@ -143,9 +143,16 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   }, [activeChapterId]);
 
   const goBackInReadingOrder = useCallback(() => {
-    if (isPreviewMode) setPreviewIndex((p) => Math.max(0, p - 1));
+    if (isPreviewMode) {
+      if (showLocked) {
+        setShowLocked(false);
+        setPreviewIndex(Math.max(0, maxPreview - 1));
+      } else {
+        setPreviewIndex((p) => Math.max(0, p - 1));
+      }
+    }
     else if (numPages) setCurrentPage((p) => Math.max(1, p - 1));
-  }, [isPreviewMode, numPages]);
+  }, [isPreviewMode, numPages, showLocked, maxPreview]);
 
   const goForwardInReadingOrder = useCallback(() => {
     if (isPreviewMode) {
@@ -195,12 +202,21 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
     return () => window.removeEventListener("keydown", onKey);
   }, [goBackInReadingOrder, goForwardInReadingOrder]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const prevHtmlBg = document.documentElement.style.backgroundColor;
+    const prevBodyBg = document.body.style.backgroundColor;
     const prevHtml = document.documentElement.style.overflow;
     const prevBody = document.body.style.overflow;
+    document.documentElement.style.backgroundColor = "#000";
+    document.body.style.backgroundColor = "#000";
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
-    return () => { document.documentElement.style.overflow = prevHtml; document.body.style.overflow = prevBody; };
+    return () => {
+      document.documentElement.style.backgroundColor = prevHtmlBg;
+      document.body.style.backgroundColor = prevBodyBg;
+      document.documentElement.style.overflow = prevHtml;
+      document.body.style.overflow = prevBody;
+    };
   }, []);
 
   const onDocumentLoad = useCallback(({ numPages: n }: { numPages: number }) => {
@@ -366,7 +382,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-black/80 px-4 py-3 backdrop-blur-2xl supports-[backdrop-filter]:bg-black/70" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
         <div className="mx-auto flex max-w-xl flex-wrap items-center justify-center gap-6 sm:gap-10">
           <div className="flex items-center gap-2">
-            <button type="button" className={readerBarRoundBtn} aria-label="Previous page" disabled={isPreviewMode ? previewIndex <= 0 : (!numPages || safeCurrentPage <= 1)} onClick={goBackInReadingOrder}><span className="text-[1.35rem] font-black leading-none tracking-tight" aria-hidden>{"<"}</span></button>
+            <button type="button" className={readerBarRoundBtn} aria-label="Previous page" disabled={isPreviewMode ? (!showLocked && previewIndex <= 0) : (!numPages || safeCurrentPage <= 1)} onClick={goBackInReadingOrder}><span className="text-[1.35rem] font-black leading-none tracking-tight" aria-hidden>{"<"}</span></button>
             <button type="button" className={readerBarRoundBtn} aria-label="Next page" disabled={isPreviewMode ? showLocked : (!numPages || safeCurrentPage >= (numPages ?? 0))} onClick={goForwardInReadingOrder}><span className="text-[1.35rem] font-black leading-none tracking-tight" aria-hidden>{">"}</span></button>
           </div>
           <div className="flex items-center gap-2">
