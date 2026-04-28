@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 export interface LatestRelease {
   id: number;
@@ -47,7 +48,7 @@ export default function NewArrivalsSection({ releases }: NewArrivalsSectionProps
             {releases.map((item) => (
               <Link
                 key={item.id}
-                href={`/reader/${item.id}`}
+                href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title })}
                 className="group block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <div className="relative aspect-[2/3] overflow-hidden rounded-2xl glass-card">

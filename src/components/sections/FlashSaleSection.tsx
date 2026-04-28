@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ProductSlider from "../ProductSlider";
 import CountdownTimer from "../CountdownTimer";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 interface Comic {
   id: number;
@@ -19,7 +20,7 @@ interface FlashSaleSectionProps {
 function FlashSaleSlideCard({ comic }: { comic: Comic }) {
   return (
     <Link
-      href={`/reader/${comic.id}`}
+      href={buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title })}
       className="group block w-[min(92vw,300px)] flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 sm:min-w-[260px] sm:w-[min(46vw,300px)] md:w-[280px] lg:w-[300px] xl:w-[308px]"
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-2xl glass-card">

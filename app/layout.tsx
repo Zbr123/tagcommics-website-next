@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ComicVerse",
+  title: "TagComic",
   description: "Premium digital comics — discover series, characters, and new releases.",
   /** Favicons: `app/icon.svg` + `app/apple-icon.svg` (bolt mark, matches nav). */
 };

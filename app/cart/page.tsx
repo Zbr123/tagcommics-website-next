@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/src/hooks/use-cart";
 import { useAuth } from "@/src/hooks/use-auth";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
@@ -112,7 +113,7 @@ export default function CartPage() {
               >
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Image */}
-                  <Link href={`/reader/${item.id}`} className="relative w-full sm:w-32 h-48 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0">
+                  <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title })} className="relative w-full sm:w-32 h-48 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0">
                     <Image
                       src={item.image}
                       alt={item.title}
@@ -126,7 +127,7 @@ export default function CartPage() {
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <Link href={`/reader/${item.id}`}>
+                        <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title })}>
                           <h3 className="text-white font-bold text-lg mb-1 hover:text-yellow-400 transition-colors">
                             {item.title}
                           </h3>

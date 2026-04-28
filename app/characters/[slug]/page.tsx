@@ -16,9 +16,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const c = getCharacterBySlug(slug);
-  if (!c) return { title: "Character | ComicVerse" };
+  if (!c) return { title: "Character | TagComics" };
   return {
-    title: `${c.name} | ComicVerse`,
+    title: `${c.name} | TagComics`,
     description: c.tagline,
   };
 }

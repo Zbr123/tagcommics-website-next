@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 interface Comic {
   id: number;
@@ -55,7 +56,7 @@ export default function ProductCard({
 
   return (
     <Link
-      href={`/reader/${comic.id}`}
+      href={buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title })}
       className={`group relative block flex-shrink-0 overflow-hidden rounded-2xl glass-card aspect-[2/3] ${widthClass} ${
         cardWidth === "w-full" ? "max-w-[340px] min-w-0 mx-auto w-full" : ""
       }`}

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 export interface MangaHeroItem {
   badge: string;
@@ -96,7 +97,7 @@ export default function HeroCarousel({ items }: HeroCarouselProps) {
                   {slide.subtitle}
                 </p>
                 <Link
-                  href={slide.link ? `/reader/${slide.link}` : "/manga"}
+                  href={slide.link ? buildReaderHref({ id: slide.link, coverImage: slide.image, title: slide.title }) : "/manga"}
                   className="inline-flex w-fit bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   Read More

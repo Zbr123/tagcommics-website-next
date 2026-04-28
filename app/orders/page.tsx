@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import DownloadPdfButton from "@/src/components/DownloadPdfButton";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 // Mock order data - In a real app, this would come from an API
 const mockOrders = [
@@ -228,7 +229,7 @@ export default function OrdersPage() {
                           }`}
                         >
                           <Link
-                            href={`/reader/${item.id}`}
+                            href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title })}
                             className="relative w-full sm:w-24 h-32 sm:h-32 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0"
                           >
                             <Image
@@ -240,7 +241,7 @@ export default function OrdersPage() {
                             />
                           </Link>
                           <div className="flex-1">
-                            <Link href={`/reader/${item.id}`}>
+                            <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title })}>
                               <h3 className="text-white font-bold text-base mb-1 hover:text-yellow-400 transition-colors">
                                 {item.title}
                               </h3>

@@ -3,7 +3,7 @@ import ReaderExperienceDynamic from "@/src/components/reader/ReaderExperienceDyn
 import { READER_DEFAULT_PDF, READER_DEFAULT_TITLE } from "@/src/components/reader/readerConstants";
 
 export const metadata: Metadata = {
-  title: `Reader · ${READER_DEFAULT_TITLE} | ComicVerse`,
+  title: `Reader · ${READER_DEFAULT_TITLE} | TagComics`,
 };
 
 export default function ReaderIndexPage() {

@@ -6,38 +6,41 @@ import DetailSectionHeading from "./DetailSectionHeading";
 import DetailSectionShell from "./DetailSectionShell";
 
 export default function CharacterLoreAccordion({ items }: { items: LoreAccordionItem[] }) {
-  const [openId, setOpenId] = useState(items[0]?.id ?? "");
+  const [openIds, setOpenIds] = useState<string[]>([]);
+
+  const toggleItem = (id: string) => {
+    setOpenIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
 
   return (
-    <DetailSectionShell>
-      <DetailSectionHeading white="ORIGIN & " brand="LORE" className="mb-16 md:mb-20 lg:mb-24" />
-      <div className="mx-auto max-w-5xl space-y-4 lg:max-w-6xl lg:space-y-5">
+    <DetailSectionShell className="py-16 md:py-20 lg:py-24">
+      <DetailSectionHeading white="ORIGIN & " brand="LORE" className="mb-8 text-center sm:mb-10 md:mb-12 !text-3xl sm:!text-4xl md:!text-[2.7rem] lg:!text-5xl !tracking-[0.03em]" />
+      <div className="mx-auto max-w-4xl space-y-3.5">
         {items.map((item) => {
-          const open = openId === item.id;
+          const open = openIds.includes(item.id);
           return (
             <div
               key={item.id}
-              className="overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-zinc-950/95 via-black/80 to-zinc-950/90 shadow-[0_24px_80px_rgba(0,0,0,0.55)] backdrop-blur-xl transition hover:border-white/[0.1]"
-              style={{ WebkitBackdropFilter: "blur(24px)" }}
+              className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-zinc-900/70 to-black/70 shadow-[0_12px_38px_rgba(0,0,0,0.4)] backdrop-blur-md transition hover:border-white/15"
             >
               <button
                 type="button"
-                onClick={() => setOpenId(item.id)}
-                className="flex w-full items-center justify-between gap-6 px-8 py-7 text-left md:px-10 md:py-8 lg:px-12 lg:py-9"
+                onClick={() => toggleItem(item.id)}
+                className="flex w-full items-center justify-between gap-4 px-5 py-4.5 text-left sm:px-6 sm:py-5"
                 aria-expanded={open}
               >
-                <span className="text-base font-black uppercase tracking-[0.2em] text-white md:text-lg">
+                <span className="text-[1.05rem] font-black uppercase tracking-[0.08em] text-white sm:text-lg">
                   {item.title}
                 </span>
                 <span
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-brand transition duration-300 ${
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center text-brand transition duration-300 ${
                     open
-                      ? "rotate-180 border-brand/40 bg-brand/15 shadow-[0_0_24px_rgba(88,232,193,0.2)]"
-                      : "border-white/10 bg-black/30"
+                      ? "rotate-180"
+                      : ""
                   }`}
                   aria-hidden
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </span>
@@ -47,7 +50,7 @@ export default function CharacterLoreAccordion({ items }: { items: LoreAccordion
                   open ? "max-h-[32rem] border-t opacity-100" : "max-h-0 border-t border-transparent opacity-0"
                 }`}
               >
-                <p className="px-8 pb-9 pt-6 text-base font-normal leading-relaxed text-zinc-400 md:px-10 md:pb-10 md:pt-7 md:text-lg lg:px-12 lg:pb-12 lg:text-[1.05rem] lg:leading-relaxed">
+                <p className="whitespace-pre-line px-5 pb-5 pt-4 text-base font-medium leading-8 text-zinc-300 sm:px-6 sm:pb-6 sm:pt-4.5 sm:text-[1.02rem]">
                   {item.body}
                 </p>
               </div>

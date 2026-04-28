@@ -16,10 +16,10 @@ export interface GlassTopNavProps {
 }
 
 /**
- * Minimal fixed top bar: bolt home, Characters, Books, New-releases, profile avatar (not a link).
+ * Minimal fixed top bar: bolt home, Characters, Books, New-releases, Design Team, profile avatar.
  * Catalog search on `/` and `/search`: pill → `/search?q=…` (single source of truth in URL).
  */
-export default function GlassTopNav({ pathname, profileHref: _profileHref, userName }: GlassTopNavProps) {
+export default function GlassTopNav({ pathname, profileHref, userName }: GlassTopNavProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlQ = searchParams.get("q") ?? "";
@@ -28,9 +28,14 @@ export default function GlassTopNav({ pathname, profileHref: _profileHref, userN
   const isCharacters = pathname.startsWith("/characters");
   const isBooks = pathname === "/bestsellers" || pathname === "/books";
   const isNewReleases = pathname === "/new-releases";
+  const isDesignTeam = pathname.startsWith("/design-team");
   
   const showCatalogSearch = isHome || isSearch;
   const [navQuery, setNavQuery] = useState(() => (pathname === "/search" ? urlQ : ""));
+  const navItemBase =
+    "whitespace-nowrap text-xs font-semibold tracking-[0.01em] transition-colors sm:text-sm";
+  const navItemActive = "text-[#58E8C1] drop-shadow-[0_0_10px_rgba(88,232,193,0.35)]";
+  const navItemInactive = "text-zinc-400 hover:text-[#58E8C1]";
 
   useEffect(() => {
     if (isSearch) {
@@ -44,6 +49,15 @@ export default function GlassTopNav({ pathname, profileHref: _profileHref, userN
     router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
   };
 
+  const handleHomeClick = (e: React.MouseEvent) => {
+    if (isHome) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      router.push("/");
+    }
+  };
+
   return (
     <nav
       id="global-nav"
@@ -53,38 +67,57 @@ export default function GlassTopNav({ pathname, profileHref: _profileHref, userN
         <div className="flex min-w-0 flex-shrink-0 items-center gap-6 md:gap-8">
           <Link
             href="/"
-            className="inline-flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-xl border border-[rgba(88,232,193,0.28)] bg-black/40 transition-transform hover:scale-105"
-            aria-label="Home"
+            onClick={handleHomeClick}
+            className="group inline-flex items-center gap-3"
+            aria-label="TagComics home"
           >
-            <FontAwesomeIcon icon={faBolt} style={{ color: "rgb(88,232,193)" }} className="h-5 w-5" aria-hidden />
+            <span className="inline-flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-xl border border-[rgba(88,232,193,0.28)] bg-black/40 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-105 group-hover:border-[rgba(88,232,193,0.6)] group-hover:bg-[rgba(88,232,193,0.08)] group-hover:shadow-[0_0_24px_rgba(88,232,193,0.3)]">
+              <FontAwesomeIcon
+                icon={faBolt}
+                style={{ color: "rgb(88,232,193)" }}
+                className="h-5 w-5 transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(88,232,193,0.7)]"
+                aria-hidden
+              />
+            </span>
+            <span className="hidden text-lg font-black tracking-tight sm:inline">
+              <span className="text-white">Tag</span>
+              <span className="text-brand">Comics</span>
+            </span>
           </Link>
 
           <div className="flex min-w-0 flex-wrap items-center gap-3 sm:gap-6 md:gap-8">
             <Link
               href="/characters"
-              className={`whitespace-nowrap text-xs font-semibold transition-colors sm:text-sm ${
-                isCharacters ? "text-white" : "text-zinc-400 hover:text-white"
+              className={`${navItemBase} ${
+                isCharacters ? navItemActive : navItemInactive
               }`}
             >
               Characters
             </Link>
             <Link
               href="/bestsellers"
-              className={`whitespace-nowrap text-xs font-semibold transition-colors sm:text-sm ${
-                isBooks ? "text-white" : "text-zinc-400 hover:text-white"
+              className={`${navItemBase} ${
+                isBooks ? navItemActive : navItemInactive
               }`}
             >
               Books
             </Link>
             <Link
               href="/new-releases"
-              className={`whitespace-nowrap text-xs font-semibold transition-colors sm:text-sm ${
-                isNewReleases ? "text-white" : "text-zinc-400 hover:text-white"
+              className={`${navItemBase} ${
+                isNewReleases ? navItemActive : navItemInactive
               }`}
             >
               New-releases
             </Link>
-            <span className="cursor-default text-sm font-medium text-zinc-400 hover:text-white">Design Team</span>
+            <Link
+              href="/design-team"
+              className={`${navItemBase} ${
+                isDesignTeam ? navItemActive : navItemInactive
+              }`}
+            >
+              Design Team
+            </Link>
           </div>
         </div>
 
@@ -105,7 +138,11 @@ export default function GlassTopNav({ pathname, profileHref: _profileHref, userN
               />
             </form>
           ) : null}
-          <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-white/10">
+          <Link
+            href={profileHref}
+            className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-white/10 transition hover:border-[#58E8C1]/45 hover:shadow-[0_0_18px_rgba(88,232,193,0.28)]"
+            aria-label="Open profile and settings"
+          >
             <Image
               src="/admin.png"
               alt={userName ? `${userName} profile photo` : "Profile photo"}
@@ -114,7 +151,7 @@ export default function GlassTopNav({ pathname, profileHref: _profileHref, userN
               sizes="40px"
               priority
             />
-          </div>
+          </Link>
         </div>
       </div>
     </nav>

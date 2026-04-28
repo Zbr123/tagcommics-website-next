@@ -3,9 +3,14 @@ import Link from "next/link";
 import type { CharacterComic } from "@/src/data/characterDetailProfile";
 import DetailSectionHeading from "./DetailSectionHeading";
 import DetailSectionShell from "./DetailSectionShell";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 function ComicCard({ comic }: { comic: CharacterComic }) {
-  const readHref = `/reader/${comic.catalogComicId ?? comic.id}`;
+  const readHref = buildReaderHref({
+    id: comic.catalogComicId ?? comic.id,
+    coverImage: comic.image,
+    title: comic.title,
+  });
 
   const cover = (
     <>

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 /** Hero backgrounds — same URLs and order as before (slider data unchanged). */
 const slides = [
@@ -13,29 +14,32 @@ const slides = [
 /** Copy keyed by slide index — presentation only; does not replace slide URLs. */
 const featuredBySlide = [
   {
+    id: 1,
     exclusive: true,
     genre: "Sci-Fi",
     title1: "Neon Horizon:",
     title2: "The Awakening",
     description:
       "In a cyberpunk metropolis where memories are currency, a rogue detective uncovers a conspiracy that threatens the very fabric of reality.",
-    href: "/reader/1",
+    coverImage: "/homepageimage2.png",
     cta: "Read Issue #1",
   },
   {
+    id: 2,
     exclusive: true,
     genre: "Cosmic",
     title1: "Genis-Vell:",
     title2: "Legacy in Orbit",
     description:
       "When stellar empires collide, one pilot holds the key to peace—or total annihilation across the outer rim.",
-    href: "/reader/2",
+    coverImage: "/genis-vell.jpg",
     cta: "Read Issue #1",
   },
 ];
 
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -46,7 +50,38 @@ export default function HeroSection() {
     return () => clearInterval(timer);
   }, [nextSlide]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const saved = window.localStorage.getItem("tagcomics-favorites");
+      if (!saved) return;
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        const numericIds = parsed.map((item) => Number(item)).filter((item) => Number.isFinite(item));
+        setFavoriteIds(numericIds as number[]);
+      }
+    } catch {
+      // Ignore malformed local storage payloads.
+    }
+  }, []);
+
   const copy = featuredBySlide[currentSlide] ?? featuredBySlide[0];
+  const isFavorite = favoriteIds.includes(copy.id);
+  const readerHref = buildReaderHref({
+    id: copy.id,
+    coverImage: copy.coverImage,
+    title: `${copy.title1} ${copy.title2}`,
+  });
+
+  const toggleFavorite = () => {
+    const next = isFavorite ? favoriteIds.filter((id) => id !== copy.id) : [...favoriteIds, copy.id];
+    setFavoriteIds(next);
+    try {
+      window.localStorage.setItem("tagcomics-favorites", JSON.stringify(next));
+    } catch {
+      // Silently fail if storage is unavailable.
+    }
+  };
 
   return (
     <section className="bg-black px-4 pb-6 pt-4 sm:px-6 md:pb-8 md:pt-6 lg:px-8">
@@ -127,7 +162,7 @@ export default function HeroSection() {
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
-                href={copy.href}
+                href={readerHref}
                 className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-black shadow-[0_0_36px_rgba(255,255,255,0.18)] transition hover:bg-zinc-100 hover:shadow-[0_0_48px_rgba(255,255,255,0.22)]"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -142,10 +177,21 @@ export default function HeroSection() {
               </Link>
               <button
                 type="button"
-                aria-label="Bookmark"
-                className="inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition hover:border-brand/40 hover:bg-white/15"
+                onClick={toggleFavorite}
+                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                className={`inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border backdrop-blur-md transition ${
+                  isFavorite
+                    ? "border-brand/60 bg-brand/20 text-brand shadow-[0_0_24px_rgba(88,232,193,0.28)]"
+                    : "border-white/20 bg-white/10 text-white hover:border-brand/40 hover:bg-white/15"
+                }`}
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <svg
+                  className="h-5 w-5"
+                  fill={isFavorite ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"

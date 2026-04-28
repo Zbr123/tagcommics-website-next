@@ -8,10 +8,10 @@ import LogoSlider, { LogoImageItem } from "@/src/components/LogoSlider";
 
 // Flash Sale Data
 const flashSaleComics = [
-  { id: 1, title: "Spider-Man #1", price: 4.99, originalPrice: 9.99, discount: 50, image: "/comic-slider1.png" },
-  { id: 2, title: "Batman Annual", price: 6.99, originalPrice: 12.99, discount: 46, image: "/comic-slider5.png" },
-  { id: 3, title: "Attack on Titan", price: 8.99, originalPrice: 14.99, discount: 40, image: "/comic-slider3.png" },
-  { id: 4, title: "One Piece Vol.1", price: 7.99, originalPrice: 15.99, discount: 50, image: "/comic-slide4.png" },
+  { id: 1, title: "Spider-Man #1", price: 4.99, originalPrice: 9.99, discount: 50, image: "/fairlady.jpg" },
+  { id: 2, title: "Batman Annual", price: 6.99, originalPrice: 12.99, discount: 46, image: "/feral.jpg" },
+  { id: 3, title: "Attack on Titan", price: 8.99, originalPrice: 14.99, discount: 40, image: "/coyotes.jpg" },
+  { id: 4, title: "One Piece Vol.1", price: 7.99, originalPrice: 15.99, discount: 50, image: "/red-roots.jpg" },
   { id: 5, title: "Deadpool #1", price: 5.99, originalPrice: 11.99, discount: 50, image: "/comic-slider1.png" },
   { id: 6, title: "Wonder Woman", price: 6.49, originalPrice: 12.99, discount: 50, image: "/comic-slider5.png" },
   { id: 7, title: "X-Men #1", price: 5.99, originalPrice: 11.99, discount: 51, image: "/comic-slider3.png" },
@@ -51,27 +51,27 @@ export default function Home() {
       {/* Publisher logos — after product rows: reads as “trusted by” before browse-by-category */}
       <section className="w-full border-t border-white/[0.06] bg-black py-10 md:py-14">
         <div className="mx-auto mb-8 max-w-[1440px] px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-black text-white md:text-4xl lg:text-5xl">Comic Book Publishers</h2>
+          <h2 className="text-2xl font-black text-brand md:text-4xl lg:text-5xl">Comic Book Publishers</h2>
           <p className="mt-2 text-sm text-zinc-400 md:text-base">Imprints and partners behind the titles in our catalog.</p>
         </div>
         <div className="mx-auto w-full max-w-[1440px] px-4 md:px-6 lg:px-8">
           <div className="mb-6">
-            <LogoSlider direction="left" speedSeconds={30}>
-              <LogoImageItem src="/comics-logos/DC_Comics_logo.png" alt="DC Comics" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/AC-Comics-logo.png" alt="AC Comics" className="h-10 md:h-14" />
+            <LogoSlider direction="left" speedSeconds={60}>
+              <LogoImageItem src="/comics-logos/black-batman-logo3.png" alt="black-batman" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/Marvel-logo.png" alt="Marvel" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/images-comics.png" alt="AC Comics" className="h-10 md:h-14" />
               <LogoImageItem src="/comics-logos/valiant-comics-logo.jpg" alt="Valiant Comics" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/superman-logo.png" alt="Superman" className="h-10 md:h-14" />
+              {/* <LogoImageItem src="/comics-logos/black-batman-logo2.jpg" alt="Superman" className="h-10 md:h-14" /> */}
             </LogoSlider>
           </div>
           <div>
             <LogoSlider direction="right" speedSeconds={28}>
-              <LogoImageItem src="/comics-logos/DC_Comics_logo.png" alt="DC Comics" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/AC_comics1-logo.png" alt="AC Comics" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/batman-logo2.png" alt="Batman" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/spider-man-logo.png" alt="Spider-Man" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/Dc2-logo.jpg" alt="DC Comics" className="h-10 md:h-14" />
-              <LogoImageItem src="/comics-logos/superman-logo.png" alt="Superman" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/Marvel-logo.png" alt="DC Comics" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/images-comics.png" alt="AC Comics" className="h-10 md:h-14" />
+              <LogoImageItem src="/comics-logos/black-batman-logo3.png" alt="Batman" className="h-10 md:h-14" />
+              {/* <LogoImageItem src="/comics-logos/spider-man-logo.png" alt="Spider-Man" className="h-10 md:h-14" /> */}
+              {/* <LogoImageItem src="/comics-logos/DC-Comics-Logo.png" alt="DC Comics" className="h-10 md:h-14" /> */}
+              <LogoImageItem src="/comics-logos/valiant-comics-logo.jpg" alt="Superman" className="h-10 md:h-14" />
             </LogoSlider>
           </div>
         </div>

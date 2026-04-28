@@ -1,3 +1,4 @@
+@import "react-international-phone/style.css";
 @import "tailwindcss";
 /* Do not add @import url(...) below: Tailwind expands above into many rules; later @import breaks the build. Load CDN CSS from app/layout.tsx <link> instead. */
 
@@ -75,6 +76,22 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+/* Design team contact form phone input theme */
+.intl-phone-field .react-international-phone-input-container {
+  width: 100%;
+}
+
+.intl-phone-field .react-international-phone-country-selector-button {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.intl-phone-field .react-international-phone-country-selector-dropdown {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #0b1016;
+  color: #fff;
 }
 
 /* Sidebar slide-in animation */

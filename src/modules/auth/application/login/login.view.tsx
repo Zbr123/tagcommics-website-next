@@ -5,8 +5,11 @@ import { useState } from "react";
 import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import type { LoginFormData } from "./login.schema";
 
+const BOLT_PATH =
+  "M338.8-9.9c11.9 8.6 16.3 24.2 10.9 37.8L271.3 224 416 224c13.5 0 25.5 8.4 30.1 21.1s.7 26.9-9.6 35.5l-288 240c-11.3 9.4-27.4 9.9-39.3 1.3s-16.3-24.2-10.9-37.8L176.7 288 32 288c-13.5 0-25.5-8.4-30.1-21.1s-.7-26.9 9.6-35.5l288-240c11.3-9.4 27.4-9.9 39.3-1.3z";
+
 const inputBase =
-  "w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400";
+  "w-full rounded-xl border border-white/12 bg-[#0d131b] px-4 py-3 text-white placeholder-zinc-500 outline-none transition focus:border-[#58E8C1]/55 focus:ring-2 focus:ring-[#58E8C1]/20";
 const inputError = "border-red-500 focus:border-red-500";
 
 export interface LoginFormViewProps {
@@ -29,16 +32,23 @@ export default function LoginFormView({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="h-screen bg-black flex items-center justify-center overflow-y-auto scrollbar-hide bg-[url('/bg-auth.svg')] bg-cover bg-center bg-no-repeat relative">
-      <Link href="/" className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 group">
-        <img
-          src="/logo-comics.png"
-          alt="Comics Universe Logo"
-          className="h-12 w-32 sm:h-16 sm:w-52 object-cover drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
-        />
+    <div className="relative flex h-screen items-center justify-center overflow-y-auto scrollbar-hide bg-black bg-[url('/bg-auth.svg')] bg-cover bg-center bg-no-repeat">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(88,232,193,0.2),transparent_45%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-brand/10 mix-blend-color" />
+      <div className="pointer-events-none absolute inset-0 bg-black/58" />
+      <Link href="/" className="absolute left-4 top-4 z-10 inline-flex items-center gap-3 sm:left-6 sm:top-6 group">
+        <span className="inline-flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-xl border border-[rgba(88,232,193,0.28)] bg-black/40 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-105 group-hover:border-[rgba(88,232,193,0.6)] group-hover:bg-[rgba(88,232,193,0.08)] group-hover:shadow-[0_0_24px_rgba(88,232,193,0.3)]">
+          <svg viewBox="0 0 448 512" className="h-5 w-5 transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(88,232,193,0.7)]" fill="rgb(88,232,193)">
+            <path d={BOLT_PATH} />
+          </svg>
+        </span>
+        <span className="hidden text-lg font-black tracking-tight sm:inline">
+          <span className="text-white">Tag</span>
+          <span className="text-brand">Comics</span>
+        </span>
       </Link>
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 w-full">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border-2 border-yellow-400 p-6 sm:p-8 shadow-2xl shadow-yellow-400/30">
+        <div className="rounded-2xl border border-brand/35 bg-gradient-to-br from-[#0b1017] to-[#070b11] p-6 shadow-2xl shadow-brand/20 backdrop-blur-xl sm:p-8">
           {redirectTo && redirectTo.startsWith("/admin") ? (
             <>
               <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">Admin Login</h1>
@@ -96,7 +106,7 @@ export default function LoginFormView({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition-colors focus:outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors hover:text-[#58E8C1] focus:outline-none"
                   disabled={isPending}
                 >
                   {showPassword ? (
@@ -119,7 +129,7 @@ export default function LoginFormView({
             <button
               type="submit"
               disabled={isPending}
-              className="w-full md:col-span-2 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3 px-6 rounded-lg transition-all"
+              className="w-full rounded-xl bg-gradient-to-r from-[#58E8C1] to-[#35c5de] px-6 py-3 font-bold text-[#04110d] transition-all hover:from-[#63f3cf] hover:to-[#48d6ef] disabled:cursor-allow  disabled:opacity-50 md:col-span-2"
             >
               {isPending ? "Signing in..." : "Sign in"}
             </button>
@@ -129,7 +139,7 @@ export default function LoginFormView({
             Don&apos;t have an account?{" "}
             <Link
               href={redirectTo !== "/" ? `/signup?redirect=${encodeURIComponent(redirectTo)}` : "/signup"}
-              className="text-yellow-400 hover:text-yellow-300 font-bold"
+              className="font-bold text-[#58E8C1] transition-colors hover:text-cyan-300"
             >
               Sign up
             </Link>

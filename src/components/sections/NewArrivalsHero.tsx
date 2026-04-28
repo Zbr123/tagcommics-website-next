@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 interface Comic {
   id: number;
@@ -130,7 +131,10 @@ export default function NewArrivalsHero({ heroComics = defaultHeroComics }: NewA
                     transition: { duration: 0.3 },
                   }}
                 >
-                  <Link href={`/reader/${comic.id}`} className="block w-full h-full">
+                  <Link
+                    href={buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title })}
+                    className="block w-full h-full"
+                  >
                     <div className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl border-2 border-yellow-400/30 hover:border-yellow-400 transition-colors">
                       <Image
                         src={comic.image}

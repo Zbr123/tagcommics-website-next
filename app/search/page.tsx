@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, Suspense } from "react";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 const allComics = [
   { id: 1, title: "Spider-Man #1", author: "Stan Lee", price: 4.99, originalPrice: 9.99, discount: 50, rating: 4.9, sold: "2.5k", image: "/comic-slider1.png", category: "Comics", tag: "BESTSELLER" },
@@ -66,7 +67,7 @@ function SearchContent() {
               {filteredComics.map((comic) => (
                 <Link
                   key={comic.id}
-                  href={`/reader/${comic.id}`}
+                  href={buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title })}
                   className="group overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-zinc-950 to-zinc-900 transition hover:border-brand/40 hover:shadow-lg hover:shadow-brand/5"
                 >
                   <div className="relative">

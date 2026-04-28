@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 /** FA solid `bolt` path — matches `GlassTopNav` home control (viewBox 0 0 448 512). */
 const BOLT_PATH =
@@ -21,19 +24,30 @@ const legalLinkClass =
   "text-sm font-medium text-zinc-500 transition-colors hover:text-white focus:outline-none focus-visible:text-white focus-visible:underline";
 
 export default function Footer() {
+  const pathname = usePathname() ?? "";
+  const isHome = pathname === "/";
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    if (isHome) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
     <footer className="border-t border-white/5 bg-black py-10 text-zinc-500 md:py-12">
       <div className="mx-auto max-w-[1440px] px-6">
         <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between md:gap-6">
           <Link
             href="/"
+            onClick={handleHomeClick}
             className="group inline-flex items-center gap-3 self-start focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-            aria-label="ComicVerse home"
+            aria-label="TagComics home"
           >
             <FooterLogoMark />
             <span className="text-lg font-black tracking-tight">
-              <span className="text-white">Comic</span>
-              <span className="text-brand">Verse</span>
+              <span className="text-white">Tag</span>
+              <span className="text-brand">Comics</span>
             </span>
           </Link>
 
@@ -47,14 +61,14 @@ export default function Footer() {
             <Link href="/" className={legalLinkClass}>
               Terms
             </Link>
-            <Link href="/" className={legalLinkClass}>
+            <Link href="/design-team" className={legalLinkClass}>
               Contact
             </Link>
           </nav>
         </div>
 
         <div className="mt-10 flex flex-col items-center gap-6 border-t border-white/5 pt-10 md:flex-row md:items-center md:justify-between">
-          <p className="text-center text-sm md:text-left">&copy; 2026 ComicVerse. All rights reserved.</p>
+          <p className="text-center text-sm md:text-left">&copy; 2026 TagComics. All rights reserved.</p>
 
           <div className="flex items-center gap-3">
             <a

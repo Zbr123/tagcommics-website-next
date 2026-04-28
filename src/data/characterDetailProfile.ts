@@ -162,17 +162,20 @@ const OVERRIDES: Partial<Record<string, Partial<Omit<CharacterDetailProfile, "ch
       {
         id: "incident",
         title: "The Incident",
-        body: "During the Helios breach, Nova Prime’s battalion was folded out of normal space. She returned alone—with a resonance map burned into her visor and orders that no longer exist.",
+        body:
+          "During a critical experiment observing the collapse of a distant neutron star, Dr. Thorne's quantum observatory was bathed in an unprecedented wave of exotic radiation. Instead of destroying him, the energy bonded with his cellular structure, fundamentally altering his DNA and connecting him to the cosmic background radiation of the universe itself.",
       },
       {
         id: "powers",
         title: "Powers & Abilities",
-        body: "Stellar-channel harnessing, zero-g mastery, tactical precognition under extreme G-forces, and adaptive shield harmonics tuned to cosmic radiation bands.",
+        body:
+          "- Energy Manipulation: Can absorb, channel, and project vast amounts of cosmic energy.\n- Flight: Capable of interstellar travel faster than light by riding cosmic currents.\n- Enhanced Durability: Skin is dense enough to withstand the vacuum of space and extreme temperatures.\n- Cosmic Awareness: Possesses a limited cosmic sense that alerts him to universal threats.",
       },
       {
         id: "weaknesses",
         title: "Weaknesses",
-        body: "Prolonged isolation degrades sync with the channel. Empathic bleedthrough from collapsed timelines can stall decision loops in close-quarters combat.",
+        body:
+          "Nova Prime's powers are tied to the ambient cosmic energy of his environment. In areas of dead space or dimensions cut off from his home universe, his powers rapidly deplete. Additionally, overexertion can lead to a temporary loss of physical cohesion, risking permanent dissipation into pure energy.",
       },
     ],
     comics: [
@@ -210,9 +213,9 @@ const OVERRIDES: Partial<Record<string, Partial<Omit<CharacterDetailProfile, "ch
       },
     ],
     related: [
-      { slug: "phoenix-line", name: "Starlight", image: "/comic_slider7.png", relation: "Ally" },
+      { slug: "phoenix-line", name: "Starlight", image: "/character-book2.png", relation: "Ally" },
       { slug: "titan-x", name: "Void King", image: "/titan-x.png", relation: "Nemesis" },
-      { slug: "arcana", name: "A.E.G.I.S", image: "/arcana.png", relation: "Companion" },
+      { slug: "arcana", name: "A.E.G.I.S", image: "/related-series4.png", relation: "Companion" },
       { slug: "echo-nine", name: "Elder Kael", image: "/comic_page_slider3.png", relation: "Mentor" },
     ],
   },
