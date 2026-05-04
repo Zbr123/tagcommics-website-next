@@ -3,7 +3,7 @@ import Image from "next/image";
 import { buildReaderHref } from "@/src/lib/readerHref";
 
 export interface LatestRelease {
-  id: number;
+  id: string | number;
   title: string;
   image: string;
   /** e.g. "#42" */
@@ -52,12 +52,10 @@ export default function NewArrivalsSection({ releases }: NewArrivalsSectionProps
                 className="group block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <div className="relative aspect-[2/3] overflow-hidden rounded-2xl glass-card">
-                  <Image
+                  <img
                     src={item.image}
                     alt={item.title}
-                    fill
-                    className="object-cover transition-all duration-700 ease-out opacity-80 group-hover:scale-110 group-hover:opacity-100"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out opacity-80 group-hover:scale-110 group-hover:opacity-100"
                   />
                   <div
                     className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-100"

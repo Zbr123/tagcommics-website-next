@@ -1,10 +1,9 @@
 import Link from "next/link";
-import Image from "next/image";
 import ProductSlider from "../ProductSlider";
 import { buildReaderHref } from "@/src/lib/readerHref";
 
 interface Comic {
-  id: number;
+  id: string | number;
   title: string;
   author: string;
   price: number;
@@ -24,12 +23,10 @@ function BestSellerSlideCard({ comic }: { comic: Comic }) {
       className="group block w-[min(92vw,300px)] flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 sm:min-w-[260px] sm:w-[min(46vw,300px)] md:w-[280px] lg:w-[300px] xl:w-[308px]"
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-2xl glass-card">
-        <Image
+        <img
           src={comic.image}
           alt={comic.title}
-          fill
-          className="object-cover transition-all duration-700 ease-out opacity-80 group-hover:scale-110 group-hover:opacity-100"
-          sizes="(max-width: 640px) 300px, (max-width: 1024px) 280px, 308px"
+          className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out opacity-80 group-hover:scale-110 group-hover:opacity-100"
         />
         <span className="absolute right-2.5 top-2.5 z-10 rounded-lg border border-brand/35 bg-zinc-950/95 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand">
           Best

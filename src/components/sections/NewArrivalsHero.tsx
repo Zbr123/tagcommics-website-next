@@ -136,12 +136,10 @@ export default function NewArrivalsHero({ heroComics = defaultHeroComics }: NewA
                     className="block w-full h-full"
                   >
                     <div className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl border-2 border-yellow-400/30 hover:border-yellow-400 transition-colors">
-                      <Image
+                      <img
                         src={comic.image}
                         alt={comic.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 140px, (max-width: 768px) 160px, (max-width: 1024px) 180px, 200px"
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                       {/* Overlay gradient */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />

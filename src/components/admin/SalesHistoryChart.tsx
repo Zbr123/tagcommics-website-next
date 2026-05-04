@@ -22,7 +22,7 @@ const SalesTooltip = ({ active, payload }: any) => {
   const { month, sales } = payload[0].payload;
 
   return (
-    <div className="rounded-lg bg-white border-2 border-yellow-400 px-3 py-2 shadow-lg min-w-[150px]">
+    <div className="rounded-lg bg-white border-2 border-brand px-3 py-2 shadow-lg min-w-[150px]">
       <div className="text-lg font-semibold text-gray-900">{sales} Orders</div>
       <div className="text-sm text-gray-500">{month}</div>
     </div>
@@ -60,7 +60,7 @@ const SalesHistoryChart: React.FC<SalesHistoryChartProps> = ({ title = "Sales Hi
               stackId="stack"
               barSize={50}
               radius={[4, 4, 4, 4]}
-              fill="#FACC15"
+              fill="#58E8C1"
             />
 
             <Bar

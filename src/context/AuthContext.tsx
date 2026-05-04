@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import type { AuthUser } from "@/src/types/auth";
-import { getAuthApiUrl, mapBackendUserToAuthUser } from "@/src/lib/auth-api";
+import { decodeToken } from "@/src/lib/auth-api";
 
 export type { AuthUser };
 
@@ -43,23 +43,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoaded(true);
       return;
     }
-    setUserState(stored.user);
-    setToken(stored.token);
-    fetch(getAuthApiUrl("/auth/me"), {
-      headers: { Authorization: `Bearer ${stored.token}` },
-    })
-      .then((res) => {
-        if (res.ok) return res.json();
-        throw new Error("Invalid token");
-      })
-      .then((data) => {
-        setUserState(mapBackendUserToAuthUser(data));
-      })
-      .catch(() => {
-        setUserState(null);
-        setToken(null);
-      })
-      .finally(() => setIsLoaded(true));
+
+    // Validate token by decoding it
+    try {
+      const payload = decodeToken(stored.token);
+      const authUser: AuthUser = {
+        id: payload.user_id,
+        name: payload.name,
+        email: payload.email,
+      };
+      setUserState(authUser);
+      setToken(stored.token);
+    } catch {
+      // Invalid token, clear it
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    setIsLoaded(true);
   }, []);
 
   useEffect(() => {

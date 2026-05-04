@@ -21,17 +21,17 @@ export default function AdminAnalytics() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6">
           <h3 className="text-sm font-semibold text-gray-400 mb-2">Average Order Value</h3>
-          <p className="text-3xl font-black text-yellow-400">$45.67</p>
+          <p className="text-3xl font-black text-brand">$45.67</p>
           <p className="text-xs text-green-400 mt-2">+12% from last month</p>
         </div>
         <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6">
           <h3 className="text-sm font-semibold text-gray-400 mb-2">Conversion Rate</h3>
-          <p className="text-3xl font-black text-yellow-400">3.24%</p>
+          <p className="text-3xl font-black text-brand">3.24%</p>
           <p className="text-xs text-green-400 mt-2">+0.5% from last month</p>
         </div>
         <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6">
           <h3 className="text-sm font-semibold text-gray-400 mb-2">Top Category</h3>
-          <p className="text-3xl font-black text-yellow-400">Comics</p>
+          <p className="text-3xl font-black text-brand">Comics</p>
           <p className="text-xs text-gray-400 mt-2">42% of total sales</p>
         </div>
       </div>

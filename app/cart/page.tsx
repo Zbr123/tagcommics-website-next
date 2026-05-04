@@ -114,12 +114,10 @@ export default function CartPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Image */}
                   <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title })} className="relative w-full sm:w-32 h-48 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0">
-                    <Image
+                    <img
                       src={item.image}
                       alt={item.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, 128px"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                   </Link>
 

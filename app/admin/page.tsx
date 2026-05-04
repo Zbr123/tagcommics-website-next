@@ -83,9 +83,9 @@ export default function AdminDashboard() {
     {
       title: "Pending Orders",
       value: stats.pendingOrders,
-      color: "text-yellow-400",
-      bgColor: "bg-yellow-400/10",
-      borderColor: "border-yellow-400/30",
+      color: "text-brand",
+      bgColor: "bg-brand/10",
+      borderColor: "border-brand/30",
       href: "/admin/orders?status=pending",
     },
     {
@@ -116,16 +116,16 @@ export default function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
             whileHover={{ y: -4, scale: 1.02 }}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-800/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:border-yellow-400/50 transition-all duration-300"
+            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-800/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:border-brand/50 transition-all duration-300"
           >
             {/* Yellow gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-brand/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
             {/* Content */}
             <div className="relative p-6">
               {/* Header with icon and change badge */}
               <div className="flex items-start justify-between mb-6">
-                <div className={`${stat.iconColor} group-hover:text-yellow-400 transition-colors duration-300`}>
+                <div className={`${stat.iconColor} group-hover:text-brand transition-colors duration-300`}>
                   {stat.icon}
                 </div>
                 <motion.div
@@ -152,14 +152,14 @@ export default function AdminDashboard() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: index * 0.1 + 0.3 }}
-                  className="text-3xl font-black text-white tracking-tight group-hover:text-yellow-400 transition-colors duration-300"
+                  className="text-3xl font-black text-white tracking-tight group-hover:text-brand transition-colors duration-300"
                 >
                   {stat.value}
                 </motion.p>
               </div>
 
               {/* Yellow bottom accent on hover */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 to-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand to-brand-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
           </motion.div>
         ))}
@@ -178,7 +178,7 @@ export default function AdminDashboard() {
             className={`group relative overflow-hidden ${alert.bgColor} ${alert.borderColor} border-2 rounded-2xl p-6 cursor-pointer backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300`}
           >
             {/* Animated background gradient */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${alert.color === "text-yellow-400" ? "from-yellow-400/10" : "from-red-400/10"} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+            <div className={`absolute inset-0 bg-gradient-to-br ${alert.color === "text-brand" ? "from-brand/10" : "from-red-400/10"} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
             
             <div className="relative flex items-center justify-between">
               <div className="space-y-2">
@@ -207,7 +207,7 @@ export default function AdminDashboard() {
             </div>
             
             {/* Bottom accent line */}
-            <div className={`absolute bottom-0 left-0 right-0 h-1 ${alert.color === "text-yellow-400" ? "bg-yellow-400" : "bg-red-400"} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+            <div className={`absolute bottom-0 left-0 right-0 h-1 ${alert.color === "text-brand" ? "bg-brand" : "bg-red-400"} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
           </motion.a>
         ))}
       </div>
@@ -224,9 +224,9 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
             href="/admin/products"
-            className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-yellow-400 hover:bg-yellow-400/10 transition-all cursor-pointer"
+            className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-brand hover:bg-brand/10 transition-all cursor-pointer"
           >
-            <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
@@ -234,9 +234,9 @@ export default function AdminDashboard() {
           </a>
           <a
             href="/admin/orders"
-            className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-yellow-400 hover:bg-yellow-400/10 transition-all cursor-pointer"
+            className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-brand hover:bg-brand/10 transition-all cursor-pointer"
           >
-            <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
             <span className="text-white font-semibold">View Orders</span>

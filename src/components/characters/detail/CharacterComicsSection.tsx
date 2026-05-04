@@ -14,12 +14,10 @@ function ComicCard({ comic }: { comic: CharacterComic }) {
 
   const cover = (
     <>
-      <Image
+      <img
         src={comic.image}
         alt={comic.title}
-        fill
-        className="object-cover opacity-85 transition-all duration-700 ease-out group-hover/card:scale-[1.06] group-hover/card:opacity-100"
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+        className="absolute inset-0 w-full h-full object-cover opacity-85 transition-all duration-700 ease-out group-hover/card:scale-[1.06] group-hover/card:opacity-100"
       />
       <div
         className="pointer-events-none absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent opacity-90 transition-opacity duration-500 group-hover/card:opacity-100"

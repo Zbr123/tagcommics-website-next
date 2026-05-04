@@ -1,30 +1,45 @@
 import type { AuthUser } from "@/src/types/auth";
 
-const getBaseUrl = () => {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  if (!url) throw new Error("NEXT_PUBLIC_API_URL is not set");
-  return url.replace(/\/$/, "");
-};
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
 export function getAuthApiUrl(path: string): string {
-  return `${getBaseUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+  return `${BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-/** Backend user shape from /api/auth/login and /api/auth/register */
-export interface BackendAuthUser {
-  id: number;
+/** JWT payload structure from the backend token */
+export interface JWTPayload {
+  user_id: string;
   email: string;
-  first_name: string;
-  last_name?: string;
-  is_admin?: boolean;
+  name: string;
+  is_admin: boolean;
 }
 
-export function mapBackendUserToAuthUser(user: BackendAuthUser): AuthUser {
-  const name = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
+/**
+ * Decode JWT token without verification (for client-side use)
+ * The backend sends a signed token; we decode it to read the payload.
+ */
+export function decodeToken(token: string): JWTPayload {
+  const base64Url = token.split(".")[1];
+  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  return JSON.parse(atob(base64));
+}
+
+/** Backend user shape from /api/auth/register response */
+export interface BackendRegisterUser {
+  user_id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  user_role: string;
+  created_at: string;
+}
+
+export function mapBackendUserToAuthUser(user: BackendRegisterUser): AuthUser {
   return {
-    id: String(user.id),
-    name,
+    id: user.user_id,
+    name: user.name,
     email: user.email,
+    phone: user.phone ?? undefined,
   };
 }
 
@@ -36,22 +51,25 @@ export interface LoginRequest {
 
 /** Login API response */
 export interface LoginResponse {
-  accessToken: string;
-  user?: BackendAuthUser;
+  status: number;
+  message: string;
+  data?: {
+    access_token: string;
+  };
 }
 
 /** Register API request body */
 export interface RegisterRequest {
   name: string;
   email: string;
-  phone: string;
   password: string;
 }
 
 /** Register API response */
 export interface RegisterResponse {
-  accessToken?: string;
-  user?: BackendAuthUser;
+  status: number;
+  message: string;
+  data?: BackendRegisterUser;
 }
 
 /**
@@ -64,12 +82,13 @@ export async function loginApi(credentials: LoginRequest): Promise<LoginResponse
     body: JSON.stringify(credentials),
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: "Login failed" }));
-    throw new Error(error.error || error.message || "Login failed");
+    throw new Error(data.message || "Login failed");
   }
 
-  return res.json();
+  return data;
 }
 
 /**
@@ -82,25 +101,11 @@ export async function registerApi(data: RegisterRequest): Promise<RegisterRespon
     body: JSON.stringify(data),
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: "Registration failed" }));
-    throw new Error(error.error || error.message || "Registration failed");
-  }
-
-  return res.json();
-}
-
-/**
- * Get current user info using the token
- */
-export async function getCurrentUser(token: string): Promise<BackendAuthUser> {
-  const res = await fetch(getAuthApiUrl("/auth/me"), {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const response = await res.json();
 
   if (!res.ok) {
-    throw new Error("Failed to fetch user info");
+    throw new Error(response.message || "Registration failed");
   }
 
-  return res.json();
+  return response;
 }

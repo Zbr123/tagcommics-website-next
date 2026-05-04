@@ -28,8 +28,8 @@ const data = [
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-gray-900 border-2 border-yellow-400 rounded-lg px-3 py-2 shadow-lg">
-        <div className="text-lg font-semibold text-yellow-400">
+      <div className="bg-gray-900 border-2 border-brand rounded-lg px-3 py-2 shadow-lg">
+        <div className="text-lg font-semibold text-brand">
           {payload[0].value} orders
         </div>
       </div>
@@ -59,8 +59,8 @@ const OrdersActivityChart: React.FC<OrdersActivityChartProps> = ({
           >
             <defs>
               <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#FACC15" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#FEF3C7" stopOpacity={0.1} />
+                <stop offset="5%" stopColor="#58E8C1" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="#58E8C1" stopOpacity={0.1} />
               </linearGradient>
             </defs>
 
@@ -100,13 +100,13 @@ const OrdersActivityChart: React.FC<OrdersActivityChartProps> = ({
             <Area
               type="natural"
               dataKey="orders"
-              stroke="#FACC15"
+              stroke="#58E8C1"
               strokeWidth={3}
               fill="url(#colorOrders)"
               dot={false}
               activeDot={{
                 r: 8,
-                fill: "#FACC15",
+                fill: "#58E8C1",
                 stroke: "#000",
                 strokeWidth: 3,
               }}

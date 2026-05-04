@@ -390,7 +390,7 @@ export default function AdminOrders() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-yellow-500/30 p-3 sm:p-4"
+          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-brand/30 p-3 sm:p-4"
         >
           <p className="text-yellow-400 text-xs font-semibold mb-1">Pending</p>
           <p className="text-xl sm:text-2xl font-black text-white">{stats.pending}</p>
@@ -408,7 +408,7 @@ export default function AdminOrders() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-purple-500/30 p-3 sm:p-4"
+          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-brand/30 p-3 sm:p-4"
         >
           <p className="text-purple-400 text-xs font-semibold mb-1">Shipped</p>
           <p className="text-xl sm:text-2xl font-black text-white">{stats.shipped}</p>
@@ -435,7 +435,7 @@ export default function AdminOrders() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-yellow-400/30 p-3 sm:p-4"
+          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-brand/30 p-3 sm:p-4"
         >
           <p className="text-yellow-400 text-xs font-semibold mb-1">Revenue</p>
           <p className="text-lg sm:text-xl font-black text-white">${stats.totalRevenue.toFixed(2)}</p>
@@ -444,7 +444,7 @@ export default function AdminOrders() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-yellow-500/30 p-3 sm:p-4"
+          className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-brand/30 p-3 sm:p-4"
         >
           <p className="text-yellow-400 text-xs font-semibold mb-1">Pending Payment</p>
           <p className="text-xl sm:text-2xl font-black text-white">{stats.pendingPayment}</p>
@@ -461,7 +461,7 @@ export default function AdminOrders() {
               placeholder="Order #, Customer, Email, Tracking..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
             />
           </div>
           <div>
@@ -469,7 +469,7 @@ export default function AdminOrders() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand"
             >
               <option value="All">All Statuses</option>
               {ORDER_STATUSES.map((status) => (
@@ -484,7 +484,7 @@ export default function AdminOrders() {
             <select
               value={filterPaymentStatus}
               onChange={(e) => setFilterPaymentStatus(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand"
             >
               <option value="All">All Payment Statuses</option>
               {PAYMENT_STATUSES.map((status) => (
@@ -500,7 +500,7 @@ export default function AdminOrders() {
               type="date"
               value={dateRange.start}
               onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand"
             />
           </div>
           <div>
@@ -509,7 +509,7 @@ export default function AdminOrders() {
               type="date"
               value={dateRange.end}
               onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand"
             />
           </div>
         </div>
@@ -599,7 +599,7 @@ export default function AdminOrders() {
                             e.target.value as typeof ORDER_STATUSES[number]
                           )
                         }
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border focus:outline-none focus:ring-2 focus:ring-yellow-400/50 min-w-[150px] w-auto ${getStatusColor(
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border focus:outline-none focus:ring-2 focus:ring-brand/50 min-w-[150px] w-auto ${getStatusColor(
                           order.status
                         )}`}
                       >
@@ -619,7 +619,7 @@ export default function AdminOrders() {
                             e.target.value as typeof PAYMENT_STATUSES[number]
                           )
                         }
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border focus:outline-none focus:ring-2 focus:ring-yellow-400/50 min-w-[130px] w-auto ${getPaymentStatusColor(
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border focus:outline-none focus:ring-2 focus:ring-brand/50 min-w-[130px] w-auto ${getPaymentStatusColor(
                           order.paymentStatus
                         )}`}
                       >
@@ -633,7 +633,7 @@ export default function AdminOrders() {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleViewDetails(order)}
-                        className="px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 font-semibold rounded-lg transition-colors text-sm whitespace-nowrap cursor-pointer"
+                        className="px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-brand font-semibold rounded-lg transition-colors text-sm whitespace-nowrap cursor-pointer"
                       >
                         View Details
                       </button>
@@ -706,7 +706,7 @@ export default function AdminOrders() {
                             e.target.value as typeof ORDER_STATUSES[number]
                           )
                         }
-                        className={`w-full px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold border focus:outline-none focus:ring-2 focus:ring-yellow-400/50 ${getStatusColor(
+                        className={`w-full px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold border focus:outline-none focus:ring-2 focus:ring-brand/50 ${getStatusColor(
                           selectedOrder.status
                         )}`}
                       >
@@ -729,7 +729,7 @@ export default function AdminOrders() {
                             e.target.value as typeof PAYMENT_STATUSES[number]
                           )
                         }
-                        className={`w-full px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold border focus:outline-none focus:ring-2 focus:ring-yellow-400/50 ${getPaymentStatusColor(
+                        className={`w-full px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold border focus:outline-none focus:ring-2 focus:ring-brand/50 ${getPaymentStatusColor(
                           selectedOrder.paymentStatus
                         )}`}
                       >
@@ -795,7 +795,7 @@ export default function AdminOrders() {
                             handleUpdateTracking(selectedOrder.id, e.target.value)
                           }
                           placeholder="Enter tracking number"
-                          className="flex-1 px-3 sm:px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 text-sm"
+                          className="flex-1 px-3 sm:px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand text-sm"
                         />
                       </div>
                       {selectedOrder.estimatedDelivery && (

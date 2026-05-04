@@ -2,50 +2,90 @@
 
 import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCart } from "@/src/hooks/use-cart";
-import DownloadPdfButton from "@/src/components/DownloadPdfButton";
 import ComicDownloadButton from "@/src/components/ComicDownloadButton";
-import { buildReaderHref } from "@/src/lib/readerHref";
+import { getComicById, getAllComics, type Comic } from "@/src/lib/comics-api";
 
 const ComicReader = dynamic(() => import("@/src/components/ComicReader"), { ssr: false });
 
-import { categoryComics } from "@/src/data/category-comics";
+function LoadingState() {
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto mb-4"></div>
+        <p className="text-zinc-400">Loading comic...</p>
+      </div>
+    </div>
+  );
+}
 
-// Mock comics database - In a real app, this would come from an API
-const allComics = [
-  { id: 1, title: "Spider-Man #1", author: "Stan Lee", price: 4.99, originalPrice: 9.99, discount: 50, rating: 4.9, sold: "2.5k", image: "/comic-slider1.png", category: "Comics", tag: "BESTSELLER", description: "The amazing adventures of your friendly neighborhood Spider-Man! This classic issue features the web-slinger facing off against some of his most iconic villains. A must-have for any Marvel fan.", stock: 50, inCart: 1082 },
-  { id: 2, title: "Batman Annual", author: "Bob Kane", price: 6.99, originalPrice: 12.99, discount: 46, rating: 4.7, sold: "1.8k", image: "/comic-slider5.png", category: "Comics", tag: "NEW", description: "The Dark Knight returns in this special annual edition. Follow Batman as he protects Gotham City from its most dangerous criminals.", stock: 30, inCart: 856 },
-  { id: 3, title: "Attack on Titan", author: "Hajime Isayama", price: 8.99, originalPrice: 14.99, discount: 40, rating: 4.8, sold: "3.2k", image: "/comic-slider3.png", category: "Manga", tag: "HOT", description: "Humanity fights for survival against the Titans in this gripping manga series. Volume 1 introduces you to Eren, Mikasa, and Armin.", stock: 75, inCart: 1245 },
-  { id: 4, title: "One Piece Vol.1", author: "Eiichiro Oda", price: 7.99, originalPrice: 15.99, discount: 50, rating: 4.9, sold: "5.1k", image: "/comic-slide4.png", category: "Manga", tag: "BESTSELLER", description: "Join Monkey D. Luffy on his quest to become the Pirate King! The first volume of this epic adventure series.", stock: 100, inCart: 2100 },
-  { id: 5, title: "Deadpool #1", author: "Fabian Nicieza", price: 5.99, originalPrice: 11.99, discount: 50, rating: 4.6, sold: "900", image: "/comic-slider1.png", category: "Comics", tag: "NEW", description: "The Merc with a Mouth returns! Deadpool's hilarious and action-packed adventures continue in this first issue.", stock: 40, inCart: 623 },
-  { id: 6, title: "Wonder Woman", author: "William Moulton Marston", price: 6.49, originalPrice: 12.99, discount: 50, rating: 4.8, sold: "1.2k", image: "/comic-slider5.png", category: "Comics", tag: "CLASSIC", description: "The Amazonian warrior princess fights for justice and peace. A classic DC Comics character in her original adventures.", stock: 25, inCart: 445 },
-  { id: 7, title: "X-Men #1", author: "Stan Lee", price: 5.99, originalPrice: 11.99, discount: 51, rating: 4.9, sold: "2.1k", image: "/comic_slider7.png", category: "Comics", tag: "BESTSELLER", description: "The original X-Men team assembles! Follow Professor X's students as they learn to control their mutant powers.", stock: 60, inCart: 987 },
-  { id: 8, title: "Superman Returns", author: "Jerry Siegel", price: 7.49, originalPrice: 14.99, discount: 50, rating: 4.7, sold: "1.5k", image: "/comic_slider8.png", category: "Comics", tag: "CLASSIC", description: "The Man of Steel's epic return to Metropolis. A modern take on the classic superhero story.", stock: 35, inCart: 712 },
-  { id: 9, title: "Marvel Masterworks", author: "Stan Lee", price: 19.99, rating: 4.9, sold: "2.5k", image: "/comic_slider9.png", category: "Graphic Novels", tag: "BESTSELLER", description: "A collection of classic Marvel stories in a premium hardcover edition. Perfect for collectors and fans.", stock: 20, inCart: 543 },
-  { id: 10, title: "DC Black Label", author: "Various", price: 16.99, rating: 4.7, sold: "1.8k", image: "/comic_slider10.png", category: "Graphic Novels", tag: "NEW", description: "Mature-themed DC stories in this premium collection. Features some of the best writers and artists in comics.", stock: 15, inCart: 389 },
-  { id: 11, title: "Manga Classics Box Set", author: "Various", price: 44.99, rating: 4.8, sold: "3.2k", image: "/comic-slider3.png", category: "Manga", tag: "BESTSELLER", description: "A beautiful box set containing multiple classic manga series. Great value for manga enthusiasts.", stock: 10, inCart: 234 },
-  { id: 12, title: "The Walking Dead Vol.1", author: "Robert Kirkman", price: 12.99, rating: 4.8, image: "/comic-slider1.png", category: "Graphic Novels", tag: "NEW", description: "The beginning of the zombie apocalypse. Follow Rick Grimes as he navigates a world overrun by the undead.", stock: 45, inCart: 678 },
-  { id: 13, title: "Saga Deluxe Edition", author: "Brian K. Vaughan", price: 24.99, rating: 4.9, image: "/comic-slider5.png", category: "Graphic Novels", tag: "HOT", description: "An epic space opera about a family trying to survive a galactic war. Beautifully illustrated and masterfully written.", stock: 18, inCart: 456 },
-  { id: 14, title: "Invincible Compendium", author: "Robert Kirkman", price: 39.99, rating: 4.7, image: "/comic-slider3.png", category: "Graphic Novels", tag: "NEW", description: "The complete Invincible story in one massive volume. Over 1000 pages of superhero action and drama.", stock: 12, inCart: 321 },
-  { id: 15, title: "Watchmen Absolute", author: "Alan Moore", price: 29.99, rating: 5.0, image: "/comic-slide4.png", category: "Graphic Novels", tag: "CLASSIC", description: "The definitive edition of the greatest graphic novel of all time. A must-read for any comics fan.", stock: 8, inCart: 189 },
-  { id: 16, title: "Naruto Vol.1", author: "Masashi Kishimoto", price: 9.99, originalPrice: 14.99, discount: 33, rating: 4.9, sold: "4.5k", image: "/comic-slider1.png", category: "Manga", tag: "BESTSELLER", description: "The story of a young ninja who seeks recognition from his peers and dreams of becoming the Hokage.", stock: 80, inCart: 1567 },
-  { id: 17, title: "Dragon Ball Z", author: "Akira Toriyama", price: 8.99, originalPrice: 13.99, discount: 36, rating: 4.8, sold: "3.8k", image: "/comic-slider5.png", category: "Manga", tag: "CLASSIC", description: "Goku and friends continue their adventures in this legendary manga series. Action-packed and full of humor.", stock: 65, inCart: 1345 },
-  { id: 18, title: "The Avengers", author: "Stan Lee", price: 6.99, originalPrice: 12.99, discount: 46, rating: 4.9, sold: "2.3k", image: "/comic-slider3.png", category: "Comics", tag: "BESTSELLER", description: "Earth's mightiest heroes assemble! The original Avengers team-up in this classic Marvel comic.", stock: 50, inCart: 892 },
-];
+function NotFoundState() {
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-3xl font-black text-white mb-4">Comic Not Found</h1>
+        <Link href="/" className="text-yellow-400 hover:text-yellow-300">
+          Return to Home
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 export default function ComicDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { addToCart, getTotalItems } = useCart();
-  const id = parseInt(params.id as string);
-  const comic = allComics.find((c) => c.id === id) ?? categoryComics.find((c) => c.id === id);
+  const id = parseInt(params.id as string, 10);
+
+  const [comic, setComic] = useState<Comic | null>(null);
+  const [similarComics, setSimilarComics] = useState<Comic[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<(string | number)[]>([]);
+
+  useEffect(() => {
+    if (isNaN(id)) {
+      setLoading(false);
+      return;
+    }
+
+    async function fetchData() {
+      try {
+        const [comicData, allComicsData] = await Promise.all([
+          getComicById(id),
+          getAllComics(),
+        ]);
+
+        if (!comicData) {
+          setComic(null);
+          setLoading(false);
+          return;
+        }
+
+        setComic(comicData);
+
+        // Find similar comics by category or author
+        const similar = allComicsData
+          .filter((c) => c.id !== comicData.id && (c.category === comicData.category || c.author === comicData.author))
+          .slice(0, 4);
+        setSimilarComics(similar);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load comic");
+        setComic(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [id]);
 
   useEffect(() => {
     try {
@@ -54,30 +94,10 @@ export default function ComicDetailPage() {
     } catch {}
   }, []);
 
-  const isFavorite = comic ? favoriteIds.includes(comic.id) : false;
-  const toggleFavorite = () => {
-    if (!comic) return;
-    const next = isFavorite ? favoriteIds.filter((i) => i !== comic.id) : [...favoriteIds, comic.id];
-    setFavoriteIds(next);
-    try {
-      localStorage.setItem("tagcomics-favorites", JSON.stringify(next));
-    } catch {}
-  };
+  if (loading) return <LoadingState />;
+  if (!comic) return <NotFoundState />;
 
-  if (!comic) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-black text-white mb-4">Comic Not Found</h1>
-          <Link href="/" className="text-yellow-400 hover:text-yellow-300">
-            Return to Home
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const images = [comic.image, comic.image, comic.image]; // In real app, would have multiple images
+  const images = [comic.image, comic.image, comic.image];
 
   const handleAddToCart = () => {
     addToCart({
@@ -104,10 +124,14 @@ export default function ComicDetailPage() {
     router.push("/cart");
   };
 
-  const allComicsMerged = [...allComics, ...categoryComics];
-  const similarComics = allComicsMerged
-    .filter((c) => c.id !== comic.id && (c.category === comic.category || c.author === comic.author))
-    .slice(0, 4);
+  const isFavorite = favoriteIds.includes(comic.id);
+  const toggleFavorite = () => {
+    const next = isFavorite ? favoriteIds.filter((i) => i !== comic.id) : [...favoriteIds, comic.id];
+    setFavoriteIds(next);
+    try {
+      localStorage.setItem("tagcomics-favorites", JSON.stringify(next));
+    } catch {}
+  };
 
   return (
     <div className="min-h-screen bg-black">
@@ -160,17 +184,10 @@ export default function ComicDetailPage() {
                   </svg>
                 </button>
               </div>
-              {comic.inCart && (
-                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full z-10">
-                  IN {comic.inCart} CARTS
-                </div>
-              )}
-              <Image
+              <img
                 src={images[selectedImage]}
                 alt={comic.title}
-                fill
-                className="object-cover"
-                priority
+                className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
 
@@ -186,13 +203,12 @@ export default function ComicDetailPage() {
                       : "border-gray-800 hover:border-gray-700"
                   }`}
                 >
-                  <Image
+                  <img
                     src={img}
                     alt={`${comic.title} ${index + 1}`}
-                    fill
-                    className="object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
-                </button>
+                </button> 
               ))}
             </div>
           </div>
@@ -210,7 +226,7 @@ export default function ComicDetailPage() {
                     </span>
                   ))}
                   <span className="text-gray-400 text-sm ml-2">
-                    {comic.rating} ({comic.sold} ratings)
+                    {comic.rating} ({comic.sold || "0"} ratings)
                   </span>
                 </div>
               </div>
@@ -256,17 +272,17 @@ export default function ComicDetailPage() {
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     className="w-16 text-center bg-transparent text-white border-0 focus:outline-none"
-                    min="1" 
+                    min="1"
                     max={comic.stock}
                   />
                   <button
-                    onClick={() => setQuantity(Math.min(comic.stock, quantity + 1))}
+                    onClick={() => setQuantity(Math.min(comic.stock || 99, quantity + 1))}
                     className="px-3 py-2 text-white hover:bg-gray-800 transition-colors cursor-pointer"
                   >
                     +
                   </button>
                 </div>
-                <span className="text-gray-400 text-sm">{comic.stock} available</span>
+                <span className="text-gray-400 text-sm">{comic.stock || 50} available</span>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
@@ -282,13 +298,6 @@ export default function ComicDetailPage() {
                 >
                   Add to Cart
                 </button>
-                {/* <DownloadPdfButton
-                  productId={comic.id}
-                  fileName={`${comic.title.replace(/\s+/g, "-")}.pdf`}
-                  variant="secondary"
-                  fullWidth={true}
-                  className="flex-1"
-                /> */}
                 <button
                   type="button"
                   onClick={toggleFavorite}
@@ -367,7 +376,7 @@ export default function ComicDetailPage() {
         {/* Product Description */}
         <div className="mb-12 p-6 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800">
           <h2 className="text-xl font-black text-white mb-4">About this item</h2>
-          <p className="text-gray-400 leading-relaxed">{comic.description}</p>
+          <p className="text-gray-400 leading-relaxed">{comic.description || `${comic.title} by ${comic.author}. A great read from the ${comic.category} collection.`}</p>
           <div className="mt-4 space-y-2 text-gray-400">
             <p>• <span className="text-white">Category:</span> {comic.category}</p>
             <p>• <span className="text-white">Author:</span> {comic.author}</p>
@@ -389,16 +398,14 @@ export default function ComicDetailPage() {
               {similarComics.map((similar) => (
                 <Link
                   key={similar.id}
-                  href={buildReaderHref({ id: similar.id, coverImage: similar.image, title: similar.title })}
+                  href={`/reader/${similar.id}?cover=${encodeURIComponent(similar.image)}&title=${encodeURIComponent(similar.title)}`}
                   className="group bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 overflow-hidden hover:border-yellow-400/50 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-400/10"
                 >
                   <div className="relative aspect-[3/4] bg-gradient-to-br from-gray-800 to-gray-900">
-                    <Image
+                    <img
                       src={similar.image}
                       alt={similar.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                   </div>
                   <div className="p-4">
@@ -425,4 +432,3 @@ export default function ComicDetailPage() {
     </div>
   );
 }
-

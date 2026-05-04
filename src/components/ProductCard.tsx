@@ -1,9 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { buildReaderHref } from "@/src/lib/readerHref";
 
 interface Comic {
-  id: number;
+  id: string | number;
   title: string;
   price: number;
   originalPrice?: number;
@@ -61,12 +60,10 @@ export default function ProductCard({
         cardWidth === "w-full" ? "max-w-[340px] min-w-0 mx-auto w-full" : ""
       }`}
     >
-      <Image
+      <img
         src={comic.image}
         alt={comic.title}
-        fill
-        className="object-cover opacity-80 transition-all duration-700 ease-out group-hover:scale-110 group-hover:opacity-100"
-        sizes="(max-width: 640px) 160px, (max-width: 768px) 180px, 200px"
+        className="absolute inset-0 w-full h-full object-cover opacity-80 transition-all duration-700 ease-out group-hover:scale-110 group-hover:opacity-100"
       />
 
       <div

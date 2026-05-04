@@ -74,13 +74,10 @@ export default function ComicsPage() {
         <div className="relative h-[22vh] md:h-[24vh] lg:h-[26vh] w-full overflow-hidden rounded-3xl shadow-2xl mx-auto lg:max-w-7xl">
           {/* Full-width background image (comic art) */}
           <div className="absolute inset-0 z-0">
-            <Image
+            <img
               src={heroData.overlayImage}
               alt=""
-              fill
-              className="object-cover"
-              sizes="100vw"
-              priority
+              className="absolute inset-0 w-full h-full object-cover"
             />
           </div>
           {/* Theme overlay: light yellow transparent (or use black/50 for dark tint) */}

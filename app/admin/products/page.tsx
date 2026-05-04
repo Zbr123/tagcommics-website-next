@@ -221,7 +221,7 @@ export default function AdminProducts() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => handleOpenForm()}
-          className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition-all cursor-pointer flex items-center gap-2"
+          className="bg-gradient-to-r from-brand to-brand-400 hover:from-brand-400 hover:to-brand text-brand-foreground font-bold py-3 px-6 rounded-lg transition-all cursor-pointer flex items-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -240,7 +240,7 @@ export default function AdminProducts() {
               placeholder="Search by title or author..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
             />
           </div>
           <div>
@@ -248,7 +248,7 @@ export default function AdminProducts() {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400 cursor-pointer"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand cursor-pointer"
             >
               <option value="All">All Categories</option>
               {CATEGORIES.map((cat) => (
@@ -263,7 +263,7 @@ export default function AdminProducts() {
             <select
               value={filterTag}
               onChange={(e) => setFilterTag(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400 cursor-pointer"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand cursor-pointer"
             >
               <option value="All">All Tags</option>
               {TAGS.map((tag) => (
@@ -362,7 +362,7 @@ export default function AdminProducts() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleOpenForm(product)}
-                          className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors cursor-pointer"
+                          className="p-2 text-blue-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors cursor-pointer"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -435,7 +435,7 @@ export default function AdminProducts() {
                         required
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
                         placeholder="Product title"
                       />
                     </div>
@@ -450,7 +450,7 @@ export default function AdminProducts() {
                         required
                         value={formData.author}
                         onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
                         placeholder="Author name"
                       />
                     </div>
@@ -464,7 +464,7 @@ export default function AdminProducts() {
                         required
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400 cursor-pointer"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand cursor-pointer"
                       >
                         {CATEGORIES.map((cat) => (
                           <option key={cat} value={cat}>
@@ -490,7 +490,7 @@ export default function AdminProducts() {
                             originalPrice: parseFloat(e.target.value) || undefined,
                           })
                         }
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
                         placeholder="0.00"
                       />
                     </div>
@@ -509,7 +509,7 @@ export default function AdminProducts() {
                         onChange={(e) =>
                           setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
                         }
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
                         placeholder="0.00"
                       />
                     </div>
@@ -526,7 +526,7 @@ export default function AdminProducts() {
                         onChange={(e) =>
                           setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })
                         }
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
                         placeholder="0"
                       />
                     </div>
@@ -539,7 +539,7 @@ export default function AdminProducts() {
                       <select
                         value={formData.tag}
                         onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-yellow-400 cursor-pointer"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand cursor-pointer"
                       >
                         {TAGS.map((tag) => (
                           <option key={tag} value={tag}>
@@ -567,7 +567,7 @@ export default function AdminProducts() {
                             reader.readAsDataURL(file);
                           }
                         }}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-400 file:text-black file:font-semibold file:cursor-pointer focus:outline-none focus:border-yellow-400"
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand file:text-brand-foreground file:font-semibold file:cursor-pointer focus:outline-none focus:border-brand"
                       />
                       {formData.image && (
                         <div className="mt-3">
@@ -612,7 +612,7 @@ export default function AdminProducts() {
                                 ...(e.target.checked ? {} : { ebookPdfUrl: "" }),
                               })
                             }
-                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
+                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-brand focus:ring-brand"
                           />
                           <span className="text-white font-semibold">E-book</span>
                         </label>
@@ -623,7 +623,7 @@ export default function AdminProducts() {
                             onChange={(e) =>
                               setFormData({ ...formData, isPhysical: e.target.checked })
                             }
-                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
+                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-brand focus:ring-brand"
                           />
                           <span className="text-white font-semibold">Physical / Hard book</span>
                         </label>
@@ -649,7 +649,7 @@ export default function AdminProducts() {
                                 reader.readAsDataURL(file);
                               }
                             }}
-                            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-yellow-400 file:text-black file:font-semibold file:cursor-pointer focus:outline-none focus:border-yellow-400"
+                            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand file:text-brand-foreground file:font-semibold file:cursor-pointer focus:outline-none focus:border-brand"
                           />
                           {formData.ebookPdfUrl && (
                             <p className="mt-2 text-xs text-green-400">PDF file selected</p>
@@ -671,7 +671,7 @@ export default function AdminProducts() {
                             onChange={(e) =>
                               setFormData({ ...formData, isFlashSale: e.target.checked })
                             }
-                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
+                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-brand focus:ring-brand"
                           />
                           <span className="text-white font-semibold">Flash Sale</span>
                         </label>
@@ -682,7 +682,7 @@ export default function AdminProducts() {
                             onChange={(e) =>
                               setFormData({ ...formData, isNewItem: e.target.checked })
                             }
-                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-yellow-400 focus:ring-yellow-400"
+                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-brand focus:ring-brand"
                           />
                           <span className="text-white font-semibold">New Item</span>
                         </label>

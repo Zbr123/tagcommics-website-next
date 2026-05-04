@@ -72,12 +72,10 @@ function SearchContent() {
                 >
                   <div className="relative">
                     <div className="relative aspect-[3/4] overflow-hidden bg-black/40">
-                      <Image
+                      <img
                         src={comic.image}
                         alt={comic.title}
-                        fill
-                        className="object-cover transition duration-500 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-105"
                       />
                       {comic.discount ? (
                         <div className="absolute left-2 top-2 z-10 rounded-full bg-red-500 px-2.5 py-1 text-xs font-black text-white shadow-lg">

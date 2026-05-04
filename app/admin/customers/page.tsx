@@ -83,13 +83,13 @@ export default function AdminCustomers() {
         >
           {/* Gradient background with yellow accent */}
           <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-500" />
-          <div className="absolute inset-0 rounded-xl border border-gray-700/80 group-hover:border-yellow-500/30 transition-colors" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-brand to-brand-400" />
+          <div className="absolute inset-0 rounded-xl border border-gray-700/80 group-hover:border-brand/30 transition-colors" />
           {/* Content - compact like previous height */}
           <div className="relative p-3 sm:p-4 flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-1">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-yellow-400/10 border border-yellow-500/20 flex-shrink-0">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex-shrink-0">
                 <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
@@ -107,13 +107,13 @@ export default function AdminCustomers() {
               placeholder="Search by name, email, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
             />
           </div>
           <button
             onClick={loadCustomers}
             disabled={loading}
-            className="w-full sm:w-auto px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 font-semibold rounded-lg transition-colors border border-yellow-500/30 disabled:opacity-50 flex items-center justify-center gap-2 flex-shrink-0 cursor-pointer disabled:cursor-not-allowed"
+            className="w-full sm:w-auto px-4 py-2 bg-brand/10 hover:bg-brand/20 text-brand font-semibold rounded-lg transition-colors border border-brand/30 disabled:opacity-50 flex items-center justify-center gap-2 flex-shrink-0 cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -213,7 +213,7 @@ export default function AdminCustomers() {
                     </td>
                     <td className="px-6 py-4">
                       {customer.isAdmin ? (
-                        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-semibold rounded border border-yellow-500/30">
+                        <span className="px-2 py-1 bg-brand/20 text-brand text-xs font-semibold rounded border border-brand/30">
                           Admin
                         </span>
                       ) : (
@@ -223,7 +223,7 @@ export default function AdminCustomers() {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleViewDetails(customer)}
-                        className="px-4 py-2 bg-yellow-400/10 hover:bg-yellow-400/20 text-yellow-400 font-semibold rounded-lg transition-colors text-sm whitespace-nowrap cursor-pointer"
+                        className="px-4 py-2 bg-brand/10 hover:bg-brand/20 text-brand font-semibold rounded-lg transition-colors text-sm whitespace-nowrap cursor-pointer"
                       >
                         View Details
                       </button>
@@ -303,7 +303,7 @@ export default function AdminCustomers() {
                   <div className="flex items-center gap-2">
                     <span className="text-gray-400 text-sm">Role:</span>
                     {selectedCustomer.isAdmin ? (
-                      <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-sm font-semibold rounded border border-yellow-500/30">
+                      <span className="px-2 py-1 bg-brand/20 text-brand text-sm font-semibold rounded border border-brand/30">
                         Admin
                       </span>
                     ) : (

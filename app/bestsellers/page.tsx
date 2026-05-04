@@ -75,13 +75,10 @@ export default function BestSellersPage() {
       {/* <section className="px-4 pt-6 pb-2 md:px-8 lg:px-4">
         <div className="relative h-[22vh] md:h-[24vh] lg:h-[26vh] w-full overflow-hidden rounded-3xl shadow-2xl mx-auto lg:max-w-7xl">
           <div className="absolute inset-0 z-0">
-            <Image
+            <img
               src={heroData.overlayImage}
               alt=""
-              fill
-              className="object-cover"
-              sizes="100vw"
-              priority
+              className="absolute inset-0 w-full h-full object-cover"
             />
           </div>
           <div className="absolute inset-0 z-[1] bg-gradient-to-r from-amber-500/60 via-yellow-400/50 to-amber-500/60" />

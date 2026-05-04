@@ -68,6 +68,15 @@ export default function AdminLayout({
         </svg>
       ),
     },
+    {
+      name: "Characters",
+      href: "/admin/characters",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+    },
   ];
 
   // while auth state is resolving or redirecting, show a simple loading state
@@ -91,7 +100,7 @@ export default function AdminLayout({
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-white hover:text-yellow-400 transition-colors lg:hidden cursor-pointer"
+              className="text-white hover:text-brand transition-colors lg:hidden cursor-pointer"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -99,7 +108,7 @@ export default function AdminLayout({
             </button>
             <Link href="/admin" className="flex items-center gap-2 group cursor-pointer">
               <img
-                src="/logo-comics.png"
+                src="/comics-logos/images-comics.png"
                 alt="Tag Comics Logo"
                 className="h-12 w-32 sm:h-14 sm:w-40 object-cover drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
               />
@@ -107,7 +116,7 @@ export default function AdminLayout({
           </div>
           <div className="flex items-center gap-3 sm:gap-5">
             <div className="flex items-center gap-3 pr-3 sm:pr-4 border-r border-gray-700">
-              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-yellow-400/50 flex-shrink-0 bg-gray-700">
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-brand/50 flex-shrink-0 bg-gray-700">
                 <Image
                   src="/admin.png"
                   alt={user?.name ?? "User"}
@@ -123,7 +132,7 @@ export default function AdminLayout({
                     <p className="text-sm font-bold text-white truncate max-w-[120px]">Hi, {displayName}</p>
                   </div>
                   <div className="sm:hidden">
-                    <p className="text-sm font-bold text-yellow-400">Hi, {displayName.split(" ")[0]}</p>
+                    <p className="text-sm font-bold text-brand">Hi, {displayName.split(" ")[0]}</p>
                   </div>
                 </>
               ) : null}
@@ -159,8 +168,8 @@ export default function AdminLayout({
                     href={item.href}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all cursor-pointer ${
                       isActive
-                        ? "bg-yellow-400 text-black font-bold"
-                        : "text-gray-300 hover:bg-gray-800 hover:text-yellow-400"
+                        ? "bg-brand text-brand-foreground font-bold"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-brand"
                     }`}
                   >
                     {item.icon}
