@@ -9,6 +9,8 @@ import "react-pdf/dist/Page/TextLayer.css";
 import "./reader-pdf.css";
 import { READER_DEFAULT_TITLE } from "./readerConstants";
 import type { ComicReaderData } from "@/src/data/comicReaderData";
+import { useCart } from "@/src/hooks/use-cart";
+import { checkLibraryAccess, createStripeCheckoutSession, readStoredAuthToken, type PurchasableItemType } from "@/src/lib/purchase-api";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
@@ -21,15 +23,15 @@ const CHAPTERS: SidebarItem[] = [
   { id: "c4", page: 22, label: "04", title: "Clocktower", blurb: "Briefing before the finale." },
 ];
 
-const SPECS: { k: string; v: string }[] = [
+const DEFAULT_SPECS: { k: string; v: string }[] = [
   { k: "Format", v: "Digital · Print-ready" },
   { k: "Dimensions", v: "6.625 × 10.25 in" },
   { k: "Color profile", v: "CMYK / Screen RGB" },
   { k: "Published", v: "2026 · TagComics" },
 ];
 
-const TAGS = ["Noir", "Urban", "Sci-Fi", "Crime"];
-const MAX_PREVIEW_PAGES = 1;
+const DEFAULT_TAGS = ["Noir", "Urban", "Sci-Fi", "Crime"];
+const MAX_PREVIEW_PAGES = 2;
 
 function fileUrl(path: string) {
   if (typeof window === "undefined") return path;
@@ -72,7 +74,15 @@ export interface ReaderExperienceProps {
   coverImage?: string;
 }
 
-function LockedScreen({ onBack }: { onBack: () => void }) {
+function LockedScreen({
+  onBack,
+  onAddToCart,
+  onPurchaseNow,
+}: {
+  onBack: () => void;
+  onAddToCart: () => void;
+  onPurchaseNow: () => void;
+}) {
   return (
     <div className="flex min-h-[60vh] w-full flex-col items-center justify-center px-4">
       <div className="max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-xl">
@@ -82,8 +92,11 @@ function LockedScreen({ onBack }: { onBack: () => void }) {
         <h2 className="text-xl font-black text-white">Unlock Full Comic</h2>
         <p className="mt-3 text-sm text-zinc-400">Purchase the full PDF version to continue reading and download your copy.</p>
         <div className="mt-8 flex flex-col gap-3">
-          <button type="button" className="w-full rounded-lg border border-brand/40 bg-brand/20 px-6 py-3 text-sm font-bold text-brand transition hover:bg-brand/30 hover:border-brand/60">
-            <i className="fa-solid fa-cart-shopping mr-2" />Purchase PDF
+          <button type="button" onClick={onAddToCart} className="w-full rounded-lg border border-brand/40 bg-brand/20 px-6 py-3 text-sm font-bold text-brand transition hover:bg-brand/30 hover:border-brand/60">
+            <i className="fa-solid fa-bag-shopping mr-2" />Add to Cart
+          </button>
+          <button type="button" onClick={onPurchaseNow} className="w-full rounded-lg border border-brand/40 bg-brand px-6 py-3 text-sm font-bold text-brand-foreground transition hover:bg-brand/90">
+            <i className="fa-solid fa-bolt mr-2" />Purchase Now
           </button>
           <button type="button" onClick={onBack} className="w-full rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-bold text-zinc-300 transition hover:bg-white/10 hover:text-white">
             Back to Comics
@@ -103,22 +116,52 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   const [fitBox, setFitBox] = useState({ w: 880, h: 560 });
   const [pdfPageDim, setPdfPageDim] = useState<{ w: number; h: number } | null>(null);
   const [activeChapterId, setActiveChapterId] = useState(CHAPTERS[0]!.id);
-  const [isPurchased] = useState(false);
+  const [hasAccess, setHasAccess] = useState(false);
+  const [accessResolved, setAccessResolved] = useState(false);
+  const [accessError, setAccessError] = useState<string | null>(null);
   const [showLocked, setShowLocked] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
   const pdfViewportRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
+  const { addToCart, getTotalItems } = useCart();
+  const [justAdded, setJustAdded] = useState(false);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   const effectivePdfPath = comicData?.pdfUrl || pdfPath;
   const singlePreviewPage = comicData?.coverImage || coverImage;
   const previewPages = comicData?.previewPages || (singlePreviewPage ? [singlePreviewPage, singlePreviewPage] : []);
   const hasPreview = previewPages.length > 0;
-  const isPreviewMode = !isPurchased;
+  const isPreviewMode = !hasAccess;
   const maxPreview = MAX_PREVIEW_PAGES;
 
   const sidebarItems = useMemo<SidebarItem[]>(() => {
     return CHAPTERS;
   }, []);
+  const creatorName = comicData?.author?.trim() || "Elias Thorne";
+  const creatorRole = comicData?.author ? "Author" : "Art";
+  const secondaryCreator = comicData?.author ? null : "Mira Okonkwo";
+  const specs = useMemo(
+    () => [
+      { k: "Format", v: comicData?.bookType ? `${comicData.bookType} · Print-ready` : DEFAULT_SPECS[0]!.v },
+      { k: "Dimensions", v: DEFAULT_SPECS[1]!.v },
+      { k: "Color profile", v: DEFAULT_SPECS[2]!.v },
+      { k: "Published", v: comicData?.category || DEFAULT_SPECS[3]!.v },
+    ],
+    [comicData?.bookType, comicData?.category],
+  );
+  const readerTags = useMemo(() => {
+    const raw = comicData?.tags;
+    if (Array.isArray(raw)) {
+      const trimmed = raw.map((t) => String(t).trim()).filter(Boolean);
+      return trimmed.length > 0 ? trimmed : DEFAULT_TAGS;
+    }
+    if (typeof raw === "string") {
+      const trimmed = raw.split(",").map((t) => t.trim()).filter(Boolean);
+      return trimmed.length > 0 ? trimmed : DEFAULT_TAGS;
+    }
+    return DEFAULT_TAGS;
+  }, [comicData?.tags]);
 
   const clampedZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom));
   const pageFitWidth = useMemo(() => {
@@ -228,8 +271,100 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   }, []);
 
   const file = useMemo(() => effectivePdfPath ? fileUrl(effectivePdfPath) : null, [effectivePdfPath]);
-  const canDownload = !!effectivePdfPath && isPurchased;
+  const canDownload = !!effectivePdfPath && hasAccess;
   const handleBackToComics = () => router.push("/");
+  const handleAddToCart = useCallback(() => {
+    if (!comicData) return;
+    const price = typeof comicData.price === "number" ? comicData.price : 0;
+    const originalPrice =
+      typeof comicData.originalPrice === "number" && comicData.originalPrice > price
+        ? comicData.originalPrice
+        : undefined;
+    addToCart({
+      id: comicData.slug,
+      title: comicData.title,
+      author: comicData.author || "Unknown",
+      price,
+      originalPrice,
+      image: comicData.coverImage,
+      pdfUrl: comicData.pdfUrl,
+      category: comicData.category,
+      tags: comicData.tags,
+      bookType: comicData.bookType,
+    });
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 2200);
+  }, [addToCart, comicData]);
+  const handlePurchaseNow = useCallback(async () => {
+    try {
+      setPurchaseError(null);
+      const token = readStoredAuthToken();
+      if (!token) {
+        router.push("/login?redirect=" + encodeURIComponent(window.location.pathname));
+        return;
+      }
+      const itemType: PurchasableItemType =
+        comicData?.itemType ?? (comicData?.bookType ? "character_book" : "comic");
+      const itemId = comicData?.itemId || comicData?.slug;
+      if (!itemId) {
+        setPurchaseError("Missing item id for checkout.");
+        return;
+      }
+      setIsPurchasing(true);
+      const session = await createStripeCheckoutSession({
+        itemType,
+        itemId: String(itemId),
+        quantity: 1,
+        token,
+      });
+      if (!session.url) {
+        setPurchaseError("Unable to continue. Stripe checkout URL is missing.");
+        return;
+      }
+      window.location.href = session.url;
+    } catch (error) {
+      setPurchaseError(error instanceof Error ? error.message : "Unable to start checkout.");
+    } finally {
+      setIsPurchasing(false);
+    }
+  }, [comicData?.bookType, comicData?.itemId, comicData?.itemType, comicData?.slug, router]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const itemId = comicData?.itemId || comicData?.slug;
+    const itemType: PurchasableItemType =
+      comicData?.itemType ?? (comicData?.bookType ? "character_book" : "comic");
+    if (!itemId) {
+      setHasAccess(false);
+      setAccessResolved(true);
+      setAccessError(null);
+      return;
+    }
+    const token = readStoredAuthToken();
+    if (!token) {
+      setHasAccess(false);
+      setAccessResolved(true);
+      setAccessError(null);
+      return;
+    }
+    setAccessResolved(false);
+    setAccessError(null);
+    checkLibraryAccess({ itemType, itemId: String(itemId), token })
+      .then((access) => {
+        if (cancelled) return;
+        setHasAccess(access);
+        setAccessResolved(true);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setHasAccess(false);
+        setAccessResolved(true);
+        setAccessError(error instanceof Error ? error.message : "Access check failed.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [comicData?.bookType, comicData?.itemId, comicData?.itemType, comicData?.slug]);
 
   useEffect(() => {
     if (comicData?.coverImage) {
@@ -252,12 +387,24 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
                 <i className="fa-solid fa-download text-[11px]" aria-hidden />Download PDF
               </button>
             ) : (
-              <button type="button" className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-black/40 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-black/60 sm:px-4 sm:text-[11px]">
-                <i className="fa-solid fa-cart-shopping text-[11px]" aria-hidden />Purchase
-              </button>
+              <>
+                <button type="button" onClick={handleAddToCart} className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/20 sm:px-4 sm:text-[11px]">
+                  <i className="fa-solid fa-bag-shopping text-[11px]" aria-hidden />Add to Cart
+                </button>
+                <button type="button" onClick={handlePurchaseNow} disabled={isPurchasing} className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand-foreground backdrop-blur-sm transition hover:bg-brand/90 sm:px-4 sm:text-[11px] disabled:opacity-70">
+                  <i className="fa-solid fa-bolt text-[11px]" aria-hidden />{isPurchasing ? "Processing..." : "Purchase Now"}
+                </button>
+              </>
             )}
           </div>
         </div>
+        {justAdded ? (
+          <div className="mx-auto mt-1 max-w-[1920px] px-4 pb-2 sm:px-6 lg:px-8">
+            <Link href="/cart" className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand hover:text-brand/80">
+              Added to cart · View Cart ({getTotalItems()})
+            </Link>
+          </div>
+        ) : null}
       </header>
 
       <div className="mx-auto flex w-full max-w-[1920px] flex-1 flex-col overflow-hidden lg:flex-row">
@@ -302,8 +449,18 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
             </button>
 
             <div ref={pdfViewportRef} className="flex min-h-[50dvh] w-full flex-1 flex-col items-center justify-center overflow-hidden sm:min-h-[56dvh]">
-              {showLocked ? (
-                <LockedScreen onBack={handleBackToComics} />
+              {!accessResolved ? (
+                <div className="flex min-h-[40vh] w-full items-center justify-center">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-xl">
+                    <p className="text-sm font-bold text-white">Checking your library access...</p>
+                  </div>
+                </div>
+              ) : showLocked ? (
+                <LockedScreen
+                  onBack={handleBackToComics}
+                  onAddToCart={handleAddToCart}
+                  onPurchaseNow={handlePurchaseNow}
+                />
               ) : isPreviewMode ? (
                 hasPreview ? (
                   <div className="reader-pdf relative flex w-full max-w-full items-center justify-center overflow-hidden">
@@ -343,6 +500,8 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
                 </div>
               )}
             </div>
+            {accessError ? <p className="mt-3 text-center text-xs text-red-300">{accessError}</p> : null}
+            {purchaseError ? <p className="mt-2 text-center text-xs text-red-300">{purchaseError}</p> : null}
 
             <p className="mt-6 shrink-0 text-center text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-400">
               {isPreviewMode ? (<>Preview <span className="text-white">{previewIndex + 1}</span> / <span className="tabular-nums">{maxPreview}</span> <span className="ml-2 text-zinc-500">(Sample)</span></>) : (<>Page <span className="text-white">{numPages ? safeCurrentPage : "—"}</span>{numPages ? <><span> / </span><span className="tabular-nums">{numPages}</span></> : null}</>)}
@@ -359,21 +518,28 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
             <div className="border-t border-white/10 pt-5">
               <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-zinc-400">Creators</p>
               <ul className="mt-3 space-y-3 text-sm">
-                <li className="text-zinc-300"><span className="font-bold text-white">Elias Thorne</span> — <span className="text-zinc-500">Art</span></li>
-                <li className="text-zinc-300"><span className="font-bold text-white">Mira Okonkwo</span> — <span className="text-zinc-500">Color</span></li>
+                <li className="text-zinc-300"><span className="font-bold text-white">{creatorName}</span> — <span className="text-zinc-500">{creatorRole}</span></li>
+                {secondaryCreator ? (
+                  <li className="text-zinc-300"><span className="font-bold text-white">{secondaryCreator}</span> — <span className="text-zinc-500">Color</span></li>
+                ) : null}
               </ul>
             </div>
             <div className="border-t border-white/10 pt-5">
-              {SPECS.map((row) => (<div key={row.k} className="flex justify-between gap-3 border-b border-white/5 py-2 text-[11px] last:border-b-0"><span className="text-zinc-500">{row.k}</span><span className="text-right text-zinc-300">{row.v}</span></div>))}
+              {specs.map((row) => (<div key={row.k} className="flex justify-between gap-3 border-b border-white/5 py-2 text-[11px] last:border-b-0"><span className="text-zinc-500">{row.k}</span><span className="text-right text-zinc-300">{row.v}</span></div>))}
             </div>
             <div className="border-t border-white/10 pt-5">
               <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-zinc-400">Tags</p>
-              <div className="mt-2 flex flex-wrap gap-2">{TAGS.map((t) => (<span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] text-zinc-300 backdrop-blur-sm">{t}</span>))}</div>
+              <div className="mt-2 flex flex-wrap gap-2">{readerTags.map((t) => (<span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] text-zinc-300 backdrop-blur-sm">{t}</span>))}</div>
             </div>
             <div className="mt-auto border-t border-white/10 pt-5">
-              <button type="button" className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-black/40 py-3 text-xs font-black uppercase tracking-wide text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-black/60">
-                <i className="fa-solid fa-cart-shopping" aria-hidden />Print edition
-              </button>
+              <div className="space-y-2">
+                <button type="button" onClick={handleAddToCart} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/10 py-3 text-xs font-black uppercase tracking-wide text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/20">
+                  <i className="fa-solid fa-bag-shopping" aria-hidden />Add to Cart
+                </button>
+                <button type="button" onClick={handlePurchaseNow} disabled={isPurchasing} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand py-3 text-xs font-black uppercase tracking-wide text-brand-foreground backdrop-blur-sm transition hover:bg-brand/90 disabled:opacity-70">
+                  <i className="fa-solid fa-bolt" aria-hidden />{isPurchasing ? "Processing..." : "Purchase Now"}
+                </button>
+              </div>
             </div>
           </div>
         </aside>

@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CHARACTERS } from "@/src/data/characters";
-import type { CharacterRole } from "@/src/data/characters";
+import type { Character, CharacterRole } from "@/src/data/characters";
 import MultiverseHero from "./MultiverseHero";
 import CharactersFilterBar, { type SortKey } from "./CharactersFilterBar";
 import CharacterGridCard from "./CharacterGridCard";
@@ -16,12 +15,14 @@ function matchesRole(roleFilter: RoleFilter, role: CharacterRole) {
   return true;
 }
 
-const UNIVERSE_OPTS = ["all", ...Array.from(new Set(CHARACTERS.map((c) => c.universe)))];
-
 /** First paint count; “Load more” adds this many from the filtered list. */
 const PAGE_SIZE = 6;
 
-export default function CharactersHub() {
+export default function CharactersHub({ characters }: { characters: Character[] }) {
+  const universeOpts = useMemo(
+    () => ["all", ...Array.from(new Set(characters.map((c) => c.universe)))],
+    [characters],
+  );
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [universe, setUniverse] = useState("all");
@@ -30,7 +31,7 @@ export default function CharactersHub() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    let list = CHARACTERS.filter((c) => {
+    let list = characters.filter((c) => {
       const text = `${c.name} ${c.universe} ${c.tagline}`.toLowerCase();
       const okSearch = !q || text.includes(q);
       const okRole = matchesRole(roleFilter, c.role);
@@ -39,13 +40,13 @@ export default function CharactersHub() {
     });
 
     const copy = [...list];
-    const editorial = new Map(CHARACTERS.map((c, i) => [c.slug, i]));
+    const editorial = new Map(characters.map((c, i) => [c.slug, i]));
     if (sortKey === "name-asc") copy.sort((a, b) => a.name.localeCompare(b.name));
     else if (sortKey === "name-desc") copy.sort((a, b) => b.name.localeCompare(a.name));
     else if (sortKey === "popularity-desc") copy.sort((a, b) => b.popularity - a.popularity);
     else copy.sort((a, b) => (editorial.get(a.slug) ?? 0) - (editorial.get(b.slug) ?? 0));
     return copy;
-  }, [search, roleFilter, universe, sortKey]);
+  }, [characters, search, roleFilter, universe, sortKey]);
 
   useEffect(() => { 
     setVisibleCount(PAGE_SIZE);
@@ -72,11 +73,16 @@ export default function CharactersHub() {
           onUniverseChange={setUniverse}
           sortKey={sortKey}
           onSortChange={setSortKey}
-          universeOptions={UNIVERSE_OPTS}
+          universeOptions={universeOpts}
         />
       </section>
 
       <main className="mx-auto max-w-[1440px] px-6 pb-24">
+        {characters.length === 0 ? (
+          <p className="py-16 text-center text-zinc-500">
+            No characters are available yet. Check back soon.
+          </p>
+        ) : (
         <div
           id="character-grid"
           className="grid grid-cols-2 gap-6 sm:grid-cols-3 sm:gap-7 md:grid-cols-4 md:gap-8 lg:grid-cols-5 lg:gap-8"
@@ -85,11 +91,12 @@ export default function CharactersHub() {
             <CharacterGridCard key={c.slug} character={c} />
           ))}
         </div>
-        {filtered.length === 0 && (
+        )}
+        {characters.length > 0 && filtered.length === 0 && (
           <p className="py-16 text-center text-zinc-500">No characters match your filters...</p>
         )}
 
-        {filtered.length > 0 && canLoadMore && (
+        {characters.length > 0 && filtered.length > 0 && canLoadMore && (
           <div className="mt-14 flex justify-center">
             <button
               type="button"

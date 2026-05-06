@@ -1,10 +1,18 @@
 export interface ComicReaderData {
   slug: string;
+  itemId?: string;
+  itemType?: "comic" | "character_book";
   title: string;
   coverImage: string;
   previewPages: string[];
   pdfUrl?: string;
   isPurchased?: boolean;
+  price?: number;
+  originalPrice?: number;
+  author?: string;
+  category?: string;
+  tags?: string[] | string;
+  bookType?: string;
 }
 
 export const COMIC_READER_DATA: Record<string, ComicReaderData> = {

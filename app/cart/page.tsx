@@ -3,20 +3,52 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useCart } from "@/src/hooks/use-cart";
 import { useAuth } from "@/src/hooks/use-auth";
 import { buildReaderHref } from "@/src/lib/readerHref";
+import { createStripeCheckoutSessionForItems } from "@/src/lib/purchase-api";
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
-  const { user, isLoaded } = useAuth();
+  const { user, token, isLoaded } = useAuth();
   const router = useRouter();
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const handleProceedToCheckout = async () => {
+    try {
+      setCheckoutError(null);
+      if (!user || !token) {
+        router.push("/login?redirect=" + encodeURIComponent("/cart"));
+        return;
+      }
+      const items = cartItems.map((item) => ({
+        item_type:
+          item.itemType ?? (typeof item.bookType === "string" && item.bookType.trim() ? "character_book" : "comic"),
+        item_id: String(item.id),
+        quantity: Math.max(1, Number(item.quantity) || 1),
+      }));
+
+      setIsCheckingOut(true);
+      const session = await createStripeCheckoutSessionForItems({ items, token });
+      if (!session.url) {
+        setCheckoutError("Unable to continue checkout. Stripe URL is missing.");
+        return;
+      }
+      window.location.href = session.url;
+    } catch (error) {
+      setCheckoutError(error instanceof Error ? error.message : "Unable to start checkout.");
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   // Wait for auth to resolve before deciding which view to show
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-yellow-400 text-xl">Loading...</div>
+        <div className="text-brand text-xl">Loading...</div>
       </div>
     );
   }
@@ -42,20 +74,20 @@ export default function CartPage() {
                 </p>
                 <Link
                   href="/flash-sale"
-                  className="inline-block text-yellow-400 hover:text-yellow-300 text-sm font-bold underline mb-6"
+                  className="inline-block text-brand hover:text-brand/80 text-sm font-bold underline mb-6"
                 >
                   Shop today&apos;s deals
                 </Link>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link
                     href="/login?redirect=/cart"
-                    className="inline-flex justify-center bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-8 rounded-lg transition-all"
+                    className="inline-flex justify-center bg-brand hover:bg-brand/90 text-brand-foreground font-bold py-3 px-8 rounded-lg transition-all"
                   >
                     Sign in to your account
                   </Link>
                   <Link
                     href="/signup?redirect=/cart"
-                    className="inline-flex justify-center bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg border-2 border-gray-600 hover:border-yellow-400/50 transition-all"
+                    className="inline-flex justify-center bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg border-2 border-gray-600 hover:border-brand/50 transition-all"
                   >
                     Sign up now
                   </Link>
@@ -83,7 +115,7 @@ export default function CartPage() {
             <p className="text-gray-400 mb-8">Looks like you haven&apos;t added any comics to your cart yet.</p>
             <Link
               href="/"
-              className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-8 rounded-lg transition-all"
+              className="inline-block bg-brand hover:bg-brand/90 text-brand-foreground font-bold py-3 px-8 rounded-lg transition-all"
             >
               Continue Shopping
             </Link>
@@ -113,7 +145,7 @@ export default function CartPage() {
               >
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Image */}
-                  <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title })} className="relative w-full sm:w-32 h-48 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0">
+                  <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title, pdfUrl: item.pdfUrl, author: item.author, category: item.category, tags: item.tags, bookType: item.bookType })} className="relative w-full sm:w-32 h-48 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0">
                     <img
                       src={item.image}
                       alt={item.title}
@@ -125,8 +157,8 @@ export default function CartPage() {
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title })}>
-                          <h3 className="text-white font-bold text-lg mb-1 hover:text-yellow-400 transition-colors">
+                        <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title, pdfUrl: item.pdfUrl, author: item.author, category: item.category, tags: item.tags, bookType: item.bookType })}>
+                          <h3 className="text-white font-bold text-lg mb-1 hover:text-brand transition-colors">
                             {item.title}
                           </h3>
                         </Link>
@@ -145,7 +177,7 @@ export default function CartPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl font-black text-yellow-400">${item.price}</span>
+                        <span className="text-2xl font-black text-brand">${item.price}</span>
                         {item.originalPrice && (
                           <span className="text-sm text-gray-500 line-through">${item.originalPrice}</span>
                         )}
@@ -218,7 +250,7 @@ export default function CartPage() {
                   <span className="text-white">${tax.toFixed(2)}</span>
                 </div>
                 {subtotal < 50 && (
-                  <div className="text-yellow-400 text-sm">
+                  <div className="text-brand text-sm">
                     Add ${(50 - subtotal).toFixed(2)} more for free shipping!
                   </div>
                 )}
@@ -227,16 +259,18 @@ export default function CartPage() {
               <div className="border-t border-gray-700 pt-4 mb-6">
                 <div className="flex justify-between items-center">
                   <span className="text-xl font-black text-white">Total</span>
-                  <span className="text-2xl font-black text-yellow-400">${total.toFixed(2)}</span>
+                  <span className="text-2xl font-black text-brand">${total.toFixed(2)}</span>
                 </div>
               </div>
 
               <button
-                onClick={() => router.push("/checkout")}
-                className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition-all mb-3 cursor-pointer"
+                onClick={handleProceedToCheckout}
+                disabled={isCheckingOut}
+                className="w-full bg-brand hover:bg-brand/90 text-brand-foreground font-bold py-3 px-6 rounded-lg transition-all mb-3 cursor-pointer disabled:opacity-70"
               >
-                Proceed to Checkout
+                {isCheckingOut ? "Redirecting to Stripe..." : "Proceed to Checkout"}
               </button>
+              {checkoutError ? <p className="mb-3 text-sm text-red-300">{checkoutError}</p> : null}
 
               <Link
                 href="/"
@@ -254,7 +288,7 @@ export default function CartPage() {
                   <span>Secure checkout</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span>30-day return policy</span>

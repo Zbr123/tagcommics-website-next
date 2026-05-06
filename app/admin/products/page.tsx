@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getCharacters, addBookToCharacter, updateBook, deleteBook, type NormalizedCharacter } from "@/src/lib/characters-api";
+import { useAuth } from "@/src/hooks/use-auth";
 
 interface Product {
   id: number;
+  book_id?: string;
   title: string;
   author: string;
   price: number;
@@ -24,18 +27,31 @@ interface Product {
   ebookPdfUrl?: string;
   createdAt?: string;
   updatedAt?: string;
+  // Book-specific fields from API
+  character_id?: string;
+  character_name?: string;
+  book_type?: "E-book" | "Physical" | "Sale" | "Flash Sale" | "New Item";
+  discounted_price?: number;
+  tags?: string;
+  original_price?: number;
+  image_url?: string;
+  pdf_url?: string;
 }
 
 const CATEGORIES = ["Comics", "Manga", "Graphic Novels"];
 const TAGS = ["BESTSELLER", "NEW", "HOT", "CLASSIC", "SALE", "NONE"];
+const BOOK_TYPES = ["E-book", "Physical", "Sale", "Flash Sale", "New Item"];
 
 export default function AdminProducts() {
+  const { token: authToken, isLoaded } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
+  const [characters, setCharacters] = useState<NormalizedCharacter[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterTag, setFilterTag] = useState("All");
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
   const imageInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,51 +74,83 @@ export default function AdminProducts() {
     isEbook: false,
     isPhysical: false,
     ebookPdfUrl: "",
+    book_type: "Physical",
+    discounted_price: 0,
+    tags: "",
+    character_id: "",
   });
 
-  // Load products from localStorage or use mock data
-  useEffect(() => {
-    const savedProducts = localStorage.getItem("admin-products");
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      // Initial mock data
-      const initialProducts: Product[] = [
-        {
-          id: 1,
-          title: "Spider-Man #1",
-          author: "Stan Lee",
-          price: 4.99,
-          originalPrice: 9.99,
-          discount: 50,
-          rating: 4.9,
-          sold: "2.5k",
-          image: "/comic-slider1.png",
-          category: "Comics",
-          tag: "BESTSELLER",
-          description: "The amazing adventures of Spider-Man",
-          stock: 50,
-          isFlashSale: true,
-          isNewItem: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ];
-      setProducts(initialProducts);
-      localStorage.setItem("admin-products", JSON.stringify(initialProducts));
-    }
-  }, []);
+  const mapCharactersToProducts = (chars: NormalizedCharacter[]): Product[] => {
+    const allBooks: Product[] = [];
+    for (const char of chars) {
+      if (!char.books || char.books.length === 0) continue;
+      for (const book of char.books) {
+        let tagsArray: string[] = [];
+        if (book.tags) {
+          if (typeof book.tags === "string") {
+            tagsArray = book.tags.split(",").map((t) => t.trim()).filter((t) => t);
+          } else if (Array.isArray(book.tags)) {
+            tagsArray = book.tags;
+          }
+        }
 
-  // Save products to localStorage
-  const saveProducts = (newProducts: Product[]) => {
-    localStorage.setItem("admin-products", JSON.stringify(newProducts));
-    setProducts(newProducts);
+        let tag = "NONE";
+        if (book.book_type === "Flash Sale") tag = "SALE";
+        else if (book.book_type === "New Item") tag = "NEW";
+
+        allBooks.push({
+          id: Number(String(book.id).replace(/-/g, "").slice(0, 9)) || Date.now(),
+          book_id: String(book.id),
+          title: book.title,
+          author: book.author || "Unknown",
+          price: Number(book.discounted_price) || 0,
+          originalPrice: Number(book.original_price) || undefined,
+          rating: book.review || 0,
+          sold: "0",
+          image: book.image_url || "/comic-slider1.png",
+          category: book.category || "Comics",
+          tag: tagsArray[0] || tag,
+          stock: book.stock,
+          isFlashSale: book.book_type === "Flash Sale",
+          isNewItem: book.book_type === "New Item",
+          isEbook: book.book_type === "E-book",
+          isPhysical: book.book_type === "Physical",
+          ebookPdfUrl: book.pdf_url || "",
+          character_id: char.id,
+          character_name: char.character_name,
+          book_type: book.book_type,
+          discounted_price: book.discounted_price,
+          tags: typeof book.tags === "string" ? book.tags : (Array.isArray(book.tags) ? book.tags.join(", ") : ""),
+          original_price: book.original_price,
+          image_url: book.image_url,
+          pdf_url: book.pdf_url,
+        });
+      }
+    }
+    return allBooks;
   };
+
+  useEffect(() => {
+    if (!isLoaded || !authToken) return;
+
+    const loadCharacters = async () => {
+      const data = await getCharacters();
+      setCharacters(data);
+      if (data.length > 0 && !selectedCharacterId) {
+        setSelectedCharacterId(data[0].id);
+      }
+
+      setProducts(mapCharactersToProducts(data));
+    };
+
+    loadCharacters();
+  }, [isLoaded, authToken, selectedCharacterId]);
 
   const handleOpenForm = (product?: Product) => {
     if (product) {
       setEditingProduct(product);
       setFormData(product);
+      if (product.character_id) setSelectedCharacterId(product.character_id);
     } else {
       setEditingProduct(null);
       setFormData({
@@ -151,52 +199,82 @@ export default function AdminProducts() {
       isEbook: false,
       isPhysical: false,
       ebookPdfUrl: "",
+      book_type: "Physical",
+      discounted_price: 0,
+      tags: "",
+      character_id: selectedCharacterId || "",
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.title?.trim()) {
+      alert("Please enter a title");
+      return;
+    }
+
+    if (!selectedCharacterId) {
+      alert("Please select a character");
+      return;
+    }
 
     if (formData.isEbook && !formData.ebookPdfUrl) {
       alert("Please select a PDF file for the E-book.");
       return;
     }
-    
-    // Calculate discount if originalPrice is provided
-    let calculatedDiscount = formData.discount || 0;
-    if (formData.originalPrice && formData.price) {
-      calculatedDiscount = Math.round(
-        ((formData.originalPrice - formData.price) / formData.originalPrice) * 100
-      );
-    }
 
-    const productData: Product = {
-      ...formData,
-      id: editingProduct?.id || Date.now(),
-      discount: calculatedDiscount,
-      updatedAt: new Date().toISOString(),
-      createdAt: editingProduct?.createdAt || new Date().toISOString(),
-    } as Product;
+    // Determine book type based on form state
+    let bookType: "E-book" | "Physical" | "Sale" | "Flash Sale" | "New Item" = "Physical";
+    if (formData.isFlashSale) bookType = "Flash Sale";
+    else if (formData.isNewItem) bookType = "New Item";
+    else if (formData.isEbook) bookType = "E-book";
 
-    if (editingProduct) {
-      // Update existing product
-      const updatedProducts = products.map((p) =>
-        p.id === editingProduct.id ? productData : p
-      );
-      saveProducts(updatedProducts);
+    const payload = {
+      title: formData.title || "",
+      author: formData.author,
+      category: formData.category,
+      original_price: formData.originalPrice,
+      discounted_price: formData.price,
+      stock: formData.stock,
+      tags: formData.tags,
+      book_type: bookType,
+      review: formData.rating,
+      image: imageInputRef.current?.files?.[0],
+      pdf_file: pdfInputRef.current?.files?.[0],
+    };
+
+    // Add or update book based on edit mode
+    const result = editingProduct?.book_id
+      ? await updateBook(selectedCharacterId, editingProduct.book_id, payload)
+      : await addBookToCharacter(selectedCharacterId, payload);
+
+    if (result.success) {
+      // Reload books from API to get fresh data
+      const chars = await getCharacters();
+      setCharacters(chars);
+
+      setProducts(mapCharactersToProducts(chars));
+
+      handleCloseForm();
     } else {
-      // Add new product
-      saveProducts([...products, productData]);
+      alert(result.error || "Failed to save book");
     }
-
-    handleCloseForm();
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      const updatedProducts = products.filter((p) => p.id !== id);
-      saveProducts(updatedProducts);
+  const handleDelete = async (product: Product) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    // Delete using backend identifiers (character UUID + book UUID)
+    if (product.character_id && product.book_id) {
+      await deleteBook(product.character_id, product.book_id);
     }
+
+    // Reload from API after delete
+    const chars = await getCharacters();
+    setCharacters(chars);
+
+    setProducts(mapCharactersToProducts(chars));
   };
 
   // Filter products
@@ -283,6 +361,7 @@ export default function AdminProducts() {
             <thead className="bg-gray-800/50 border-b border-gray-700">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Product</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Character</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Category</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Price</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Rating</th>
@@ -293,14 +372,14 @@ export default function AdminProducts() {
             <tbody className="divide-y divide-gray-800">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <p className="text-gray-400">No products found. Add your first product!</p>
                   </td>
                 </tr>
               ) : (
                 filteredProducts.map((product) => (
                   <motion.tr
-                    key={product.id}
+                    key={product.book_id ?? product.id}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="hover:bg-gray-800/30 transition-colors"
@@ -317,6 +396,9 @@ export default function AdminProducts() {
                           <p className="text-gray-400 text-sm">{product.author}</p>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-gray-300 text-sm">{product.character_name || "—"}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-gray-300 text-sm">{product.category}</span>
@@ -362,14 +444,14 @@ export default function AdminProducts() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleOpenForm(product)}
-                          className="p-2 text-blue-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors cursor-pointer"
+                          className="p-2 text-brand hover:text-brand-400 hover:bg-brand/10 rounded-lg transition-colors cursor-pointer"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
                         <button
-                          onClick={() => handleDelete(product.id)}
+                          onClick={() => handleDelete(product)}
                           className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors cursor-pointer"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -425,6 +507,32 @@ export default function AdminProducts() {
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Character Selection */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Character *
+                      </label>
+                      <select
+                        required
+                        value={selectedCharacterId}
+                        onChange={(e) => {
+                          setSelectedCharacterId(e.target.value);
+                          setFormData({ ...formData, character_id: e.target.value });
+                        }}
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand cursor-pointer"
+                      >
+                        <option value="">Select a character</option>
+                        {characters.map((char) => (
+                          <option key={char.id} value={char.id}>
+                            {char.character_name}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Link this book to a character. Characters are managed in the Characters section.
+                      </p>
+                    </div>
+
                     {/* Title */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-semibold text-gray-400 mb-2">
@@ -701,7 +809,7 @@ export default function AdminProducts() {
                     </button>
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold rounded-lg transition-all cursor-pointer"
+                      className="px-6 py-3 bg-gradient-to-r from-brand to-brand-400 hover:from-brand-400 hover:to-brand text-brand-foreground font-bold rounded-lg transition-all cursor-pointer"
                     >
                       {editingProduct ? "Update Product" : "Add Product"}
                     </button>

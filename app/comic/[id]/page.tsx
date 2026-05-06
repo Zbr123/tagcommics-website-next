@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/src/hooks/use-cart";
 import ComicDownloadButton from "@/src/components/ComicDownloadButton";
 import { getComicById, getAllComics, type Comic } from "@/src/lib/comics-api";
+import { createStripeCheckoutSession, readStoredAuthToken } from "@/src/lib/purchase-api";
 
 const ComicReader = dynamic(() => import("@/src/components/ComicReader"), { ssr: false });
 
@@ -26,7 +27,7 @@ function NotFoundState() {
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-3xl font-black text-white mb-4">Comic Not Found</h1>
-        <Link href="/" className="text-yellow-400 hover:text-yellow-300">
+        <Link href="/" className="text-brand hover:text-brand/80">
           Return to Home
         </Link>
       </div>
@@ -49,6 +50,8 @@ export default function ComicDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<(string | number)[]>([]);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   useEffect(() => {
     if (isNaN(id)) {
@@ -112,16 +115,31 @@ export default function ComicDetailPage() {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  const handleBuyNow = () => {
-    addToCart({
-      id: comic.id,
-      title: comic.title,
-      author: comic.author,
-      price: comic.price,
-      originalPrice: comic.originalPrice,
-      image: comic.image,
-    }, quantity);
-    router.push("/cart");
+  const handleBuyNow = async () => {
+    try {
+      setPurchaseError(null);
+      const token = readStoredAuthToken();
+      if (!token) {
+        router.push("/login?redirect=" + encodeURIComponent(window.location.pathname));
+        return;
+      }
+      setIsPurchasing(true);
+      const session = await createStripeCheckoutSession({
+        itemType: "comic",
+        itemId: String(comic.id),
+        quantity: 1,
+        token,
+      });
+      if (!session.url) {
+        setPurchaseError("Unable to continue. Stripe checkout URL is missing.");
+        return;
+      }
+      window.location.href = session.url;
+    } catch (error) {
+      setPurchaseError(error instanceof Error ? error.message : "Failed to start checkout.");
+    } finally {
+      setIsPurchasing(false);
+    }
   };
 
   const isFavorite = favoriteIds.includes(comic.id);
@@ -139,9 +157,9 @@ export default function ComicDetailPage() {
         {/* Breadcrumbs */}
         <div className="mb-6">
           <nav className="flex items-center gap-2 text-sm text-gray-400">
-            <Link href="/" className="hover:text-yellow-400">Home</Link>
+            <Link href="/" className="hover:text-brand">Home</Link>
             <span>/</span>
-            <Link href={`/search?category=${comic.category}`} className="hover:text-yellow-400">{comic.category}</Link>
+            <Link href={`/search?category=${comic.category}`} className="hover:text-brand">{comic.category}</Link>
             <span>/</span>
             <span className="text-white">{comic.title}</span>
           </nav>
@@ -151,7 +169,7 @@ export default function ComicDetailPage() {
         {showSuccess && (
           <div className="mb-6 bg-green-500/20 border border-green-500 text-green-400 px-4 py-3 rounded-lg flex items-center justify-between">
             <span>✓ Added to cart successfully!</span>
-            <Link href="/cart" className="text-yellow-400 hover:text-yellow-300 font-bold">
+            <Link href="/cart" className="text-brand hover:text-brand/80 font-bold">
               View Cart ({getTotalItems()})
             </Link>
           </div>
@@ -175,7 +193,7 @@ export default function ComicDetailPage() {
                   aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                 >
                   <svg
-                    className={`w-5 h-5 ${isFavorite ? "text-yellow-400" : "text-white"}`}
+                    className={`w-5 h-5 ${isFavorite ? "text-brand" : "text-white"}`}
                     fill={isFavorite ? "currentColor" : "none"}
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -199,7 +217,7 @@ export default function ComicDetailPage() {
                   onClick={() => setSelectedImage(index)}
                   className={`relative aspect-[3/4] w-20 bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                     selectedImage === index
-                      ? "border-yellow-400"
+                      ? "border-brand"
                       : "border-gray-800 hover:border-gray-700"
                   }`}
                 >
@@ -221,7 +239,7 @@ export default function ComicDetailPage() {
               <div className="flex items-center gap-4 mb-2">
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
-                    <span key={i} className={i < Math.floor(comic.rating || 0) ? "text-yellow-400" : "text-gray-600"}>
+                    <span key={i} className={i < Math.floor(comic.rating || 0) ? "text-brand" : "text-gray-600"}>
                       ⭐
                     </span>
                   ))}
@@ -232,7 +250,7 @@ export default function ComicDetailPage() {
               </div>
               <p className="text-gray-400 text-sm">
                 Brand: <span className="text-white">{comic.category}</span> | More from{" "}
-                <Link href={`/search?q=${comic.author}`} className="text-yellow-400 hover:text-yellow-300">
+                <Link href={`/search?q=${comic.author}`} className="text-brand hover:text-brand/80">
                   {comic.author}
                 </Link>
               </p>
@@ -241,7 +259,7 @@ export default function ComicDetailPage() {
             {/* Price */}
             <div className="mb-6 p-4 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800">
               <div className="flex items-baseline gap-3 mb-2">
-                <span className="text-3xl font-black text-yellow-400">${comic.price}</span>
+                <span className="text-3xl font-black text-brand">${comic.price}</span>
                 {comic.originalPrice && (
                   <>
                     <span className="text-lg text-gray-500 line-through">${comic.originalPrice}</span>
@@ -288,9 +306,10 @@ export default function ComicDetailPage() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleBuyNow}
-                  className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition-all cursor-pointer"
+                  disabled={isPurchasing}
+                  className="flex-1 bg-brand hover:bg-brand/90 text-brand-foreground font-bold py-3 px-6 rounded-lg transition-all cursor-pointer"
                 >
-                  Buy Now
+                  {isPurchasing ? "Processing..." : "Purchase Now"}
                 </button>
                 <button
                   onClick={handleAddToCart}
@@ -305,7 +324,7 @@ export default function ComicDetailPage() {
                   aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                 >
                   <svg
-                    className={`w-6 h-6 transition-colors ${isFavorite ? "text-yellow-400" : ""}`}
+                    className={`w-6 h-6 transition-colors ${isFavorite ? "text-brand" : ""}`}
                     fill={isFavorite ? "currentColor" : "none"}
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -315,6 +334,7 @@ export default function ComicDetailPage() {
                   </svg>
                 </button>
               </div>
+              {purchaseError ? <p className="mt-3 text-sm text-red-300">{purchaseError}</p> : null}
             </div>
 
             {/* Preview: first 10 pages (ComiXology/Webtoon-style) */}
@@ -341,7 +361,7 @@ export default function ComicDetailPage() {
             <div className="mb-6 p-4 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800">
               <h3 className="text-white font-bold mb-3">Delivery & Returns</h3>
               <div className="space-y-2 text-sm text-gray-400">
-                <p>✓ <span className="text-yellow-400">Free shipping</span> on orders over $50</p>
+                <p>✓ <span className="text-brand">Free shipping</span> on orders over $50</p>
                 <p>✓ Estimated delivery: 3-5 business days</p>
                 <p>✓ 30-day return policy. Buyer pays for return shipping.</p>
                 <p>✓ Secure payment. Money back guarantee.</p>
@@ -355,18 +375,18 @@ export default function ComicDetailPage() {
                   <p className="text-gray-400 text-sm">Sold by</p>
                   <p className="text-white font-bold">Comics Universe Store</p>
                 </div>
-                <button className="text-yellow-400 hover:text-yellow-300 text-sm font-bold cursor-pointer">
+                <button className="text-brand hover:text-brand/80 text-sm font-bold cursor-pointer">
                   Chat Now
                 </button>
               </div>
               <div className="flex items-center gap-4 text-sm">
                 <div>
                   <p className="text-gray-400">Positive Seller Ratings</p>
-                  <p className="text-yellow-400 font-bold">99.5%</p>
+                  <p className="text-brand font-bold">99.5%</p>
                 </div>
                 <div>
                   <p className="text-gray-400">Ship on Time</p>
-                  <p className="text-yellow-400 font-bold">98%</p>
+                  <p className="text-brand font-bold">98%</p>
                 </div>
               </div>
             </div>
@@ -390,7 +410,7 @@ export default function ComicDetailPage() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-black text-white">Similar Items</h2>
-              <Link href={`/search?category=${comic.category}`} className="text-yellow-400 hover:text-yellow-300 font-bold">
+              <Link href={`/search?category=${comic.category}`} className="text-brand hover:text-brand/80 font-bold">
                 See all →
               </Link>
             </div>
@@ -399,7 +419,7 @@ export default function ComicDetailPage() {
                 <Link
                   key={similar.id}
                   href={`/reader/${similar.id}?cover=${encodeURIComponent(similar.image)}&title=${encodeURIComponent(similar.title)}`}
-                  className="group bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 overflow-hidden hover:border-yellow-400/50 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-400/10"
+                  className="group bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 overflow-hidden hover:border-brand/50 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-brand/10"
                 >
                   <div className="relative aspect-[3/4] bg-gradient-to-br from-gray-800 to-gray-900">
                     <img
@@ -409,15 +429,15 @@ export default function ComicDetailPage() {
                     />
                   </div>
                   <div className="p-4">
-                    <h3 className="font-bold text-white text-sm mb-1 line-clamp-2 group-hover:text-yellow-400 transition-colors">
+                    <h3 className="font-bold text-white text-sm mb-1 line-clamp-2 group-hover:text-brand transition-colors">
                       {similar.title}
                     </h3>
                     <p className="text-gray-400 text-xs mb-2">{similar.author}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-base font-black text-yellow-400">${similar.price}</span>
+                      <span className="text-base font-black text-brand">${similar.price}</span>
                       {similar.rating && (
                         <div className="flex items-center gap-1">
-                          <span className="text-yellow-400 text-xs">⭐</span>
+                          <span className="text-brand text-xs">⭐</span>
                           <span className="text-xs text-gray-300">{similar.rating}</span>
                         </div>
                       )}

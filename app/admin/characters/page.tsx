@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getCharacters, createCharacter, deleteCharacter, type Character, type CharacterAlignment } from "@/src/lib/characters-api";
+import { getCharacters, createCharacter, deleteCharacter, updateCharacter, type NormalizedCharacter, type CharacterAlignment } from "@/src/lib/characters-api";
 import { useAuth } from "@/src/hooks/use-auth";
 
 console.log("[AdminCharacters] Module loaded");
@@ -21,6 +21,12 @@ const ALIGNMENT_COLORS: Record<CharacterAlignment, string> = {
   "entity": "bg-blue-500/20 text-blue-400 border-blue-500/30",
 };
 
+interface LoreItemInput {
+  id?: string;
+  title: string;
+  body: string;
+}
+
 interface FormData {
   character_name: string;
   description: string;
@@ -30,6 +36,21 @@ interface FormData {
   alignment: CharacterAlignment;
   cover_image: File | null;
   cover_image_preview: string;
+  // Additional fields
+  universe: string;
+  role: "HERO" | "VILLAIN" | "ANTI_HERO" | "ENTITY";
+  spotlight_body: string;
+  title_line1: string;
+  title_line2: string;
+  // Attribute scores
+  strength: number;
+  speed: number;
+  intelligence: number;
+  durability: number;
+  // Lore items
+  lore_items: LoreItemInput[];
+  // Edit mode
+  editing_id?: string;
 }
 
 const EMPTY_FORM: FormData = {
@@ -41,11 +62,21 @@ const EMPTY_FORM: FormData = {
   alignment: "hero",
   cover_image: null,
   cover_image_preview: "",
+  universe: "",
+  role: "HERO",
+  spotlight_body: "",
+  title_line1: "",
+  title_line2: "",
+  strength: 70,
+  speed: 70,
+  intelligence: 70,
+  durability: 70,
+  lore_items: [],
 };
 
 export default function AdminCharacters() {
   const { token: authToken, isLoaded } = useAuth();
-  const [characters, setCharacters] = useState<Character[]>([]);
+  const [characters, setCharacters] = useState<NormalizedCharacter[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>(EMPTY_FORM);
@@ -82,8 +113,34 @@ export default function AdminCharacters() {
     }
   }, [isLoaded, authToken, loadCharacters]);
 
-  const handleOpenForm = () => {
-    setFormData(EMPTY_FORM);
+  const handleOpenForm = (char?: NormalizedCharacter) => {
+    if (char) {
+      // Editing - populate form with existing data
+      setFormData({
+        character_name: char.character_name,
+        description: char.description,
+        tags: char.tags.join(", "),
+        first_appearance: char.first_appearance,
+        creator: char.creator,
+        alignment: char.alignment,
+        cover_image: null,
+        cover_image_preview: char.cover_image_url,
+        universe: char.universe || "",
+        role: (char.role as "HERO" | "VILLAIN" | "ANTI_HERO" | "ENTITY") || "HERO",
+        spotlight_body: char.spotlight_body || "",
+        title_line1: char.title_line1 || "",
+        title_line2: char.title_line2 || "",
+        strength: char.strength ?? 70,
+        speed: char.speed ?? 70,
+        intelligence: char.intelligence ?? 70,
+        durability: char.durability ?? 70,
+        lore_items: char.lore_items || [],
+        editing_id: char.id,
+      });
+    } else {
+      // Adding new
+      setFormData(EMPTY_FORM);
+    }
     setFormError(null);
     setIsFormOpen(true);
   };
@@ -127,16 +184,57 @@ export default function AdminCharacters() {
 
     setIsSubmitting(true);
 
-    console.log("[AdminCharacters] Calling createCharacter...");
-    const result = await createCharacter({
-      character_name: formData.character_name,
-      description: formData.description,
-      tags: formData.tags,
-      first_appearance: formData.first_appearance,
-      creator: formData.creator,
-      alignment: formData.alignment,
-      cover_image: formData.cover_image || undefined,
-    });
+    // Prepare lore_items as JSON string if present
+    const loreItemsJson = formData.lore_items.length > 0
+      ? JSON.stringify(formData.lore_items)
+      : undefined;
+
+    let result;
+    if (formData.editing_id) {
+      // Update existing character
+      console.log("[AdminCharacters] Updating character:", formData.editing_id);
+      result = await updateCharacter(formData.editing_id, {
+        character_name: formData.character_name,
+        description: formData.description,
+        tags: formData.tags,
+        first_appearance: formData.first_appearance,
+        creator: formData.creator,
+        alignment: formData.alignment,
+        cover_image: formData.cover_image || undefined,
+        universe: formData.universe || undefined,
+        role: formData.role || undefined,
+        spotlight_body: formData.spotlight_body || undefined,
+        title_line1: formData.title_line1 || undefined,
+        title_line2: formData.title_line2 || undefined,
+        strength: formData.strength,
+        speed: formData.speed,
+        intelligence: formData.intelligence,
+        durability: formData.durability,
+        lore_items: loreItemsJson,
+      });
+    } else {
+      // Create new character
+      console.log("[AdminCharacters] Creating new character...");
+      result = await createCharacter({
+        character_name: formData.character_name,
+        description: formData.description,
+        tags: formData.tags,
+        first_appearance: formData.first_appearance,
+        creator: formData.creator,
+        alignment: formData.alignment,
+        cover_image: formData.cover_image || undefined,
+        universe: formData.universe || undefined,
+        role: formData.role || undefined,
+        spotlight_body: formData.spotlight_body || undefined,
+        title_line1: formData.title_line1 || undefined,
+        title_line2: formData.title_line2 || undefined,
+        strength: formData.strength,
+        speed: formData.speed,
+        intelligence: formData.intelligence,
+        durability: formData.durability,
+        lore_items: loreItemsJson,
+      });
+    }
 
     setIsSubmitting(false);
 
@@ -144,8 +242,8 @@ export default function AdminCharacters() {
       handleCloseForm();
       loadCharacters();
     } else {
-      console.log("[AdminCharacters] createCharacter failed:", result.error);
-      setFormError(result.error || "Failed to create character");
+      console.log("[AdminCharacters] Character operation failed:", result.error);
+      setFormError(result.error || "Failed to save character");
     }
   };
 
@@ -164,14 +262,7 @@ export default function AdminCharacters() {
     const matchesSearch =
       char.character_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       char.creator.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (() => {
-        const tags = Array.isArray(char.tags)
-          ? char.tags
-          : typeof char.tags === "string"
-            ? char.tags.split(",").map((t: string) => t.trim()).filter((t: string) => t)
-            : [];
-        return tags.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-      })();
+      char.tags.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesAlignment =
       filterAlignment === "All" || char.alignment === filterAlignment;
@@ -190,7 +281,7 @@ export default function AdminCharacters() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={handleOpenForm}
+          onClick={() => handleOpenForm()}
           className="bg-gradient-to-r from-brand to-brand-400 hover:from-brand-400 hover:to-brand text-brand-foreground font-bold py-3 px-6 rounded-lg transition-all cursor-pointer flex items-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -284,31 +375,23 @@ export default function AdminCharacters() {
                         />
                         <div>
                           <p className="text-white font-semibold">{character.character_name}</p>
-                          {/* Tags helper - normalize to array */}
-                          {(() => {
-                            const tags = Array.isArray(character.tags)
-                              ? character.tags
-                              : typeof character.tags === "string"
-                                ? character.tags.split(",").map(t => t.trim()).filter(t => t)
-                                : [];
-                            return tags.length > 0 ? (
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {tags.slice(0, 3).map((tag, i) => (
-                                  <span
-                                    key={i}
-                                    className="px-2 py-0.5 bg-brand/10 text-brand text-xs rounded border border-brand/20"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                                {tags.length > 3 && (
-                                  <span className="px-2 py-0.5 bg-gray-800 text-gray-400 text-xs rounded">
-                                    +{tags.length - 3}
-                                  </span>
-                                )}
-                              </div>
-                            ) : null;
-                          })()}
+                          {character.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {character.tags.slice(0, 3).map((tag, i) => (
+                                <span
+                                  key={i}
+                                  className="px-2 py-0.5 bg-brand/10 text-brand text-xs rounded border border-brand/20"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                              {character.tags.length > 3 && (
+                                <span className="px-2 py-0.5 bg-gray-800 text-gray-400 text-xs rounded">
+                                  +{character.tags.length - 3}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -326,8 +409,18 @@ export default function AdminCharacters() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button
+                          onClick={() => handleOpenForm(character)}
+                          className="p-2 text-brand hover:text-brand-400 hover:bg-brand/10 rounded-lg transition-colors cursor-pointer"
+                          title="Edit"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button
                           onClick={() => character.id && handleDelete(character.id)}
                           className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors cursor-pointer"
+                          title="Delete"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -369,7 +462,9 @@ export default function AdminCharacters() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="sticky top-0 bg-gradient-to-br from-gray-900 to-gray-800 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
-                  <h2 className="text-2xl font-black text-white">Add Character</h2>
+                  <h2 className="text-2xl font-black text-white">
+                    {formData.editing_id ? "Edit Character" : "Add Character"}
+                  </h2>
                   <button
                     onClick={handleCloseForm}
                     className="text-gray-400 hover:text-white transition-colors cursor-pointer"
@@ -502,6 +597,200 @@ export default function AdminCharacters() {
                         </div>
                       )}
                     </div>
+
+                    {/* Universe */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Universe
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.universe}
+                        onChange={(e) => setFormData({ ...formData, universe: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
+                        placeholder="e.g., Marvel Universe"
+                      />
+                    </div>
+
+                    {/* Role */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Role
+                      </label>
+                      <select
+                        value={formData.role}
+                        onChange={(e) => setFormData({ ...formData, role: e.target.value as typeof formData.role })}
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand cursor-pointer"
+                      >
+                        <option value="HERO">Hero</option>
+                        <option value="VILLAIN">Villain</option>
+                        <option value="ANTI_HERO">Anti-Hero</option>
+                        <option value="ENTITY">Entity</option>
+                      </select>
+                    </div>
+
+                    {/* Title Line 1 */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Title Line 1
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.title_line1}
+                        onChange={(e) => setFormData({ ...formData, title_line1: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
+                        placeholder="e.g., THE MIGHTY"
+                      />
+                    </div>
+
+                    {/* Title Line 2 */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Title Line 2
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.title_line2}
+                        onChange={(e) => setFormData({ ...formData, title_line2: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
+                        placeholder="e.g., MUTANT"
+                      />
+                    </div>
+
+                    {/* Spotlight Body */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Spotlight Body
+                      </label>
+                      <textarea
+                        value={formData.spotlight_body}
+                        onChange={(e) => setFormData({ ...formData, spotlight_body: e.target.value })}
+                        rows={2}
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand resize-none"
+                        placeholder="Detailed character spotlight text..."
+                      />
+                    </div>
+
+                    {/* Attribute Scores Section */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Attribute Scores (0-100)
+                      </label>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {/* Strength */}
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Strength</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={formData.strength}
+                            onChange={(e) => setFormData({ ...formData, strength: Number(e.target.value) })}
+                            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand"
+                          />
+                        </div>
+                        {/* Speed */}
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Speed</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={formData.speed}
+                            onChange={(e) => setFormData({ ...formData, speed: Number(e.target.value) })}
+                            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand"
+                          />
+                        </div>
+                        {/* Intelligence */}
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Intelligence</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={formData.intelligence}
+                            onChange={(e) => setFormData({ ...formData, intelligence: Number(e.target.value) })}
+                            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand"
+                          />
+                        </div>
+                        {/* Durability */}
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Durability</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={formData.durability}
+                            onChange={(e) => setFormData({ ...formData, durability: Number(e.target.value) })}
+                            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Lore Items Section */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Lore Items
+                      </label>
+                      <div className="space-y-3">
+                        {formData.lore_items.map((item, index) => (
+                          <div key={index} className="flex gap-2 items-start bg-gray-900/50 p-3 rounded-lg border border-gray-700">
+                            <div className="flex-1 grid grid-cols-2 gap-2">
+                              <input
+                                type="text"
+                                value={item.title}
+                                onChange={(e) => {
+                                  const updated = [...formData.lore_items];
+                                  updated[index]!.title = e.target.value;
+                                  setFormData({ ...formData, lore_items: updated });
+                                }}
+                                className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
+                                placeholder="Title"
+                              />
+                              <input
+                                type="text"
+                                value={item.body}
+                                onChange={(e) => {
+                                  const updated = [...formData.lore_items];
+                                  updated[index]!.body = e.target.value;
+                                  setFormData({ ...formData, lore_items: updated });
+                                }}
+                                className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
+                                placeholder="Body"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = formData.lore_items.filter((_, i) => i !== index);
+                                setFormData({ ...formData, lore_items: updated });
+                              }}
+                              className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors cursor-pointer"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              lore_items: [...formData.lore_items, { title: "", body: "" }],
+                            });
+                          }}
+                          className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          Add Lore Item
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Form Actions */}
@@ -524,10 +813,10 @@ export default function AdminCharacters() {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                           </svg>
-                          Creating...
+                          {formData.editing_id ? "Saving..." : "Creating..."}
                         </>
                       ) : (
-                        "Add Character"
+                        formData.editing_id ? "Save Character" : "Add Character"
                       )}
                     </button>
                   </div>
@@ -540,3 +829,4 @@ export default function AdminCharacters() {
     </div>
   );
 }
+

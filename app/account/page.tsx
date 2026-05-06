@@ -7,6 +7,7 @@ import SettingsSectionCard from "@/src/components/account/SettingsSectionCard";
 import SettingsSidebar from "@/src/components/account/SettingsSidebar";
 import UniverseHeroCard from "@/src/components/account/UniverseHeroCard";
 import { useAuth } from "@/src/hooks/use-auth";
+import { fetchLibrary, type LibraryItem } from "@/src/lib/purchase-api";
 
 const SIDEBAR_ITEMS = [
   { href: "#universe", label: "My Universe" },
@@ -14,11 +15,6 @@ const SIDEBAR_ITEMS = [
   { href: "#library", label: "Library" },
   { href: "#billing", label: "Billing" },
   { href: "#security", label: "Security" },
-];
-
-const LIBRARY_GROUPS = [
-  { title: "Purchased Comics", count: 42, action: "View Library" },
-  { title: "Downloads", count: 18, action: "Manage Offline" },
 ];
 
 const PURCHASE_HISTORY = [
@@ -29,7 +25,10 @@ const PURCHASE_HISTORY = [
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, isLoaded, logout } = useAuth();
+  const { user, token, isLoaded, logout } = useAuth();
+  const [libraryItems, setLibraryItems] = useState<LibraryItem[]>([]);
+  const [libraryLoading, setLibraryLoading] = useState(false);
+  const [libraryError, setLibraryError] = useState<string | null>(null);
   const [preferences, setPreferences] = useState({
     readingDirection: "Left to Right",
     pageMode: "Single Page",
@@ -43,6 +42,18 @@ export default function AccountPage() {
       router.replace("/login?redirect=" + encodeURIComponent("/account"));
     }
   }, [isLoaded, user, router]);
+
+  useEffect(() => {
+    if (!isLoaded || !user || !token) return;
+    setLibraryLoading(true);
+    setLibraryError(null);
+    fetchLibrary(token)
+      .then((items) => setLibraryItems(items))
+      .catch((error) =>
+        setLibraryError(error instanceof Error ? error.message : "Failed to load your library."),
+      )
+      .finally(() => setLibraryLoading(false));
+  }, [isLoaded, user, token]);
 
   if (!isLoaded || !user) {
     return (
@@ -117,19 +128,43 @@ export default function AccountPage() {
 
           <SettingsSectionCard id="library" title="Library" subtitle="Your Comic Collection">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {LIBRARY_GROUPS.map((group) => (
-                <article key={group.title} className="rounded-xl border border-white/10 bg-[#0d131b] p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">{group.title}</p>
-                  <p className="mt-2 text-3xl font-black text-white">{group.count}</p>
-                  <button
-                    type="button"
-                    className="mt-4 inline-flex rounded-lg border border-white/12 px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-zinc-300 transition hover:border-[#58E8C1]/35 hover:text-white"
-                  >
-                    {group.action}
-                  </button>
-                </article>
-              ))}
+              <article className="rounded-xl border border-white/10 bg-[#0d131b] p-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Purchased Items</p>
+                <p className="mt-2 text-3xl font-black text-white">{libraryItems.length}</p>
+                <p className="mt-3 text-xs text-zinc-400">Synced from your backend library.</p>
+              </article>
             </div>
+            {libraryLoading ? (
+              <p className="mt-4 text-sm text-zinc-400">Loading library...</p>
+            ) : libraryError ? (
+              <p className="mt-4 text-sm text-red-300">{libraryError}</p>
+            ) : libraryItems.length === 0 ? (
+              <p className="mt-4 text-sm text-zinc-400">No purchased items found yet.</p>
+            ) : (
+              <div className="mt-4 space-y-2">
+                {libraryItems.map((item) => (
+                  <article
+                    key={`${item.item_type}:${item.id}`}
+                    className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0d131b] p-3"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-white">{item.title}</p>
+                      <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{item.item_type}</p>
+                    </div>
+                    <Link
+                      href={
+                        `/reader/${encodeURIComponent(item.id)}?title=${encodeURIComponent(item.title)}${
+                          item.item_type === "character_book" ? "&bookType=character_book" : ""
+                        }`
+                      }
+                      className="rounded-lg border border-white/12 px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-zinc-300 transition hover:border-[#58E8C1]/35 hover:text-white"
+                    >
+                      Open
+                    </Link>
+                  </article>
+                ))}
+              </div>
+            )}
           </SettingsSectionCard>
 
           <SettingsSectionCard id="billing" title="Billing" subtitle="Subscriptions & Purchase History">

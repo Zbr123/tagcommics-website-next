@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     root: projectRoot,
   },
   images: {
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -26,7 +27,7 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '5000',
-        pathname: '/api/v1/uploads/images/**',
+        pathname: '/api/v1/uploads/**',
       },
     ],
   },

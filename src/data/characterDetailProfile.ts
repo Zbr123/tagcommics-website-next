@@ -1,5 +1,7 @@
 import type { Character, CharacterRole } from "./characters";
 import { CHARACTERS } from "./characters";
+import type { CharacterBook, NormalizedCharacter } from "@/src/lib/characters-api";
+import { characterNameToSlug } from "@/src/lib/character-slug";
 
 export interface AttributeScores {
   strength: number;
@@ -16,9 +18,17 @@ export interface LoreAccordionItem {
 
 /** Featured comics on character detail — Read Now uses `id` at `/reader/[id]` */
 export interface CharacterComic {
-  id: number;
+  id: string | number;
   title: string;
   image: string;
+  pdfUrl?: string;
+  author?: string;
+  category?: string;
+  tags?: string[] | string;
+  bookType?: string;
+  price?: number;
+  originalPrice?: number;
+  stock?: number;
   /** e.g. "#1", "Vol. 2" */
   issue: string;
   genre: string;
@@ -220,6 +230,171 @@ const OVERRIDES: Partial<Record<string, Partial<Omit<CharacterDetailProfile, "ch
     ],
   },
 };
+
+function mapNormalizedRole(n: NormalizedCharacter): CharacterRole {
+  const raw = (n.role || "").trim().toUpperCase().replace(/-/g, "_");
+  if (raw === "HERO" || raw === "VILLAIN" || raw === "ANTI_HERO" || raw === "ENTITY") {
+    return raw as CharacterRole;
+  }
+  switch (n.alignment) {
+    case "hero":
+      return "HERO";
+    case "villain":
+      return "VILLAIN";
+    case "anti-hero":
+      return "ANTI_HERO";
+    case "entity":
+      return "ENTITY";
+    default:
+      return "HERO";
+  }
+}
+
+function popularityFromId(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return 50 + (h % 50);
+}
+
+function taglineFromNormalized(n: NormalizedCharacter): string {
+  const d = n.description.trim();
+  if (!d) return n.tags.slice(0, 3).join(" · ") || "Multiverse operative.";
+  const sentence = d.split(/(?<=[.!?])\s/)[0];
+  if (sentence && sentence.length <= 140) return sentence;
+  return d.length > 120 ? `${d.slice(0, 117)}…` : d;
+}
+
+function booksToCharacterComics(books: CharacterBook[] | undefined): CharacterComic[] {
+  if (!books?.length) return [];
+  return books.map((b) => {
+    const genre =
+      b.category?.trim() ||
+      (typeof b.tags === "string" ? b.tags.split(",")[0]?.trim() : "") ||
+      "Comics";
+    return {
+      id: b.id,
+      title: b.title,
+      image: b.image_url,
+      pdfUrl: b.pdf_url,
+      author: b.author,
+      category: b.category,
+      tags: b.tags,
+      bookType: b.book_type,
+      price: b.discounted_price || b.original_price,
+      originalPrice: b.original_price || undefined,
+      stock: b.stock,
+      issue: b.book_type,
+      genre,
+      status: b.stock > 0 ? `${b.stock} in stock` : "Out of stock",
+      catalogComicId: undefined,
+    };
+  });
+}
+
+function mapRelatedFromApi(raw: unknown[] | undefined): RelatedEntity[] {
+  if (!raw?.length) return [];
+  return raw
+    .map((item, i) => {
+      if (!item || typeof item !== "object") return null;
+      const row = item as Record<string, unknown>;
+      const name = typeof row.name === "string" ? row.name : typeof row.character_name === "string" ? row.character_name : "";
+      const slugSource = typeof row.slug === "string" ? row.slug : name;
+      if (!slugSource) return null;
+      const image =
+        typeof row.image === "string"
+          ? row.image
+          : typeof row.cover_image_url === "string"
+            ? row.cover_image_url
+            : "/comic_page_slider.png";
+      const relation =
+        typeof row.relation === "string" && row.relation.trim()
+          ? row.relation
+          : typeof row.type === "string" && row.type.trim()
+            ? row.type
+            : "Related";
+      return {
+        slug: characterNameToSlug(slugSource),
+        name: name || `Related ${i + 1}`,
+        image,
+        relation,
+      };
+    })
+    .filter((x): x is RelatedEntity => Boolean(x));
+}
+
+/** Build profile from API-backed character (public detail pages). */
+export function buildCharacterDetailProfileFromApi(n: NormalizedCharacter): CharacterDetailProfile {
+  const slug = characterNameToSlug(n.character_name);
+  const role = mapNormalizedRole(n);
+  const character: Character = {
+    slug,
+    name: n.character_name,
+    universe: n.universe || "Multiverse",
+    role,
+    image: n.cover_image_url,
+    tagline: taglineFromNormalized(n),
+    bio: n.description,
+    popularity: popularityFromId(n.id),
+  };
+
+  const [d1, d2] = defaultTitleLines(character);
+  const scores =
+    n.strength != null &&
+    n.speed != null &&
+    n.intelligence != null &&
+    n.durability != null
+      ? {
+          strength: n.strength,
+          speed: n.speed,
+          intelligence: n.intelligence,
+          durability: n.durability,
+        }
+      : hashScores(slug);
+
+  const lore: LoreAccordionItem[] =
+    n.lore_items && n.lore_items.length > 0
+      ? n.lore_items.map((item) => ({
+          id: item.id,
+          title: item.title,
+          body: item.body,
+        }))
+      : defaultLore(character);
+
+  const comics = booksToCharacterComics(n.books);
+
+  return {
+    character,
+    universeBadge: (n.universe ?? character.universe).toUpperCase(),
+    titleLine1: n.title_line1 ?? d1,
+    titleLine2: n.title_line2 ?? d2,
+    spotlightBody:
+      n.spotlight_body ??
+      (n.description.trim() ||
+        `${character.tagline} Track dossiers and latest intercepts across ${character.universe}.`),
+    firstAppearance: n.first_appearance || "—",
+    creator: n.creator || "—",
+    alignment: alignmentByRole[role],
+    attributes: scores,
+    lore,
+    comics,
+    related: mapRelatedFromApi(n.related_entities),
+  };
+}
+
+/** Grid card model from API list/detail normalized row */
+export function normalizedToGridCharacter(n: NormalizedCharacter): Character {
+  const slug = characterNameToSlug(n.character_name);
+  return {
+    slug,
+    name: n.character_name,
+    universe: n.universe || "Multiverse",
+    role: mapNormalizedRole(n),
+    image: n.cover_image_url,
+    tagline: taglineFromNormalized(n),
+    bio: n.description,
+    popularity: popularityFromId(n.id),
+  };
+}
 
 export function buildCharacterDetailProfile(character: Character): CharacterDetailProfile {
   const ov = OVERRIDES[character.slug];

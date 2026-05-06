@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBolt } from "@fortawesome/free-solid-svg-icons";
 import MultiverseSearchField from "@/src/components/ui/MultiverseSearchField";
+import { useCart } from "@/src/hooks/use-cart";
 
 export interface GlassTopNavProps {
   pathname: string;
@@ -22,6 +23,8 @@ export interface GlassTopNavProps {
 export default function GlassTopNav({ pathname, profileHref, userName }: GlassTopNavProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { getTotalItems } = useCart();
+  const totalItems = getTotalItems();
   const urlQ = searchParams.get("q") ?? "";
   const isHome = pathname === "/";
   const isSearch = pathname === "/search";
@@ -138,6 +141,18 @@ export default function GlassTopNav({ pathname, profileHref, userName }: GlassTo
               />
             </form>
           ) : null}
+          <Link
+            href="/cart"
+            className="relative inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-white/10 text-zinc-300 transition hover:border-[#58E8C1]/45 hover:text-brand hover:shadow-[0_0_18px_rgba(88,232,193,0.28)]"
+            aria-label="Open shopping cart"
+          >
+            <i className="fa-solid fa-bag-shopping text-sm" aria-hidden />
+            {totalItems > 0 ? (
+              <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-full border border-brand/40 bg-brand px-1.5 text-center text-[10px] font-black leading-[1.1rem] text-brand-foreground">
+                {totalItems > 99 ? "99+" : totalItems}
+              </span>
+            ) : null}
+          </Link>
           <Link
             href={profileHref}
             className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-white/10 transition hover:border-[#58E8C1]/45 hover:shadow-[0_0_18px_rgba(88,232,193,0.28)]"
