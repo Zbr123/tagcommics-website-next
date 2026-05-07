@@ -10,7 +10,8 @@ import "./reader-pdf.css";
 import { READER_DEFAULT_TITLE } from "./readerConstants";
 import type { ComicReaderData } from "@/src/data/comicReaderData";
 import { useCart } from "@/src/hooks/use-cart";
-import { checkLibraryAccess, createStripeCheckoutSession, readStoredAuthToken, type PurchasableItemType } from "@/src/lib/purchase-api";
+import { useAuth } from "@/src/hooks/use-auth";
+import { checkLibraryAccessByPdfUrl, createStripeCheckoutSession, readStoredAuthToken, type PurchasableItemType } from "@/src/lib/purchase-api";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
@@ -107,6 +108,7 @@ function LockedScreen({
 }
 
 export default function ReaderExperience({ comicData, pdfPath, title = READER_DEFAULT_TITLE, subtitle, coverImage }: ReaderExperienceProps) {
+  const { user } = useAuth();
   const [numPages, setNumPages] = useState<number | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -373,16 +375,13 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
 
   useEffect(() => {
     let cancelled = false;
-    const itemId = comicData?.itemId || comicData?.slug;
-    const itemType: PurchasableItemType =
-      comicData?.itemType ?? (comicData?.bookType ? "character_book" : "comic");
-    if (!itemId) {
+    const token = readStoredAuthToken();
+    if (!comicData?.pdfUrl || !user?.id) {
       setHasAccess(false);
       setAccessResolved(true);
       setAccessError(null);
       return;
     }
-    const token = readStoredAuthToken();
     if (!token) {
       setHasAccess(false);
       setAccessResolved(true);
@@ -391,7 +390,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
     }
     setAccessResolved(false);
     setAccessError(null);
-    checkLibraryAccess({ itemType, itemId: String(itemId), token })
+    checkLibraryAccessByPdfUrl({ pdfUrl: comicData.pdfUrl, customerId: String(user.id), token })
       .then((access) => {
         if (cancelled) return;
         setHasAccess(access);
@@ -406,7 +405,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
     return () => {
       cancelled = true;
     };
-  }, [comicData?.bookType, comicData?.itemId, comicData?.itemType, comicData?.slug]);
+  }, [comicData?.bookType, comicData?.itemId, comicData?.itemType, comicData?.slug, comicData?.pdfUrl, user?.id]);
 
   useEffect(() => {
     if (comicData?.coverImage) {
