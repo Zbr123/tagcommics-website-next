@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PhoneInput } from "react-international-phone";
 import { isValidPhoneNumber } from "libphonenumber-js";
+import { submitDesignTeamContact } from "@/src/lib/design-team-contact";
 
 interface ContactFormState {
   firstName: string;
@@ -32,14 +33,36 @@ export default function JoinInitiativeSection() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [form, setForm] = useState<ContactFormState>(INITIAL_FORM);
   const [phoneError, setPhoneError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setSubmitError("");
+    if (!form.acceptPolicy) {
+      setSubmitError("Please confirm you agree to be contacted (checkbox above).");
+      return;
+    }
     if (!form.phone || !isValidPhoneNumber(form.phone)) {
       setPhoneError("Please enter a valid phone number.");
       return;
     }
     setPhoneError("");
+    setIsSubmitting(true);
+    const result = await submitDesignTeamContact({
+      firstName: form.firstName.trim(),
+      lastName: form.lastName.trim(),
+      companyName: form.companyName.trim() || undefined,
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      message: form.message.trim(),
+      acceptPolicy: form.acceptPolicy,
+    });
+    setIsSubmitting(false);
+    if (!result.ok) {
+      setSubmitError(result.error);
+      return;
+    }
     setIsSubmitted(true);
   };
 
@@ -48,6 +71,8 @@ export default function JoinInitiativeSection() {
     setIsSubmitted(false);
     setForm(INITIAL_FORM);
     setPhoneError("");
+    setSubmitError("");
+    setIsSubmitting(false);
   };
 
   const openModal = () => {
@@ -145,6 +170,12 @@ export default function JoinInitiativeSection() {
                       eBook product.
                     </p>
 
+                    {submitError ? (
+                      <p className="mt-3 rounded-lg border border-red-400/35 bg-red-950/40 px-3 py-2 text-sm text-red-200" role="alert">
+                        {submitError}
+                      </p>
+                    ) : null}
+
                     <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                       <label className="flex flex-col gap-2 text-left text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">
                         First Name
@@ -238,9 +269,10 @@ export default function JoinInitiativeSection() {
                       <div className="mt-1 flex flex-wrap gap-2.5 sm:col-span-2">
                         <button
                           type="submit"
-                          className="inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-[#58E8C1]/40 bg-gradient-to-r from-[#58E8C1] to-[#35c5de] px-6 text-sm font-extrabold uppercase tracking-[0.06em] text-[#05100d] transition hover:-translate-y-0.5"
+                          disabled={isSubmitting}
+                          className="inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-[#58E8C1]/40 bg-gradient-to-r from-[#58E8C1] to-[#35c5de] px-6 text-sm font-extrabold uppercase tracking-[0.06em] text-[#05100d] transition hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50"
                         >
-                          Send Message
+                          {isSubmitting ? "Sending…" : "Send Message"}
                         </button>
                         <button
                           type="button"

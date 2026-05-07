@@ -5,40 +5,24 @@ import NewArrivalsSection from "@/src/components/sections/NewArrivalsSection";
 import CategoriesSection from "@/src/components/sections/CategoriesSection";
 import StatsSection from "@/src/components/sections/StatsSection";
 import LogoSlider, { LogoImageItem } from "@/src/components/LogoSlider";
+import {
+  getFlashSaleBooks,
+  getLatestReleaseBooks,
+  getPopularBooks,
+  toFlashSaleCard,
+  toLatestReleaseCard,
+  toPopularCard,
+} from "@/src/lib/books-api";
 
-// Flash Sale Data
-const flashSaleComics = [
-  { id: 1, title: "Spider-Man #1", price: 4.99, originalPrice: 9.99, discount: 50, image: "/comic-slider1.png" },
-  { id: 2, title: "Batman Annual", price: 6.99, originalPrice: 12.99, discount: 46, image: "/comic-slider5.png" },
-  { id: 3, title: "Attack on Titan", price: 8.99, originalPrice: 14.99, discount: 40, image: "/comic-slider3.png" },
-  { id: 4, title: "One Piece Vol.1", price: 7.99, originalPrice: 15.99, discount: 50, image: "/comic-slide4.png" },
-  { id: 5, title: "Deadpool #1", price: 5.99, originalPrice: 11.99, discount: 50, image: "/comic-slider1.png" },
-  { id: 6, title: "Wonder Woman", price: 6.49, originalPrice: 12.99, discount: 50, image: "/comic-slider5.png" },
-  { id: 7, title: "X-Men #1", price: 5.99, originalPrice: 11.99, discount: 51, image: "/comic-slider3.png" },
-  { id: 8, title: "Superman Returns", price: 7.49, originalPrice: 14.99, discount: 50, image: "/comic-slide4.png" },
-];
-
-// Best Sellers Data
-const bestSellersComics = [
-  { id: 1, title: "Marvel Masterworks", author: "Stan Lee", price: 19.99, rating: 4.9, sold: "2.5k", image: "/comic-slider1.png" },
-  { id: 2, title: "DC Black Label", author: "Various", price: 16.99, rating: 4.7, sold: "1.8k", image: "/comic-slider5.png" },
-  { id: 3, title: "Manga Classics Box Set", author: "Various", price: 44.99, rating: 4.8, sold: "3.2k", image: "/comic-slider3.png" },
-  { id: 4, title: "Graphic Novel Bundle", author: "Various", price: 29.99, rating: 4.6, sold: "1.5k", image: "/comic-slide4.png" },
-  { id: 5, title: "Indie Collection", author: "Various Artists", price: 22.99, rating: 4.8, sold: "900", image: "/comic-slider1.png" },
-  { id: 6, title: "Watchmen Absolute", author: "Alan Moore", price: 29.99, rating: 5.0, sold: "2.1k", image: "/comic-slider5.png" },
-  { id: 7, title: "The Walking Dead", author: "Robert Kirkman", price: 24.99, rating: 4.9, sold: "1.9k", image: "/comic-slider3.png" },
-  { id: 8, title: "Saga Deluxe", author: "Brian K. Vaughan", price: 34.99, rating: 4.9, sold: "1.7k", image: "/comic-slide4.png" },
-];
-
-/** Homepage Latest Releases — single row of four; cards link to `/reader/[id]` */
-const latestReleases = [
-  { id: 1, title: "Shadows of Aethelgard", image: "/shadows.png", issue: "#42", genre: "Fantasy", status: "Ongoing" },
-  { id: 2, title: "The Vanguard", image: "/vanguard.png", issue: "#12", genre: "Action", status: "New Issue" },
-  { id: 3, title: "Crimson Noir", image: "/crimsin.png", issue: "#08", genre: "Mystery", status: "Completed" },
-  { id: 4, title: "Urban Echoes", image: "/urban.png", issue: "#03", genre: "Drama", status: "Ongoing" },
-];
-
-export default function Home() {
+export default async function Home() {
+  const [latestRows, flashRows, popularRows] = await Promise.all([
+    getLatestReleaseBooks(8),
+    getFlashSaleBooks(12),
+    getPopularBooks(12),
+  ]);
+  const latestReleases = latestRows.map(toLatestReleaseCard);
+  const flashSaleComics = flashRows.map(toFlashSaleCard);
+  const bestSellersComics = popularRows.map(toPopularCard);
   return (
     <div className="min-h-screen bg-black">
       {/* Hero Section */}

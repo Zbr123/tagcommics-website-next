@@ -40,7 +40,41 @@ interface Product {
 
 const CATEGORIES = ["Comics", "Manga", "Graphic Novels"];
 const TAGS = ["BESTSELLER", "NEW", "HOT", "CLASSIC", "SALE", "NONE"];
-const BOOK_TYPES = ["E-book", "Physical", "Sale", "Flash Sale", "New Item"];
+
+const REVIEW_OPTIONS: number[] = Array.from({ length: 11 }, (_, i) => i * 0.5);
+
+const PROMO_TAG_LOWER = new Set(["flash sale", "new item"]);
+
+function parseBookTagParts(tags: unknown): string[] {
+  if (tags == null) return [];
+  if (typeof tags === "string") {
+    return tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+  if (Array.isArray(tags)) {
+    return tags.map((t) => String(t).trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function promoFlagsFromParts(parts: string[]) {
+  const lower = parts.map((p) => p.toLowerCase());
+  return {
+    hasFlashSale: lower.some((p) => p === "flash sale"),
+    hasNewItem: lower.some((p) => p === "new item"),
+  };
+}
+
+function inferCatalogTagFromParts(parts: string[]): string {
+  for (const p of parts) {
+    if (PROMO_TAG_LOWER.has(p.toLowerCase())) continue;
+    const match = TAGS.find((t) => t !== "NONE" && t.toLowerCase() === p.toLowerCase());
+    if (match) return match;
+  }
+  return "NONE";
+}
 
 export default function AdminProducts() {
   const { token: authToken, isLoaded } = useAuth();
@@ -85,18 +119,15 @@ export default function AdminProducts() {
     for (const char of chars) {
       if (!char.books || char.books.length === 0) continue;
       for (const book of char.books) {
-        let tagsArray: string[] = [];
-        if (book.tags) {
-          if (typeof book.tags === "string") {
-            tagsArray = book.tags.split(",").map((t) => t.trim()).filter((t) => t);
-          } else if (Array.isArray(book.tags)) {
-            tagsArray = book.tags;
-          }
-        }
+        const tagsArray = parseBookTagParts(book.tags);
+        const promo = promoFlagsFromParts(tagsArray);
 
-        let tag = "NONE";
-        if (book.book_type === "Flash Sale") tag = "SALE";
-        else if (book.book_type === "New Item") tag = "NEW";
+        let legacyCatalog = "NONE";
+        if (book.book_type === "Flash Sale") legacyCatalog = "SALE";
+        else if (book.book_type === "New Item") legacyCatalog = "NEW";
+
+        const catalogTag = inferCatalogTagFromParts(tagsArray);
+        const tag = catalogTag !== "NONE" ? catalogTag : legacyCatalog;
 
         allBooks.push({
           id: Number(String(book.id).replace(/-/g, "").slice(0, 9)) || Date.now(),
@@ -109,10 +140,10 @@ export default function AdminProducts() {
           sold: "0",
           image: book.image_url || "/comic-slider1.png",
           category: book.category || "Comics",
-          tag: tagsArray[0] || tag,
+          tag,
           stock: book.stock,
-          isFlashSale: book.book_type === "Flash Sale",
-          isNewItem: book.book_type === "New Item",
+          isFlashSale: promo.hasFlashSale || book.book_type === "Flash Sale",
+          isNewItem: promo.hasNewItem || book.book_type === "New Item",
           isEbook: book.book_type === "E-book",
           isPhysical: book.book_type === "Physical",
           ebookPdfUrl: book.pdf_url || "",
@@ -171,6 +202,7 @@ export default function AdminProducts() {
         isEbook: false,
         isPhysical: false,
         ebookPdfUrl: "",
+        book_type: "Physical",
       });
     }
     setIsFormOpen(true);
@@ -223,12 +255,13 @@ export default function AdminProducts() {
       alert("Please select a PDF file for the E-book.");
       return;
     }
-
-    // Determine book type based on form state
     let bookType: "E-book" | "Physical" | "Sale" | "Flash Sale" | "New Item" = "Physical";
-    if (formData.isFlashSale) bookType = "Flash Sale";
-    else if (formData.isNewItem) bookType = "New Item";
-    else if (formData.isEbook) bookType = "E-book";
+    if (formData.isEbook) bookType = "E-book";
+
+    const tags: string[] = [];
+    if (formData.tag && formData.tag !== "NONE") tags.push(formData.tag);
+    if (formData.isFlashSale) tags.push("Flash Sale");
+    if (formData.isNewItem) tags.push("New Item");
 
     const payload = {
       title: formData.title || "",
@@ -237,7 +270,7 @@ export default function AdminProducts() {
       original_price: formData.originalPrice,
       discounted_price: formData.price,
       stock: formData.stock,
-      tags: formData.tags,
+      tags: tags.join(","),
       book_type: bookType,
       review: formData.rating,
       image: imageInputRef.current?.files?.[0],
@@ -652,6 +685,26 @@ export default function AdminProducts() {
                         {TAGS.map((tag) => (
                           <option key={tag} value={tag}>
                             {tag}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Review (saved as review on the book) */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-400 mb-2">
+                        Review
+                      </label>
+                      <select
+                        value={String(formData.rating ?? 0)}
+                        onChange={(e) =>
+                          setFormData({ ...formData, rating: parseFloat(e.target.value) || 0 })
+                        }
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand cursor-pointer"
+                      >
+                        {REVIEW_OPTIONS.map((r) => (
+                          <option key={r} value={String(r)}>
+                            {r === 0 ? "No rating" : `${r} ★`}
                           </option>
                         ))}
                       </select>

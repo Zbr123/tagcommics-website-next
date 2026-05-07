@@ -6,34 +6,70 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 // Maximum sales for the white background bars
 const MAX_SALES = 100;
 
-const data = [
-  { month: "Jan", sales: 45, remaining: MAX_SALES - 45 },
-  { month: "Feb", sales: 72, remaining: MAX_SALES - 72 },
-  { month: "Mar", sales: 68, remaining: MAX_SALES - 68 },
-  { month: "Apr", sales: 87, remaining: MAX_SALES - 87 },
-  { month: "May", sales: 59, remaining: MAX_SALES - 59 },
-  { month: "Jun", sales: 94, remaining: MAX_SALES - 94 },
-  { month: "Jul", sales: 67, remaining: MAX_SALES - 67 },
-];
-
-const SalesTooltip = ({ active, payload }: any) => {
-  if (!active || !payload || !payload.length) return null;
-
-  const { month, sales } = payload[0].payload;
-
-  return (
-    <div className="rounded-lg bg-white border-2 border-brand px-3 py-2 shadow-lg min-w-[150px]">
-      <div className="text-lg font-semibold text-gray-900">{sales} Orders</div>
-      <div className="text-sm text-gray-500">{month}</div>
-    </div>
-  );
-};
+export interface SalesHistoryPoint {
+  label: string;
+  value: number;
+}
 
 interface SalesHistoryChartProps {
   title?: string;
+  data?: SalesHistoryPoint[] | null;
+  unit?: string;
 }
 
-const SalesHistoryChart: React.FC<SalesHistoryChartProps> = ({ title = "Sales History" }) => {
+function recentMonthLabels(count: number): string[] {
+  const now = new Date();
+  const labels: string[] = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    labels.push(d.toLocaleString("en-US", { month: "short" }));
+  }
+  return labels;
+}
+
+const SalesHistoryChart: React.FC<SalesHistoryChartProps> = ({
+  title = "Sales History",
+  data,
+  unit = "Orders",
+}) => {
+  const sourceFromApi = Array.isArray(data)
+    ? data.map((item) => ({ month: item.label, sales: item.value }))
+    : [];
+
+  const source =
+    sourceFromApi.length > 0
+      ? sourceFromApi
+      : recentMonthLabels(7).map((month) => ({
+          month,
+          sales: 0,
+        }));
+
+  const maxSales = Math.max(
+    sourceFromApi.length > 0 ? MAX_SALES : 1,
+    ...source.map((item) => Number(item.sales) || 0)
+  );
+  const chartData = source.map((item) => ({
+    month: item.month,
+    sales: item.sales,
+    remaining: Math.max(0, maxSales - Number(item.sales)),
+  }));
+
+  const tooltipLabel = unit.toLowerCase();
+
+  const DynamicTooltip = ({ active, payload }: any) => {
+    if (!active || !payload || !payload.length) return null;
+    const { month, sales } = payload[0].payload;
+
+    return (
+      <div className="rounded-lg bg-white border-2 border-brand px-3 py-2 shadow-lg min-w-[150px]">
+        <div className="text-lg font-semibold text-gray-900">
+          {unit === "Revenue" ? `$${Number(sales).toFixed(2)}` : `${sales} ${tooltipLabel}`}
+        </div>
+        <div className="text-sm text-gray-500">{month}</div>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 shadow-sm">
       <h3 className="text-lg m-3 font-semibold text-white">{title}</h3>
@@ -41,7 +77,7 @@ const SalesHistoryChart: React.FC<SalesHistoryChartProps> = ({ title = "Sales Hi
       <div className="bg-gray-800/30 rounded-xl px-3 py-2 pb-3">
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
-            data={data}
+            data={chartData}
             barCategoryGap="15%"
             margin={{ top: 10, right: 10, bottom: 5, left: 10 }}
           >
@@ -52,8 +88,8 @@ const SalesHistoryChart: React.FC<SalesHistoryChartProps> = ({ title = "Sales Hi
               tickLine={false}
               dy={8}
             />
-            <YAxis hide domain={[0, MAX_SALES]} />
-            <Tooltip content={<SalesTooltip />} cursor={false} />
+            <YAxis hide domain={[0, maxSales]} />
+            <Tooltip content={<DynamicTooltip />} cursor={false} />
 
             <Bar
               dataKey="sales"

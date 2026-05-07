@@ -35,6 +35,7 @@ export function SignupFormContainer() {
         name: data.name,
         email: data.email,
         password: data.password,
+        phone: data.phone?.trim() ? data.phone.trim() : undefined,
       });
 
       // After successful registration, log in to get the token

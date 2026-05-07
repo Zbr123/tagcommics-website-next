@@ -1,11 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
-import { buildReaderHref } from "@/src/lib/readerHref";
 
 export interface LatestRelease {
   id: string | number;
   title: string;
   image: string;
+  /** Full `/reader/[id]?...` URL (matches character FEATURED BOOKS links). */
+  readerHref: string;
   /** e.g. "#42" */
   issue: string;
   genre: string;
@@ -48,7 +48,7 @@ export default function NewArrivalsSection({ releases }: NewArrivalsSectionProps
             {releases.map((item) => (
               <Link
                 key={item.id}
-                href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title })}
+                href={item.readerHref}
                 className="group block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <div className="relative aspect-[2/3] overflow-hidden rounded-2xl glass-card">

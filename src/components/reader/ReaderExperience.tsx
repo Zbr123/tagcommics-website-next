@@ -30,7 +30,6 @@ const DEFAULT_SPECS: { k: string; v: string }[] = [
   { k: "Published", v: "2026 · TagComics" },
 ];
 
-const DEFAULT_TAGS = ["Noir", "Urban", "Sci-Fi", "Crime"];
 const MAX_PREVIEW_PAGES = 2;
 
 function fileUrl(path: string) {
@@ -124,10 +123,12 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   const pdfViewportRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
   const { addToCart, getTotalItems } = useCart();
+  const cartCount = getTotalItems();
   const [justAdded, setJustAdded] = useState(false);
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
 
+  const readerTitle = comicData?.title?.trim() || title;
   const effectivePdfPath = comicData?.pdfUrl || pdfPath;
   const singlePreviewPage = comicData?.coverImage || coverImage;
   const previewPages = comicData?.previewPages || (singlePreviewPage ? [singlePreviewPage, singlePreviewPage] : []);
@@ -136,31 +137,53 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   const maxPreview = MAX_PREVIEW_PAGES;
 
   const sidebarItems = useMemo<SidebarItem[]>(() => {
-    return CHAPTERS;
-  }, []);
-  const creatorName = comicData?.author?.trim() || "Elias Thorne";
-  const creatorRole = comicData?.author ? "Author" : "Art";
-  const secondaryCreator = comicData?.author ? null : "Mira Okonkwo";
-  const specs = useMemo(
-    () => [
-      { k: "Format", v: comicData?.bookType ? `${comicData.bookType} · Print-ready` : DEFAULT_SPECS[0]!.v },
-      { k: "Dimensions", v: DEFAULT_SPECS[1]!.v },
-      { k: "Color profile", v: DEFAULT_SPECS[2]!.v },
-      { k: "Published", v: comicData?.category || DEFAULT_SPECS[3]!.v },
-    ],
-    [comicData?.bookType, comicData?.category],
-  );
+    if (!comicData) return CHAPTERS;
+    const blurbParts = [comicData.author?.trim(), comicData.category?.trim()].filter(Boolean);
+    return [
+      {
+        id: "issue-main",
+        page: 1,
+        label: "01",
+        title: comicData.title?.trim() || READER_DEFAULT_TITLE,
+        blurb: blurbParts.length > 0 ? blurbParts.join(" · ") : "Digital comic",
+      },
+    ];
+  }, [comicData]);
+
+  const creatorName = comicData?.author?.trim() || "Unknown";
+  const creatorRole = "Author";
+
+  const specs = useMemo(() => {
+    if (!comicData) return [...DEFAULT_SPECS];
+    const rows: { k: string; v: string }[] = [];
+    if (comicData.bookType?.trim()) rows.push({ k: "Format", v: comicData.bookType.trim() });
+    else rows.push({ k: "Format", v: "Digital" });
+    if (comicData.category?.trim()) rows.push({ k: "Category", v: comicData.category.trim() });
+    const price = comicData.price;
+    if (typeof price === "number" && Number.isFinite(price)) {
+      rows.push({ k: "Price", v: `$${price.toFixed(2)}` });
+    }
+    const original = comicData.originalPrice;
+    if (
+      typeof original === "number" &&
+      Number.isFinite(original) &&
+      typeof price === "number" &&
+      original > price
+    ) {
+      rows.push({ k: "Original", v: `$${original.toFixed(2)}` });
+    }
+    return rows;
+  }, [comicData]);
+
   const readerTags = useMemo(() => {
     const raw = comicData?.tags;
     if (Array.isArray(raw)) {
-      const trimmed = raw.map((t) => String(t).trim()).filter(Boolean);
-      return trimmed.length > 0 ? trimmed : DEFAULT_TAGS;
+      return raw.map((t) => String(t).trim()).filter(Boolean);
     }
     if (typeof raw === "string") {
-      const trimmed = raw.split(",").map((t) => t.trim()).filter(Boolean);
-      return trimmed.length > 0 ? trimmed : DEFAULT_TAGS;
+      return raw.split(",").map((t) => t.trim()).filter(Boolean);
     }
-    return DEFAULT_TAGS;
+    return [];
   }, [comicData?.tags]);
 
   const clampedZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom));
@@ -181,9 +204,9 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   const safeCurrentPage = useMemo(() => numPages ? Math.min(Math.max(currentPage, 1), numPages) : 1, [numPages, currentPage]);
 
   const activeChapterIndex = useMemo(() => {
-    const idx = CHAPTERS.findIndex((c) => c.id === activeChapterId);
+    const idx = sidebarItems.findIndex((c) => c.id === activeChapterId);
     return idx >= 0 ? idx : 0;
-  }, [activeChapterId]);
+  }, [activeChapterId, sidebarItems]);
 
   const goBackInReadingOrder = useCallback(() => {
     if (isPreviewMode) {
@@ -275,13 +298,16 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   const handleBackToComics = () => router.push("/");
   const handleAddToCart = useCallback(() => {
     if (!comicData) return;
+    const itemType: PurchasableItemType =
+      comicData.itemType ?? (comicData.bookType ? "character_book" : "comic");
+    const cartItemId = comicData.itemId || comicData.slug;
     const price = typeof comicData.price === "number" ? comicData.price : 0;
     const originalPrice =
       typeof comicData.originalPrice === "number" && comicData.originalPrice > price
         ? comicData.originalPrice
         : undefined;
     addToCart({
-      id: comicData.slug,
+      id: cartItemId,
       title: comicData.title,
       author: comicData.author || "Unknown",
       price,
@@ -290,6 +316,16 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
       pdfUrl: comicData.pdfUrl,
       category: comicData.category,
       tags: comicData.tags,
+      bookType: comicData.bookType,
+      itemType,
+    });
+    console.log("[ReaderExperience] addToCart payload", {
+      source: "reader",
+      id: cartItemId,
+      itemType,
+      title: comicData.title,
+      slug: comicData.slug,
+      itemId: comicData.itemId,
       bookType: comicData.bookType,
     });
     setJustAdded(true);
@@ -306,6 +342,12 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
       const itemType: PurchasableItemType =
         comicData?.itemType ?? (comicData?.bookType ? "character_book" : "comic");
       const itemId = comicData?.itemId || comicData?.slug;
+      console.log("[ReaderExperience] purchaseNow payload", {
+        source: "reader",
+        itemType,
+        itemId,
+        title: comicData?.title,
+      });
       if (!itemId) {
         setPurchaseError("Missing item id for checkout.");
         return;
@@ -378,17 +420,29 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
         <div className="mx-auto flex h-14 max-w-[1920px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <Link href="/" className="shrink-0 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400 transition hover:text-white">← Back</Link>
           <div className="min-w-0 flex-1 text-center">
-            <h1 className="truncate text-xs font-black uppercase tracking-[0.14em] text-white sm:text-sm">{title}</h1>
+            <h1 className="truncate text-xs font-black uppercase tracking-[0.14em] text-white sm:text-sm">{readerTitle}</h1>
             {subtitle ? <p className="truncate text-[10px] text-zinc-400">{subtitle}</p> : null}
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            <Link
+              href="/cart"
+              className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-zinc-300 transition hover:border-[#58E8C1]/45 hover:text-brand hover:shadow-[0_0_18px_rgba(88,232,193,0.28)]"
+              aria-label="Open shopping cart"
+            >
+              <i className="fa-solid fa-bag-shopping text-sm" aria-hidden />
+              {cartCount > 0 ? (
+                <span className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-full border border-brand/40 bg-brand px-1.5 text-center text-[10px] font-black leading-[1.1rem] text-brand-foreground">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              ) : null}
+            </Link>
             {canDownload ? (
               <button type="button" className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/20 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/30 sm:px-4 sm:text-[11px]">
                 <i className="fa-solid fa-download text-[11px]" aria-hidden />Download PDF
               </button>
             ) : (
               <>
-                <button type="button" onClick={handleAddToCart} className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/20 sm:px-4 sm:text-[11px]">
+                <button type="button" onClick={handleAddToCart} disabled={!comicData} className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/20 sm:px-4 sm:text-[11px] disabled:pointer-events-none disabled:opacity-40">
                   <i className="fa-solid fa-bag-shopping text-[11px]" aria-hidden />Add to Cart
                 </button>
                 <button type="button" onClick={handlePurchaseNow} disabled={isPurchasing} className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand-foreground backdrop-blur-sm transition hover:bg-brand/90 sm:px-4 sm:text-[11px] disabled:opacity-70">
@@ -401,7 +455,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
         {justAdded ? (
           <div className="mx-auto mt-1 max-w-[1920px] px-4 pb-2 sm:px-6 lg:px-8">
             <Link href="/cart" className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand hover:text-brand/80">
-              Added to cart · View Cart ({getTotalItems()})
+              Added to cart · View Cart ({cartCount})
             </Link>
           </div>
         ) : null}
@@ -513,24 +567,27 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
           <div className="flex h-[calc(100dvh-3.5rem)] flex-col gap-6 overflow-y-auto p-5">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-400">Details</p>
-              <h2 className="mt-2 font-serif text-xl text-white">{title}</h2>
+              <h2 className="mt-2 font-serif text-xl text-white">{readerTitle}</h2>
             </div>
             <div className="border-t border-white/10 pt-5">
               <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-zinc-400">Creators</p>
               <ul className="mt-3 space-y-3 text-sm">
                 <li className="text-zinc-300"><span className="font-bold text-white">{creatorName}</span> — <span className="text-zinc-500">{creatorRole}</span></li>
-                {secondaryCreator ? (
-                  <li className="text-zinc-300"><span className="font-bold text-white">{secondaryCreator}</span> — <span className="text-zinc-500">Color</span></li>
-                ) : null}
               </ul>
             </div>
             <div className="border-t border-white/10 pt-5">
               {specs.map((row) => (<div key={row.k} className="flex justify-between gap-3 border-b border-white/5 py-2 text-[11px] last:border-b-0"><span className="text-zinc-500">{row.k}</span><span className="text-right text-zinc-300">{row.v}</span></div>))}
             </div>
-            <div className="border-t border-white/10 pt-5">
-              <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-zinc-400">Tags</p>
-              <div className="mt-2 flex flex-wrap gap-2">{readerTags.map((t) => (<span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] text-zinc-300 backdrop-blur-sm">{t}</span>))}</div>
-            </div>
+            {readerTags.length > 0 ? (
+              <div className="border-t border-white/10 pt-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-zinc-400">Tags</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {readerTags.map((t) => (
+                    <span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] text-zinc-300 backdrop-blur-sm">{t}</span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             <div className="mt-auto border-t border-white/10 pt-5">
               <div className="space-y-2">
                 <button type="button" onClick={handleAddToCart} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/10 py-3 text-xs font-black uppercase tracking-wide text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/20">

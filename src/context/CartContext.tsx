@@ -15,6 +15,7 @@ const LOCAL_CART_KEY = "comics-cart";
 
 interface CartItem {
   id: string | number;
+  checkoutItemId?: string;
   title: string;
   author: string;
   price: number;
@@ -109,6 +110,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       try {
         const item_type = item.itemType ?? inferItemType(item.id);
+        console.log("[CartContext] addToCart -> server /cart/items", {
+          item_id: String(item.id),
+          item_type,
+          quantity,
+          title: item.title,
+        });
         await addServerCartItem(token, {
           item_type,
           item_id: String(item.id),

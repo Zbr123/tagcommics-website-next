@@ -6,6 +6,10 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/src/hooks/use-auth";
 
+/** Matches navbar/footer bolt icon mark (viewBox 0 0 448 512). */
+const BOLT_PATH =
+  "M338.8-9.9c11.9 8.6 16.3 24.2 10.9 37.8L271.3 224 416 224c13.5 0 25.5 8.4 30.1 21.1s.7 26.9-9.6 35.5l-288 240c-11.3 9.4-27.4 9.9-39.3 1.3s-16.3-24.2-10.9-37.8L176.7 288 32 288c-13.5 0-25.5-8.4-30.1-21.1s-.7-26.9 9.6-35.5l288-240c11.3-9.4 27.4-9.9 39.3-1.3z";
+
 export default function AdminLayout({
   children,
 }: {
@@ -77,6 +81,15 @@ export default function AdminLayout({
         </svg>
       ),
     },
+    {
+      name: "Design inquiries",
+      href: "/admin/design-inquiries",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
+    },
   ];
 
   // while auth state is resolving or redirecting, show a simple loading state
@@ -106,12 +119,25 @@ export default function AdminLayout({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <Link href="/admin" className="flex items-center gap-2 group cursor-pointer">
-              <img
-                src="/comics-logos/images-comics.png"
-                alt="Tag Comics Logo"
-                className="h-12 w-32 sm:h-14 sm:w-40 object-cover drop-shadow-2xl group-hover:scale-105 transition-transform duration-300"
-              />
+            <Link
+              href="/admin"
+              className="group inline-flex items-center gap-3 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              aria-label="TagComics admin home"
+            >
+              <span className="inline-flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center rounded-xl border border-[rgba(88,232,193,0.28)] bg-black/40 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-105 group-hover:border-[rgba(88,232,193,0.6)] group-hover:bg-[rgba(88,232,193,0.08)] group-hover:shadow-[0_0_24px_rgba(88,232,193,0.3)]">
+                <svg
+                  viewBox="0 0 448 512"
+                  className="h-5 w-5 transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(88,232,193,0.7)]"
+                  fill="rgb(88,232,193)"
+                  aria-hidden
+                >
+                  <path d={BOLT_PATH} />
+                </svg>
+              </span>
+              <span className="text-3xl font-black tracking-tight">
+                <span className="text-white">Tag</span>
+                <span className="text-brand">Comics</span>
+              </span>
             </Link>
           </div>
           <div className="flex items-center gap-3 sm:gap-5">
@@ -137,7 +163,7 @@ export default function AdminLayout({
                 </>
               ) : null}
             </div>
-            <Link
+            {/* <Link
               href="/"
               className="text-sm text-gray-400 hover:text-brand transition-colors flex items-center gap-2 cursor-pointer"
             >
@@ -145,7 +171,7 @@ export default function AdminLayout({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               <span className="hidden sm:inline">Back to Site</span>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>

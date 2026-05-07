@@ -1,13 +1,6 @@
 /**
- * Customers API for admin. Fetches registered customers from the backend.
- * Expects backend to expose GET /customers or GET /users returning an array of user objects.
+ * Customers API for admin list. Uses Next.js proxy route to avoid CORS from browser.
  */
-
-function getApiBaseUrl(): string | undefined {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  if (!url?.trim()) return undefined;
-  return url.replace(/\/$/, "");
-}
 
 export interface Customer {
   id: string | number;
@@ -15,7 +8,11 @@ export interface Customer {
   email: string;
   phone?: string;
   createdAt?: string;
+  joinedDate?: string;
   isAdmin?: boolean;
+  totalOrders?: number;
+  totalSpent?: number;
+  lastOrderDate?: string;
 }
 
 /** Backend may return first_name/last_name or name */
@@ -28,8 +25,16 @@ interface BackendCustomerRow {
   phone?: string;
   created_at?: string;
   createdAt?: string;
+  joinedDate?: string;
+  joined_date?: string;
   is_admin?: boolean;
   isAdmin?: boolean;
+  totalOrders?: number;
+  total_orders?: number;
+  totalSpent?: number;
+  total_spent?: number;
+  lastOrderDate?: string;
+  last_order_date?: string;
 }
 
 function normalizeCustomer(row: BackendCustomerRow): Customer {
@@ -41,8 +46,12 @@ function normalizeCustomer(row: BackendCustomerRow): Customer {
     name,
     email: row.email ?? "",
     phone: row.phone,
-    createdAt: row.created_at ?? row.createdAt,
+    createdAt: row.created_at ?? row.createdAt ?? row.joined_date ?? row.joinedDate,
+    joinedDate: row.joined_date ?? row.joinedDate ?? row.created_at ?? row.createdAt,
     isAdmin: row.is_admin ?? row.isAdmin,
+    totalOrders: row.total_orders ?? row.totalOrders,
+    totalSpent: row.total_spent ?? row.totalSpent,
+    lastOrderDate: row.last_order_date ?? row.lastOrderDate,
   };
 }
 
@@ -55,14 +64,13 @@ export type CustomersApiResult =
  * Backend should expose GET /customers or GET /users with optional Authorization header.
  */
 export async function fetchCustomers(token?: string): Promise<CustomersApiResult> {
-  const base = getApiBaseUrl();
-  if (!base) {
-    return { ok: false, error: "API URL not configured (NEXT_PUBLIC_API_URL)" };
+  if (!token) {
+    return { ok: false, error: "Missing auth token" };
   }
 
-  const url = `${base}${base.endsWith("/") ? "" : "/"}customers`;
+  const url = "/api/admin/customers";
   const headers: HeadersInit = { "Content-Type": "application/json" };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+  headers["Authorization"] = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
 
   try {
     const res = await fetch(url, { method: "GET", headers });
@@ -79,9 +87,14 @@ export async function fetchCustomers(token?: string): Promise<CustomersApiResult
       return { ok: false, error: message };
     }
 
-    const raw = await res.json();
-    const list = Array.isArray(raw) ? raw : raw?.customers ?? raw?.users ?? [];
-    const data = list.map((row: BackendCustomerRow) => normalizeCustomer(row));
+    const raw = (await res.json()) as Record<string, unknown>;
+    const dataObj = raw?.data as Record<string, unknown> | undefined;
+    const list: BackendCustomerRow[] = Array.isArray(dataObj?.customers)
+      ? (dataObj.customers as BackendCustomerRow[])
+      : Array.isArray(raw?.data)
+        ? (raw.data as BackendCustomerRow[])
+        : [];
+    const data = list.map((row) => normalizeCustomer(row));
     return { ok: true, data };
   } catch (e) {
     const message = e instanceof Error ? e.message : "Failed to fetch customers";

@@ -7,24 +7,17 @@ import Link from "next/link";
 import { buildReaderHref } from "@/src/lib/readerHref";
 
 interface Comic {
-  id: number;
+  id: string | number;
   image: string;
   title: string;
+  readerHref?: string;
 }
 
 interface NewArrivalsHeroProps {
   heroComics?: Comic[];
 }
 
-const defaultHeroComics: Comic[] = [
-  { id: 1, image: "/THE_NEW_GIRL.webp", title: "THE NEW GIRL" },
-  { id: 2, image: "/The-LONG_GAME.webp", title: "THE LONG GAME" },
-  { id: 3, image: "/I-SURVIVED.webp", title: "I SURVIVED" },
-  { id: 4, image: "/THE_WOMEN_OF_RIDGE.webp", title: "THE WOMEN OF RIDGE" },
-  { id: 5, image: "/THE _HEART_LOVER.webp", title: "THE HEART LOVER" },
-];
-
-export default function NewArrivalsHero({ heroComics = defaultHeroComics }: NewArrivalsHeroProps) {
+export default function NewArrivalsHero({ heroComics = [] }: NewArrivalsHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -132,7 +125,10 @@ export default function NewArrivalsHero({ heroComics = defaultHeroComics }: NewA
                   }}
                 >
                   <Link
-                    href={buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title })}
+                    href={
+                      comic.readerHref ??
+                      buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title })
+                    }
                     className="block w-full h-full"
                   >
                     <div className="relative w-full h-full rounded-lg overflow-hidden shadow-2xl border-2 border-yellow-400/30 hover:border-yellow-400 transition-colors">

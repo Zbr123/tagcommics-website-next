@@ -1,6 +1,5 @@
 import Link from "next/link";
 import ProductSlider from "../ProductSlider";
-import { buildReaderHref } from "@/src/lib/readerHref";
 
 interface Comic {
   id: string | number;
@@ -8,8 +7,9 @@ interface Comic {
   author: string;
   price: number;
   rating: number;
-  sold: string;
+  stock: number;
   image: string;
+  readerHref: string;
 }
 
 interface BestSellersSectionProps {
@@ -19,7 +19,7 @@ interface BestSellersSectionProps {
 function BestSellerSlideCard({ comic }: { comic: Comic }) {
   return (
     <Link
-      href={buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title })}
+      href={comic.readerHref}
       className="group block w-[min(92vw,300px)] flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 sm:min-w-[260px] sm:w-[min(46vw,300px)] md:w-[280px] lg:w-[300px] xl:w-[308px]"
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-2xl glass-card">
@@ -37,7 +37,11 @@ function BestSellerSlideCard({ comic }: { comic: Comic }) {
         <p className="mt-1.5 text-xs leading-relaxed text-zinc-400 transition-colors duration-500 group-hover:text-zinc-300">
           {comic.author}
           <span className="text-zinc-600"> • </span>
-          {comic.sold} sold
+          <span className="font-semibold text-brand">${comic.price.toFixed(2)}</span>
+          <span className="text-zinc-600"> • </span>
+          <span className="text-yellow-400/90">{comic.rating.toFixed(1)}★</span>
+          <span className="text-zinc-600"> • </span>
+          {comic.stock > 0 ? `${comic.stock} in stock` : "Out of stock"}
         </p>
       </div>
     </Link>

@@ -2,6 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/src/hooks/use-auth";
+import {
+  listAdminOrders,
+  updateAdminOrderStatus,
+  updateAdminPaymentStatus,
+  updateAdminTrackingNumber,
+  type AdminOrder as Order,
+} from "@/src/lib/admin-orders-api";
 
 interface OrderItem {
   id: number;
@@ -12,40 +21,12 @@ interface OrderItem {
   image: string;
 }
 
-interface Order {
-  id: string;
-  orderNumber: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone?: string;
-  orderDate: string;
-  status: "Pending" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
-  paymentMethod: string;
-  paymentStatus: "Pending" | "Paid" | "Failed";
-  items: OrderItem[];
-  subtotal: number;
-  shipping: number;
-  tax: number;
-  total: number;
-  shippingAddress: {
-    fullName: string;
-    address: string;
-    city: string;
-    zipCode: string;
-    country: string;
-  };
-  trackingNumber?: string;
-  estimatedDelivery?: string;
-  deliveredDate?: string;
-  notes?: string;
-  updatedAt: string;
-  createdAt: string;
-}
-
 const ORDER_STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"] as const;
 const PAYMENT_STATUSES = ["Pending", "Paid", "Failed"] as const;
 
 export default function AdminOrders() {
+  const { token } = useAuth();
+  const searchParams = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -53,249 +34,81 @@ export default function AdminOrders() {
   const [filterStatus, setFilterStatus] = useState("All");
   const [filterPaymentStatus, setFilterPaymentStatus] = useState("All");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load orders from localStorage
   useEffect(() => {
-    const savedOrders = localStorage.getItem("admin-orders");
-    if (savedOrders) {
-      setOrders(JSON.parse(savedOrders));
-    } else {
-      // Initial mock data
-      const initialOrders: Order[] = [
-        {
-          id: "1",
-          orderNumber: "ORD-2024-001",
-          customerName: "John Doe",
-          customerEmail: "john.doe@example.com",
-          customerPhone: "+1234567890",
-          orderDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "Pending",
-          paymentMethod: "Cash on Delivery",
-          paymentStatus: "Pending",
-          items: [
-            {
-              id: 1,
-              title: "Spider-Man #1",
-              author: "Stan Lee",
-              price: 4.99,
-              quantity: 2,
-              image: "/comic-slider1.png",
-            },
-            {
-              id: 2,
-              title: "Batman Annual",
-              author: "Bob Kane",
-              price: 6.99,
-              quantity: 1,
-              image: "/comic-slider5.png",
-            },
-          ],
-          subtotal: 16.97,
-          shipping: 9.99,
-          tax: 1.36,
-          total: 28.32,
-          shippingAddress: {
-            fullName: "John Doe",
-            address: "123 Main St",
-            city: "New York",
-            zipCode: "10001",
-            country: "United States",
-          },
-          estimatedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date().toISOString(),
-          createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-        {
-          id: "2",
-          orderNumber: "ORD-2024-002",
-          customerName: "Jane Smith",
-          customerEmail: "jane.smith@example.com",
-          orderDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "Processing",
-          paymentMethod: "Cash on Delivery",
-          paymentStatus: "Pending",
-          items: [
-            {
-              id: 3,
-              title: "X-Men #1",
-              author: "Stan Lee",
-              price: 5.99,
-              quantity: 3,
-              image: "/comic-slider3.png",
-            },
-          ],
-          subtotal: 17.97,
-          shipping: 0,
-          tax: 1.44,
-          total: 19.41,
-          shippingAddress: {
-            fullName: "Jane Smith",
-            address: "456 Oak Ave",
-            city: "Los Angeles",
-            zipCode: "90001",
-            country: "United States",
-          },
-          trackingNumber: "TRK987654321",
-          estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date().toISOString(),
-          createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-        {
-          id: "3",
-          orderNumber: "ORD-2024-003",
-          customerName: "Bob Johnson",
-          customerEmail: "bob.johnson@example.com",
-          orderDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "Shipped",
-          paymentMethod: "Cash on Delivery",
-          paymentStatus: "Pending",
-          items: [
-            {
-              id: 4,
-              title: "The Avengers",
-              author: "Stan Lee",
-              price: 6.99,
-              quantity: 2,
-              image: "/comic-slider3.png",
-            },
-            {
-              id: 5,
-              title: "Wonder Woman",
-              author: "William Moulton Marston",
-              price: 6.49,
-              quantity: 1,
-              image: "/comic-slider5.png",
-            },
-          ],
-          subtotal: 20.47,
-          shipping: 9.99,
-          tax: 2.44,
-          total: 32.90,
-          shippingAddress: {
-            fullName: "Bob Johnson",
-            address: "789 Pine St",
-            city: "Chicago",
-            zipCode: "60601",
-            country: "United States",
-          },
-          trackingNumber: "TRK456789123",
-          estimatedDelivery: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date().toISOString(),
-          createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-        {
-          id: "4",
-          orderNumber: "ORD-2024-004",
-          customerName: "Alice Williams",
-          customerEmail: "alice.williams@example.com",
-          orderDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-          status: "Delivered",
-          paymentMethod: "Cash on Delivery",
-          paymentStatus: "Paid",
-          items: [
-            {
-              id: 6,
-              title: "Naruto Vol.1",
-              author: "Masashi Kishimoto",
-              price: 9.99,
-              quantity: 1,
-              image: "/comic-slider1.png",
-            },
-          ],
-          subtotal: 9.99,
-          shipping: 0,
-          tax: 0.80,
-          total: 10.79,
-          shippingAddress: {
-            fullName: "Alice Williams",
-            address: "321 Elm St",
-            city: "Houston",
-            zipCode: "77001",
-            country: "United States",
-          },
-          trackingNumber: "TRK789123456",
-          estimatedDelivery: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-          deliveredDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-          updatedAt: new Date().toISOString(),
-          createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-      ];
-      setOrders(initialOrders);
-      localStorage.setItem("admin-orders", JSON.stringify(initialOrders));
-    }
-  }, []);
+    const statusParam = searchParams.get("status");
+    if (!statusParam) return;
+    const normalized = statusParam.toLowerCase();
+    if (normalized === "placed") setFilterStatus("Pending");
+    else if (normalized === "pending") setFilterStatus("Pending");
+    else if (normalized === "processing") setFilterStatus("Processing");
+    else if (normalized === "shipped") setFilterStatus("Shipped");
+    else if (normalized === "delivered") setFilterStatus("Delivered");
+    else if (normalized === "cancelled") setFilterStatus("Cancelled");
+  }, [searchParams]);
 
-  // Save orders to localStorage
-  const saveOrders = (newOrders: Order[]) => {
-    localStorage.setItem("admin-orders", JSON.stringify(newOrders));
-    setOrders(newOrders);
+  useEffect(() => {
+    if (!token) {
+      setLoading(false);
+      setOrders([]);
+      return;
+    }
+
+    let mounted = true;
+    const loadOrders = async () => {
+      setLoading(true);
+      setError(null);
+      const result = await listAdminOrders(token);
+      if (!mounted) return;
+      if (result.ok) {
+        setOrders(result.data);
+      } else {
+        setOrders([]);
+        setError(result.error);
+      }
+      setLoading(false);
+    };
+
+    loadOrders();
+    return () => {
+      mounted = false;
+    };
+  }, [token]);
+
+  const applyUpdatedOrder = (updated: Order) => {
+    setOrders((prev) => prev.map((order) => (order.id === updated.id ? updated : order)));
+    setSelectedOrder((prev) => (prev && prev.id === updated.id ? updated : prev));
   };
 
-  const handleStatusChange = (orderId: string, newStatus: typeof ORDER_STATUSES[number]) => {
-    const updatedOrders = orders.map((order) => {
-      if (order.id === orderId) {
-        const updatedOrder: Order = {
-          ...order,
-          status: newStatus,
-          updatedAt: new Date().toISOString(),
-        };
-
-        // Auto-update payment status for delivered orders
-        if (newStatus === "Delivered" && order.paymentMethod === "Cash on Delivery") {
-          updatedOrder.paymentStatus = "Paid";
-          updatedOrder.deliveredDate = new Date().toISOString();
-        }
-
-        // Auto-generate tracking number when shipping
-        if (newStatus === "Shipped" && !updatedOrder.trackingNumber) {
-          updatedOrder.trackingNumber = `TRK${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-        }
-
-        return updatedOrder;
-      }
-      return order;
-    });
-    saveOrders(updatedOrders);
-
-    // Update selected order if it's the one being edited
-    if (selectedOrder && selectedOrder.id === orderId) {
-      setSelectedOrder(updatedOrders.find((o) => o.id === orderId) || null);
+  const handleStatusChange = async (orderId: string, newStatus: typeof ORDER_STATUSES[number]) => {
+    if (!token) return;
+    const result = await updateAdminOrderStatus(token, orderId, newStatus.toLowerCase());
+    if (result.ok) {
+      applyUpdatedOrder(result.data);
     }
   };
 
-  const handlePaymentStatusChange = (orderId: string, newPaymentStatus: typeof PAYMENT_STATUSES[number]) => {
-    const updatedOrders = orders.map((order) => {
-      if (order.id === orderId) {
-        return {
-          ...order,
-          paymentStatus: newPaymentStatus,
-          updatedAt: new Date().toISOString(),
-        };
-      }
-      return order;
-    });
-    saveOrders(updatedOrders);
-
-    if (selectedOrder && selectedOrder.id === orderId) {
-      setSelectedOrder(updatedOrders.find((o) => o.id === orderId) || null);
+  const handlePaymentStatusChange = async (orderId: string, newPaymentStatus: typeof PAYMENT_STATUSES[number]) => {
+    if (!token) return;
+    const result = await updateAdminPaymentStatus(token, orderId, newPaymentStatus.toLowerCase());
+    if (result.ok) {
+      applyUpdatedOrder(result.data);
     }
   };
 
-  const handleUpdateTracking = (orderId: string, trackingNumber: string) => {
-    const updatedOrders = orders.map((order) => {
-      if (order.id === orderId) {
-        return {
-          ...order,
-          trackingNumber,
-          updatedAt: new Date().toISOString(),
-        };
-      }
-      return order;
-    });
-    saveOrders(updatedOrders);
+  const handleTrackingInputChange = (orderId: string, trackingNumber: string) => {
+    setSelectedOrder((prev) => (prev && prev.id === orderId ? { ...prev, trackingNumber } : prev));
+  };
 
-    if (selectedOrder && selectedOrder.id === orderId) {
-      setSelectedOrder(updatedOrders.find((o) => o.id === orderId) || null);
+  const handleTrackingPersist = async (orderId: string, trackingNumber: string) => {
+    if (!token) return;
+    const normalized = trackingNumber.trim();
+    if (!normalized) return;
+    const result = await updateAdminTrackingNumber(token, orderId, normalized);
+    if (result.ok) {
+      applyUpdatedOrder(result.data);
     }
   };
 
@@ -375,6 +188,12 @@ export default function AdminOrders() {
         <h1 className="text-3xl font-black text-white mb-2">Orders</h1>
         <p className="text-gray-400">Manage and track customer orders</p>
       </div>
+      {error ? (
+        <div className="rounded-xl border border-amber-400/30 bg-amber-950/25 px-4 py-3 text-sm text-amber-100">
+          <p className="font-bold text-amber-200">Could not load orders</p>
+          <p className="mt-1 text-amber-100/90">{error}</p>
+        </div>
+      ) : null}
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4">
@@ -548,7 +367,13 @@ export default function AdminOrders() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {filteredOrders.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-12 text-center">
+                    <p className="text-gray-400">Loading orders...</p>
+                  </td>
+                </tr>
+              ) : filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center">
                     <p className="text-gray-400">No orders found matching your filters.</p>
@@ -791,9 +616,8 @@ export default function AdminOrders() {
                         <input
                           type="text"
                           value={selectedOrder.trackingNumber || ""}
-                          onChange={(e) =>
-                            handleUpdateTracking(selectedOrder.id, e.target.value)
-                          }
+                          onChange={(e) => handleTrackingInputChange(selectedOrder.id, e.target.value)}
+                          onBlur={(e) => handleTrackingPersist(selectedOrder.id, e.target.value)}
                           placeholder="Enter tracking number"
                           className="flex-1 px-3 sm:px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand text-sm"
                         />

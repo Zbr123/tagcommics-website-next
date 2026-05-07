@@ -24,6 +24,8 @@ function resolveBookPdfUrl(path: string | undefined | null): string | undefined 
 export interface ApiCartItem {
   item_id: string;
   item_type: "comic" | "character_book";
+  comic_id?: string;
+  character_book_id?: string;
   title: string;
   author: string;
   image?: string;
@@ -35,7 +37,7 @@ export interface ApiCartItem {
     tags?: string[] | string;
     pdf_url?: string;
     category?: string;
-  };
+  } & Record<string, unknown>;
 }
 
 interface ApiCartResponse {
@@ -143,8 +145,23 @@ export async function clearServerCart(token: string): Promise<void> {
 }
 
 export function mapApiCartItemToLocal(item: ApiCartItem) {
-  return {
+  const meta = item.meta ?? {};
+  const checkoutIdCandidates: unknown[] = [
+    item.character_book_id,
+    item.comic_id,
+    (meta as Record<string, unknown>).product_id,
+    (meta as Record<string, unknown>).book_id,
+    (meta as Record<string, unknown>).comic_id,
+    (meta as Record<string, unknown>).character_book_id,
+    (meta as Record<string, unknown>).catalog_item_id,
+    (meta as Record<string, unknown>).source_item_id,
+  ];
+  const resolvedCheckoutId = checkoutIdCandidates.find(
+    (value) => typeof value === "string" && value.trim(),
+  );
+  const mapped = {
     id: item.item_id,
+    checkoutItemId: typeof resolvedCheckoutId === "string" ? resolvedCheckoutId : undefined,
     title: item.title,
     author: item.author || "Unknown",
     price: Number(item.unit_price) || 0,
@@ -157,5 +174,16 @@ export function mapApiCartItemToLocal(item: ApiCartItem) {
     quantity: item.quantity || 1,
     itemType: item.item_type,
   };
+  console.log("[cart-api] mapApiCartItemToLocal", {
+    api_item_id: item.item_id,
+    api_item_type: item.item_type,
+    api_meta: item.meta,
+    resolved_checkout_id: resolvedCheckoutId,
+    mapped_id: mapped.id,
+    mapped_checkoutItemId: mapped.checkoutItemId,
+    mapped_itemType: mapped.itemType,
+    title: mapped.title,
+  });
+  return mapped;
 }
 

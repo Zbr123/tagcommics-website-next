@@ -11,19 +11,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-// More varied data with ups and downs to create dynamic curves
-const data = [
-  { date: "01 Jul", orders: 12 },
-  { date: "02 Jul", orders: 19 },
-  { date: "03 Jul", orders: 8 },
-  { date: "04 Jul", orders: 25 },
-  { date: "05 Jul", orders: 15 },
-  { date: "06 Jul", orders: 22 },
-  { date: "07 Jul", orders: 18 },
-  { date: "08 Jul", orders: 14 },
-  { date: "09 Jul", orders: 28 },
-];
-
 // Simple tooltip with yellow theme
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -40,11 +27,38 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 interface OrdersActivityChartProps {
   title?: string;
+  data?: { label: string; value: number }[] | null;
+}
+
+function recentDayLabels(count: number): string[] {
+  const now = new Date();
+  const labels: string[] = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    labels.push(d.toLocaleDateString("en-US", { day: "2-digit", month: "short" }));
+  }
+  return labels;
 }
 
 const OrdersActivityChart: React.FC<OrdersActivityChartProps> = ({
   title = "Orders Activity",
+  data,
 }) => {
+  const sourceFromApi = Array.isArray(data)
+    ? data.map((item) => ({ date: item.label, orders: item.value }))
+    : [];
+
+  const source =
+    sourceFromApi.length > 0
+      ? sourceFromApi
+      : recentDayLabels(7).map((day) => ({
+          date: day,
+          orders: 0,
+        }));
+
+  const maxOrders = Math.max(sourceFromApi.length > 0 ? 30 : 1, ...source.map((item) => Number(item.orders) || 0));
+
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 shadow-sm">
       {/* Heading inside the card */}
@@ -54,7 +68,7 @@ const OrdersActivityChart: React.FC<OrdersActivityChartProps> = ({
       <div className="bg-gray-800/30 rounded-xl pr-6 pt-2 pb-3">
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart
-            data={data}
+            data={source}
             margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
           >
             <defs>
@@ -89,8 +103,7 @@ const OrdersActivityChart: React.FC<OrdersActivityChartProps> = ({
               axisLine={false}
               tickLine={{ stroke: "#6B7280", strokeWidth: 1 }}
               tickSize={5}
-              domain={[0, 30]}
-              ticks={[0, 5, 10, 15, 20, 25, 30]}
+              domain={[0, maxOrders]}
             />
 
             {/* Tooltip with simple yellow text */}

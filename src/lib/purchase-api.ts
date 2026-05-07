@@ -59,8 +59,21 @@ function resolveToken(token?: string | null): string {
   return resolved;
 }
 
+function normalizeItemType(value: unknown): PurchasableItemType {
+  const raw = String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+  if (raw === "character_book" || raw === "characterbook") return "character_book";
+  return "comic";
+}
+
 function shouldRetryAsComic(errorMessage: string): boolean {
   return /Product not found:\s*character_book/i.test(errorMessage);
+}
+
+function shouldRetryAsCharacterBook(errorMessage: string): boolean {
+  return /Product not found:\s*comic/i.test(errorMessage);
 }
 
 async function postCheckoutSession(
@@ -88,9 +101,10 @@ export async function createStripeCheckoutSession(params: {
   token?: string | null;
 }): Promise<CheckoutSessionData> {
   const token = resolveToken(params.token);
+  const normalizedType = normalizeItemType(params.itemType);
   const primaryItems = [
     {
-      item_type: params.itemType,
+      item_type: normalizedType,
       item_id: params.itemId,
       quantity: params.quantity ?? 1,
     },
@@ -98,10 +112,21 @@ export async function createStripeCheckoutSession(params: {
   const primary = await postCheckoutSession(token, [...primaryItems]);
   if (primary.ok) return primary.data;
 
-  if (params.itemType === "character_book" && shouldRetryAsComic(primary.error)) {
+  if (normalizedType === "character_book" && shouldRetryAsComic(primary.error)) {
     const fallback = await postCheckoutSession(token, [
       {
         item_type: "comic",
+        item_id: params.itemId,
+        quantity: params.quantity ?? 1,
+      },
+    ]);
+    if (fallback.ok) return fallback.data;
+    throw new Error(fallback.error);
+  }
+  if (normalizedType === "comic" && shouldRetryAsCharacterBook(primary.error)) {
+    const fallback = await postCheckoutSession(token, [
+      {
+        item_type: "character_book",
         item_id: params.itemId,
         quantity: params.quantity ?? 1,
       },
@@ -120,16 +145,26 @@ export async function createStripeCheckoutSessionForItems(params: {
   const token = resolveToken(params.token);
   if (!params.items.length) throw new Error("Your cart is empty.");
   const primaryItems = params.items.map((item) => ({
-    item_type: item.item_type,
+    item_type: normalizeItemType(item.item_type),
     item_id: item.item_id,
     quantity: item.quantity,
   }));
+  console.log("[purchase-api] normalized checkout items", primaryItems);
   const primary = await postCheckoutSession(token, primaryItems);
   if (primary.ok) return primary.data;
 
   if (shouldRetryAsComic(primary.error)) {
     const fallbackItems = primaryItems.map((item) =>
       item.item_type === "character_book" ? { ...item, item_type: "comic" as const } : item,
+    );
+    const fallback = await postCheckoutSession(token, fallbackItems);
+    if (fallback.ok) return fallback.data;
+    if (!shouldRetryAsCharacterBook(fallback.error)) throw new Error(fallback.error);
+  }
+
+  if (shouldRetryAsCharacterBook(primary.error)) {
+    const fallbackItems = primaryItems.map((item) =>
+      item.item_type === "comic" ? { ...item, item_type: "character_book" as const } : item,
     );
     const fallback = await postCheckoutSession(token, fallbackItems);
     if (fallback.ok) return fallback.data;

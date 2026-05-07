@@ -9,7 +9,16 @@ import { buildReaderHref } from "@/src/lib/readerHref";
 
 export interface ComicsCenterSlide {
   image: string;
+  /** Legacy: id for minimal `/reader` link */
   link?: string;
+  /** Full reader URL — used when set (e.g. API-backed covers + PDF query). */
+  href?: string;
+}
+
+function slideHref(slide: ComicsCenterSlide): string {
+  if (slide.href) return slide.href;
+  if (slide.link) return buildReaderHref({ id: slide.link, coverImage: slide.image });
+  return "#";
 }
 
 
@@ -115,7 +124,7 @@ export default function ComicsCenterCarousel({
         {/* Left: hidden on mobile; 28% width md+, only right half visible */}
         <div className="hidden md:block w-[27%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[10px]">
           <Link
-            href={prev.link ? buildReaderHref({ id: prev.link, coverImage: prev.image }) : "#"}
+            href={slideHref(prev)}
             className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand rounded-[10px] overflow-hidden"
             aria-label="Previous comic"
           >
@@ -137,7 +146,7 @@ export default function ComicsCenterCarousel({
         {/* Center: full-width on mobile (single image), 44% on md+. object-cover, maintain aspect ratio. */}
         <div className="w-full md:w-[46%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[12px] z-10 shadow-[0_10px_36px_rgba(0,0,0,0.55)]">
           <Link
-            href={current.link ? buildReaderHref({ id: current.link, coverImage: current.image }) : "#"}
+            href={slideHref(current)}
             className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand rounded-[12px] overflow-hidden"
             aria-label="View current comic"
           >
@@ -156,7 +165,7 @@ export default function ComicsCenterCarousel({
         {/* Right: hidden on mobile; 28% width md+, only left half visible */}
         <div className="hidden md:block w-[27%] h-full min-w-0 flex-shrink-0 overflow-hidden rounded-[10px]">
           <Link
-            href={next.link ? buildReaderHref({ id: next.link, coverImage: next.image }) : "#"}
+            href={slideHref(next)}
             className="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand rounded-[10px] overflow-hidden"
             aria-label="Next comic"
           >

@@ -12,6 +12,8 @@ interface Comic {
   sold?: string;
   tag?: string;
   image: string;
+  /** When set (e.g. API-backed listings), same reader URL as homepage / character featured books. */
+  readerHref?: string;
 }
 
 interface ProductCardProps {
@@ -53,9 +55,12 @@ export default function ProductCard({
     cardWidth ||
     "w-[160px] sm:w-[180px] md:w-[200px] min-w-[160px] sm:min-w-[180px] md:min-w-[200px]";
 
+  const href =
+    comic.readerHref ?? buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title });
+
   return (
     <Link
-      href={buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title })}
+      href={href}
       className={`group relative block flex-shrink-0 overflow-hidden rounded-2xl glass-card aspect-[2/3] ${widthClass} ${
         cardWidth === "w-full" ? "max-w-[340px] min-w-0 mx-auto w-full" : ""
       }`}

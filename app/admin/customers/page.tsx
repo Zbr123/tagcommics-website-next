@@ -5,25 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { fetchCustomers, type Customer } from "@/src/lib/customers-api";
 import { useAuth } from "@/src/hooks/use-auth";
 
-const DUMMY_CUSTOMERS: Customer[] = [
-  {
-    id: "dummy-1",
-    name: "Alex Rivera",
-    email: "alex.rivera@example.com",
-    phone: "+1 555-0123",
-    createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    isAdmin: false,
-  },
-  {
-    id: "dummy-2",
-    name: "Jordan Lee",
-    email: "jordan.lee@example.com",
-    phone: "+1 555-0456",
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    isAdmin: true,
-  },
-];
-
 export default function AdminCustomers() {
   const { token } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -34,14 +15,20 @@ export default function AdminCustomers() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const loadCustomers = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      setCustomers([]);
+      return;
+    }
     setLoading(true);
     setError(null);
-    const result = await fetchCustomers(token ?? undefined);
+    const result = await fetchCustomers(token);
     setLoading(false);
-    if (result.ok && result.data.length > 0) {
+    if (result.ok) {
       setCustomers(result.data);
     } else {
-      setCustomers(DUMMY_CUSTOMERS);
+      setCustomers([]);
+      setError(result.error);
     }
   }, [token]);
 

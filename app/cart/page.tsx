@@ -15,6 +15,16 @@ export default function CartPage() {
   const router = useRouter();
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const resolveCheckoutItemType = (item: (typeof cartItems)[number]) => {
+    if (typeof item.itemType === "string") {
+      const normalized = item.itemType.trim().toLowerCase().replace(/[\s-]+/g, "_");
+      if (normalized === "character_book" || normalized === "characterbook") return "character_book" as const;
+      if (normalized === "comic") return "comic" as const;
+    }
+    // Legacy fallback when older API responses do not provide item_type.
+    if (typeof item.bookType === "string" && item.bookType.trim()) return "character_book" as const;
+    return "comic" as const;
+  };
 
   const handleProceedToCheckout = async () => {
     try {
@@ -23,12 +33,17 @@ export default function CartPage() {
         router.push("/login?redirect=" + encodeURIComponent("/cart"));
         return;
       }
-      const items = cartItems.map((item) => ({
-        item_type:
-          item.itemType ?? (typeof item.bookType === "string" && item.bookType.trim() ? "character_book" : "comic"),
-        item_id: String(item.id),
-        quantity: Math.max(1, Number(item.quantity) || 1),
-      }));
+      const items = cartItems.map((item) => {
+        const checkoutId = String(item.checkoutItemId ?? "").trim();
+        if (!checkoutId) {
+          throw new Error(`Missing product id for cart item "${item.title}". Please refresh cart and try again.`);
+        }
+        return {
+          item_type: resolveCheckoutItemType(item),
+          item_id: checkoutId,
+          quantity: Math.max(1, Number(item.quantity) || 1),
+        };
+      });
 
       setIsCheckingOut(true);
       const session = await createStripeCheckoutSessionForItems({ items, token });
@@ -145,7 +160,7 @@ export default function CartPage() {
               >
                 <div className="flex flex-col sm:flex-row gap-4">
                   {/* Image */}
-                  <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title, pdfUrl: item.pdfUrl, author: item.author, category: item.category, tags: item.tags, bookType: item.bookType })} className="relative w-full sm:w-32 h-48 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0">
+                  <Link href={buildReaderHref({ id: item.checkoutItemId ?? item.id, coverImage: item.image, title: item.title, pdfUrl: item.pdfUrl, author: item.author, category: item.category, tags: item.tags, bookType: item.bookType })} className="relative w-full sm:w-32 h-48 sm:h-40 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden border border-gray-700 shrink-0">
                     <img
                       src={item.image}
                       alt={item.title}
@@ -157,7 +172,7 @@ export default function CartPage() {
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <Link href={buildReaderHref({ id: item.id, coverImage: item.image, title: item.title, pdfUrl: item.pdfUrl, author: item.author, category: item.category, tags: item.tags, bookType: item.bookType })}>
+                        <Link href={buildReaderHref({ id: item.checkoutItemId ?? item.id, coverImage: item.image, title: item.title, pdfUrl: item.pdfUrl, author: item.author, category: item.category, tags: item.tags, bookType: item.bookType })}>
                           <h3 className="text-white font-bold text-lg mb-1 hover:text-brand transition-colors">
                             {item.title}
                           </h3>

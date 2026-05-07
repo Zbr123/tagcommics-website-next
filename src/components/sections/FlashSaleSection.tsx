@@ -1,7 +1,6 @@
 import Link from "next/link";
 import ProductSlider from "../ProductSlider";
 import CountdownTimer from "../CountdownTimer";
-import { buildReaderHref } from "@/src/lib/readerHref";
 
 interface Comic {
   id: string | number;
@@ -10,6 +9,8 @@ interface Comic {
   originalPrice: number;
   discount: number;
   image: string;
+  stockNote: string;
+  readerHref: string;
 }
 
 interface FlashSaleSectionProps {
@@ -19,7 +20,7 @@ interface FlashSaleSectionProps {
 function FlashSaleSlideCard({ comic }: { comic: Comic }) {
   return (
     <Link
-      href={buildReaderHref({ id: comic.id, coverImage: comic.image, title: comic.title })}
+      href={comic.readerHref}
       className="group block w-[min(92vw,300px)] flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 sm:min-w-[260px] sm:w-[min(46vw,300px)] md:w-[280px] lg:w-[300px] xl:w-[308px]"
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-2xl glass-card">
@@ -28,6 +29,9 @@ function FlashSaleSlideCard({ comic }: { comic: Comic }) {
           alt={comic.title}
           className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out opacity-80 group-hover:scale-110 group-hover:opacity-100"
         />
+        <span className="absolute left-2.5 top-2.5 z-10 rounded-lg border border-brand/40 bg-zinc-950/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand">
+          Flash Sale
+        </span>
         <span className="absolute right-2.5 top-2.5 z-10 rounded-lg border border-red-400/40 bg-red-950/90 px-2 py-0.5 text-[11px] font-bold tabular-nums text-red-200">
           -{comic.discount}%
         </span>
@@ -37,6 +41,7 @@ function FlashSaleSlideCard({ comic }: { comic: Comic }) {
         <p className="mt-1.5 flex flex-wrap items-baseline gap-2 text-xs">
           <span className="font-black text-brand">${comic.price}</span>
           <span className="text-zinc-500 line-through">${comic.originalPrice}</span>
+          <span className="w-full text-zinc-500">{comic.stockNote}</span>
         </p>
       </div>
     </Link>

@@ -5,6 +5,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-geist-sans: Arial, Helvetica, sans-serif;
+  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   /* Logo / Multiverse accent — reuse via `text-brand`, `border-brand`, `bg-brand`, etc. */
   --brand: rgb(88, 232, 193);
   --brand-foreground: #050505;

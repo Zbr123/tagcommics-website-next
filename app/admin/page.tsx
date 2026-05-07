@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
+import MetricCard from "@/src/components/admin/MetricCard";
 import SalesHistoryChart from "@/src/components/admin/SalesHistoryChart";
 import OrdersActivityChart from "@/src/components/admin/OrdersActivityChart";
+import { useAuth } from "@/src/hooks/use-auth";
+import { fetchAdminOverview, fetchAdminSales, type AdminSalesPoint } from "@/src/lib/admin-dashboard-api";
 
 export default function AdminDashboard() {
+  const { token } = useAuth();
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalOrders: 0,
@@ -14,19 +18,55 @@ export default function AdminDashboard() {
     pendingOrders: 0,
     lowStock: 0,
   });
+  const [salesData, setSalesData] = useState<AdminSalesPoint[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Simulate loading stats (replace with actual API calls)
   useEffect(() => {
-    // Mock data - replace with actual API calls
-    setStats({
-      totalProducts: 156,
-      totalOrders: 1243,
-      totalRevenue: 45678.90,
-      totalCustomers: 892,
-      pendingOrders: 23,
-      lowStock: 12,
-    });
-  }, []);
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+
+      const [overview, sales] = await Promise.all([
+        fetchAdminOverview(token),
+        fetchAdminSales(token, "month"),
+      ]);
+
+      if (!mounted) return;
+
+      if (overview.ok) {
+        setStats(overview.data);
+      } else {
+        setError(overview.error);
+      }
+
+      if (sales.ok) {
+        setSalesData(sales.data);
+      }
+
+      setLoading(false);
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [token]);
+
+  const ordersChart = useMemo(
+    () => salesData.map((p) => ({ label: p.period, value: p.orders })),
+    [salesData]
+  );
+  const revenueChart = useMemo(
+    () => salesData.map((p) => ({ label: p.period, value: p.revenue })),
+    [salesData]
+  );
 
   const statCards = [
     {
@@ -38,8 +78,8 @@ export default function AdminDashboard() {
         </svg>
       ),
       iconColor: "text-gray-400",
-      change: "+12%",
-      changeColor: "text-emerald-400",
+      subtitle: "Live",
+      accent: "gray" as const,
     },
     {
       title: "Total Orders",
@@ -50,8 +90,8 @@ export default function AdminDashboard() {
         </svg>
       ),
       iconColor: "text-gray-400",
-      change: "+8%",
-      changeColor: "text-emerald-400",
+      subtitle: "Live",
+      accent: "gray" as const,
     },
     {
       title: "Total Revenue",
@@ -62,8 +102,8 @@ export default function AdminDashboard() {
         </svg>
       ),
       iconColor: "text-gray-400",
-      change: "+15%",
-      changeColor: "text-emerald-400",
+      subtitle: "Paid orders",
+      accent: "green" as const,
     },
     {
       title: "Total Customers",
@@ -74,8 +114,8 @@ export default function AdminDashboard() {
         </svg>
       ),
       iconColor: "text-gray-400",
-      change: "+5%",
-      changeColor: "text-emerald-400",
+      subtitle: "Registered customers",
+      accent: "blue" as const,
     },
   ];
 
@@ -86,7 +126,7 @@ export default function AdminDashboard() {
       color: "text-brand",
       bgColor: "bg-brand/10",
       borderColor: "border-brand/30",
-      href: "/admin/orders?status=pending",
+      href: "/admin/orders?status=placed",
     },
     {
       title: "Low Stock Items",
@@ -107,61 +147,25 @@ export default function AdminDashboard() {
         <p className="text-gray-400">Welcome to the admin panel. Here's what's happening with your store.</p>
       </div>
 
+      {error ? (
+        <div className="rounded-xl border border-amber-400/30 bg-amber-950/25 px-4 py-3 text-sm text-amber-100">
+          <p className="font-bold text-amber-200">Could not load live dashboard metrics</p>
+          <p className="mt-1 text-amber-100/90">{error}</p>
+        </div>
+      ) : null}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, index) => (
-          <motion.div
+          <MetricCard
             key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-            whileHover={{ y: -4, scale: 1.02 }}
-            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-800/50 backdrop-blur-sm shadow-xl hover:shadow-2xl hover:border-brand/50 transition-all duration-300"
-          >
-            {/* Yellow gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-brand/20 via-brand/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
-            {/* Content */}
-            <div className="relative p-6">
-              {/* Header with icon and change badge */}
-              <div className="flex items-start justify-between mb-6">
-                <div className={`${stat.iconColor} group-hover:text-brand transition-colors duration-300`}>
-                  {stat.icon}
-                </div>
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: index * 0.1 + 0.2, type: "spring" }}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm`}
-                >
-                  <svg className="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                  <span className={`text-xs font-bold ${stat.changeColor}`}>
-                    {stat.change}
-                  </span>
-                </motion.div>
-              </div>
-
-              {/* Title and Value */}
-              <div className="space-y-2">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider group-hover:text-gray-300 transition-colors duration-300">
-                  {stat.title}
-                </h3>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.1 + 0.3 }}
-                  className="text-3xl font-black text-white tracking-tight group-hover:text-brand transition-colors duration-300"
-                >
-                  {stat.value}
-                </motion.p>
-              </div>
-
-              {/* Yellow bottom accent on hover */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand to-brand-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </div>
-          </motion.div>
+            title={stat.title}
+            value={stat.value}
+            subtitle={stat.subtitle}
+            icon={stat.icon}
+            accent={stat.accent}
+            delay={index * 0.08}
+          />
         ))}
       </div>
 
@@ -214,9 +218,11 @@ export default function AdminDashboard() {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SalesHistoryChart title="Sales History" />
-        <OrdersActivityChart title="Orders Activity" />
+        <SalesHistoryChart title="Sales Revenue" data={revenueChart} unit="Revenue" />
+        <OrdersActivityChart title="Orders Activity" data={ordersChart} />
       </div>
+
+      {loading ? <p className="text-sm text-gray-500">Refreshing dashboard metrics...</p> : null}
 
       {/* Quick Actions */}
       <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-800 p-6">

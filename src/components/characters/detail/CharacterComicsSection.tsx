@@ -36,8 +36,11 @@ function ComicCard({ comic }: { comic: CharacterComic }) {
       : undefined;
 
   const handleAddToCart = () => {
+    const productId = comic.catalogComicId ?? comic.id;
+    const itemType: PurchasableItemType =
+      typeof comic.bookType === "string" && comic.bookType.trim() ? "character_book" : "comic";
     addToCart({
-      id: comic.id,
+      id: productId,
       title: comic.title,
       author: comic.author || "Unknown",
       price,
@@ -47,6 +50,7 @@ function ComicCard({ comic }: { comic: CharacterComic }) {
       category: comic.category,
       tags: comic.tags,
       bookType: comic.bookType,
+      itemType,
     });
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2000);
@@ -61,10 +65,11 @@ function ComicCard({ comic }: { comic: CharacterComic }) {
       }
       const itemType: PurchasableItemType =
         typeof comic.bookType === "string" && comic.bookType.trim() ? "character_book" : "comic";
+      const productId = comic.catalogComicId ?? comic.id;
       setIsPurchasing(true);
       const session = await createStripeCheckoutSession({
         itemType,
-        itemId: String(comic.id),
+        itemId: String(productId),
         quantity: 1,
         token,
       });
