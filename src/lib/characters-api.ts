@@ -61,7 +61,7 @@ function getToken(): string | null {
 // Types
 // ============================================
 
-export type CharacterAlignment = "hero" | "villain" | "anti-hero" | "entity";
+export type CharacterAlignment = string;
 
 export interface Character {
   character_id: string;
@@ -349,6 +349,12 @@ export async function createCharacter(
   const token = getToken();
   if (!token) {
     return { success: false, error: "No authentication token" };
+  }
+  if (!payload.cover_image) {
+    return { success: false, error: "Cover image is required." };
+  }
+  if (!payload.lore_items) {
+    return { success: false, error: "At least one lore item is required." };
   }
 
   try {

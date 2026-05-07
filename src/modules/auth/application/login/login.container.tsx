@@ -41,11 +41,17 @@ export function LoginFormContainer() {
         id: payload.user_id,
         name: payload.name,
         email: payload.email,
+        isAdmin: Boolean(payload.is_admin),
       };
 
-      return { token, authUser };
+      return { token, authUser, isAdmin: Boolean(payload.is_admin) };
     },
-    onSuccess: ({ token, authUser }) => {
+    onSuccess: ({ token, authUser, isAdmin }) => {
+      const isAdminRoute = redirectTo.startsWith("/admin");
+      if (isAdminRoute && !isAdmin) {
+        setError("Only admin accounts can access the admin panel.");
+        return;
+      }
       setError(null);
       login(token, authUser);
       router.push(redirectTo);

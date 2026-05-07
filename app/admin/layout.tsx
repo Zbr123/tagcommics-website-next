@@ -21,10 +21,10 @@ export default function AdminLayout({
   const { user, logout, isLoaded } = useAuth();
   const displayName = user?.name?.trim() ?? "";
 
-  // Redirect unauthenticated users to login (preserve target via `redirect` param)
+  // Redirect non-admin users to login (preserve target via `redirect` param)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (isLoaded && !user) {
+    if (isLoaded && (!user || !user.isAdmin)) {
       const target = pathname || "/admin";
       router.push(`/login?redirect=${encodeURIComponent(target)}`);
     }
@@ -99,7 +99,7 @@ export default function AdminLayout({
     );
   }
 
-  if (!user) {
+  if (!user || !user.isAdmin) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-white">Redirecting to login...</div>
     );

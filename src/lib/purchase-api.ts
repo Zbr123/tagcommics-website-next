@@ -1,10 +1,12 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+const API_ORIGIN = BASE_URL.replace(/\/api\/v1\/?$/, "");
 
 export type PurchasableItemType = "comic" | "character_book";
 
 interface ApiEnvelope<T> {
   message?: string;
   data?: T;
+  hasAccess?: boolean;
 }
 
 export interface CheckoutSessionData {
@@ -14,14 +16,35 @@ export interface CheckoutSessionData {
 
 export interface LibraryItem {
   id: string;
+  library_item_id: string;
   title: string;
   item_type: PurchasableItemType;
+  author?: string;
+  category?: string;
+  tags?: string[] | string;
+  book_type?: string;
   image_url?: string;
   pdf_url?: string;
 }
 
 function getApiUrl(path: string): string {
   return `${BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+function resolveLibraryImageUrl(path: string | undefined): string | undefined {
+  if (!path) return undefined;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (path.startsWith("/api/")) return `${API_ORIGIN}${path}`;
+  if (path.startsWith("/")) return `${API_ORIGIN}${path}`;
+  return `${BASE_URL}/uploads/comics/images/${path}`;
+}
+
+function resolveLibraryPdfUrl(path: string | undefined): string | undefined {
+  if (!path) return undefined;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (path.startsWith("/api/")) return `${API_ORIGIN}${path}`;
+  if (path.startsWith("/")) return `${API_ORIGIN}${path}`;
+  return `${BASE_URL}/uploads/comics/pdfs/${path}`;
 }
 
 export function readStoredAuthToken(): string | null {
@@ -178,20 +201,36 @@ function mapLibraryItem(raw: unknown): LibraryItem | null {
   if (!raw || typeof raw !== "object") return null;
   const row = raw as Record<string, unknown>;
   const itemType = row.item_type === "character_book" ? "character_book" : "comic";
-  const idCandidate = row.item_id ?? row.id;
-  if (typeof idCandidate !== "string" && typeof idCandidate !== "number") return null;
+  const productIdCandidate =
+    itemType === "character_book"
+      ? (row.character_book_id ?? row.item_id ?? row.id)
+      : (row.comic_id ?? row.item_id ?? row.id);
+  if (typeof productIdCandidate !== "string" && typeof productIdCandidate !== "number") return null;
+  const libraryItemId = row.id;
+  const normalizedLibraryItemId =
+    typeof libraryItemId === "string" || typeof libraryItemId === "number"
+      ? String(libraryItemId)
+      : String(productIdCandidate);
   const title =
     typeof row.title === "string"
       ? row.title
       : typeof row.item_title === "string"
         ? row.item_title
         : "Untitled";
+  const rawImage =
+    typeof row.image_url === "string" ? row.image_url : typeof row.image === "string" ? row.image : undefined;
+  const rawPdf = typeof row.pdf_url === "string" ? row.pdf_url : undefined;
   return {
-    id: String(idCandidate),
+    id: String(productIdCandidate),
+    library_item_id: normalizedLibraryItemId,
     title,
     item_type: itemType,
-    image_url: typeof row.image_url === "string" ? row.image_url : undefined,
-    pdf_url: typeof row.pdf_url === "string" ? row.pdf_url : undefined,
+    author: typeof row.author === "string" ? row.author : undefined,
+    category: typeof row.category === "string" ? row.category : undefined,
+    tags: Array.isArray(row.tags) || typeof row.tags === "string" ? (row.tags as string[] | string) : undefined,
+    book_type: typeof row.book_type === "string" ? row.book_type : undefined,
+    image_url: resolveLibraryImageUrl(rawImage),
+    pdf_url: resolveLibraryPdfUrl(rawPdf),
   };
 }
 
@@ -225,6 +264,7 @@ export async function checkLibraryAccess(params: {
   if (!res.ok) throw new Error(await readErrorMessage(res));
 
   const body = (await res.json()) as ApiEnvelope<{ access?: boolean }>;
+  if (typeof body?.hasAccess === "boolean") return body.hasAccess;
   return Boolean(body?.data?.access);
 }
 
@@ -234,8 +274,21 @@ export async function checkLibraryAccessByPdfUrl(params: {
   token?: string | null;
 }): Promise<boolean> {
   const authToken = resolveToken(params.token);
+  const rawPdfUrl = String(params.pdfUrl || "").trim();
+  const normalizedPdfUrl = (() => {
+    if (!rawPdfUrl) return rawPdfUrl;
+    try {
+      const parsed = new URL(rawPdfUrl);
+      const pathname = parsed.pathname;
+      const segments = pathname.split("/").filter(Boolean);
+      return segments.length ? segments[segments.length - 1]! : rawPdfUrl;
+    } catch {
+      const segments = rawPdfUrl.split("/").filter(Boolean);
+      return segments.length ? segments[segments.length - 1]! : rawPdfUrl;
+    }
+  })();
   const query = new URLSearchParams({
-    pdf_url: params.pdfUrl,
+    pdf_url: normalizedPdfUrl,
     customer_id: params.customerId,
   }).toString();
   const res = await fetch(getApiUrl(`/library/check-access?${query}`), {
@@ -245,5 +298,6 @@ export async function checkLibraryAccessByPdfUrl(params: {
   if (!res.ok) throw new Error(await readErrorMessage(res));
 
   const body = (await res.json()) as ApiEnvelope<{ access?: boolean }>;
+  if (typeof body?.hasAccess === "boolean") return body.hasAccess;
   return Boolean(body?.data?.access);
 }

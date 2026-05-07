@@ -55,10 +55,10 @@ export default function Footer() {
             className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-2 md:justify-end"
             aria-label="Legal"
           >
-            <Link href="/" className={legalLinkClass}>
+            <Link href="/privacy" className={legalLinkClass}>
               Privacy
             </Link>
-            <Link href="/" className={legalLinkClass}>
+            <Link href="/terms" className={legalLinkClass}>
               Terms
             </Link>
             <Link href="/design-team" className={legalLinkClass}>

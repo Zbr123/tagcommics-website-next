@@ -11,7 +11,13 @@ import { READER_DEFAULT_TITLE } from "./readerConstants";
 import type { ComicReaderData } from "@/src/data/comicReaderData";
 import { useCart } from "@/src/hooks/use-cart";
 import { useAuth } from "@/src/hooks/use-auth";
-import { checkLibraryAccessByPdfUrl, createStripeCheckoutSession, readStoredAuthToken, type PurchasableItemType } from "@/src/lib/purchase-api";
+import {
+  checkLibraryAccess,
+  checkLibraryAccessByPdfUrl,
+  createStripeCheckoutSession,
+  readStoredAuthToken,
+  type PurchasableItemType,
+} from "@/src/lib/purchase-api";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
@@ -107,6 +113,11 @@ function LockedScreen({
   );
 }
 
+function sanitizeDownloadFilename(raw: string, fallback = "comic"): string {
+  const base = raw.trim().replace(/[/\\?%*:|"<>]/g, "-").slice(0, 80);
+  return base || fallback;
+}
+
 export default function ReaderExperience({ comicData, pdfPath, title = READER_DEFAULT_TITLE, subtitle, coverImage }: ReaderExperienceProps) {
   const { user } = useAuth();
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -129,6 +140,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   const [justAdded, setJustAdded] = useState(false);
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [downloadBusy, setDownloadBusy] = useState(false);
 
   const readerTitle = comicData?.title?.trim() || title;
   const effectivePdfPath = comicData?.pdfUrl || pdfPath;
@@ -136,10 +148,59 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   const previewPages = comicData?.previewPages || (singlePreviewPage ? [singlePreviewPage, singlePreviewPage] : []);
   const hasPreview = previewPages.length > 0;
   const isPreviewMode = !hasAccess;
-  const maxPreview = MAX_PREVIEW_PAGES;
+  const previewPageCount = useMemo(() => {
+    if (!isPreviewMode) return 0;
+    if (!comicData) return MAX_PREVIEW_PAGES;
+    if (previewPages.length > 0) return previewPages.length;
+    if (numPages != null && numPages > 0 && effectivePdfPath) return Math.min(MAX_PREVIEW_PAGES, numPages);
+    return 1;
+  }, [isPreviewMode, comicData, previewPages.length, numPages, effectivePdfPath]);
 
   const sidebarItems = useMemo<SidebarItem[]>(() => {
     if (!comicData) return CHAPTERS;
+
+    const baseTitle = comicData.title?.trim() || readerTitle;
+    const metaBlurb =
+      [comicData.author?.trim(), comicData.category?.trim()].filter(Boolean).join(" · ") || "Digital comic";
+
+    if (hasAccess && numPages != null && numPages > 0) {
+      return Array.from({ length: numPages }, (_, i) => {
+        const page = i + 1;
+        return {
+          id: `pdf-page-${page}`,
+          page,
+          label: String(page).padStart(2, "0"),
+          title: `${baseTitle}`,
+          blurb: `Page ${page} of ${numPages}`,
+        };
+      });
+    }
+
+    if (isPreviewMode && previewPages.length > 0) {
+      const count = previewPages.length;
+      return previewPages.map((_, idx) => ({
+        id: `preview-${idx}`,
+        page: idx + 1,
+        label: String(idx + 1).padStart(2, "0"),
+        title: `Preview ${idx + 1}`,
+        blurb: count > 1 ? `${metaBlurb} · Sample ${idx + 1}/${count}` : `${metaBlurb} · Sample`,
+      }));
+    }
+
+    if (isPreviewMode && numPages != null && numPages > 0 && effectivePdfPath) {
+      const capped = Math.min(MAX_PREVIEW_PAGES, numPages);
+      return Array.from({ length: capped }, (_, idx) => {
+        const page = idx + 1;
+        return {
+          id: `preview-pdf-${page}`,
+          page,
+          label: String(page).padStart(2, "0"),
+          title: baseTitle || READER_DEFAULT_TITLE,
+          blurb: `PDF preview · page ${page} of ${capped}`,
+        };
+      });
+    }
+
     const blurbParts = [comicData.author?.trim(), comicData.category?.trim()].filter(Boolean);
     return [
       {
@@ -150,7 +211,15 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
         blurb: blurbParts.length > 0 ? blurbParts.join(" · ") : "Digital comic",
       },
     ];
-  }, [comicData]);
+  }, [
+    comicData,
+    hasAccess,
+    isPreviewMode,
+    numPages,
+    previewPages,
+    effectivePdfPath,
+    readerTitle,
+  ]);
 
   const creatorName = comicData?.author?.trim() || "Unknown";
   const creatorRole = "Author";
@@ -206,28 +275,84 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   const safeCurrentPage = useMemo(() => numPages ? Math.min(Math.max(currentPage, 1), numPages) : 1, [numPages, currentPage]);
 
   const activeChapterIndex = useMemo(() => {
-    const idx = sidebarItems.findIndex((c) => c.id === activeChapterId);
-    return idx >= 0 ? idx : 0;
-  }, [activeChapterId, sidebarItems]);
+    if (!comicData) {
+      const idx = sidebarItems.findIndex((c) => c.id === activeChapterId);
+      return idx >= 0 ? idx : 0;
+    }
+    if (hasAccess && numPages != null && numPages > 0 && sidebarItems.length > 0) {
+      return Math.min(Math.max(safeCurrentPage - 1, 0), sidebarItems.length - 1);
+    }
+    if (isPreviewMode && sidebarItems.length > 0) {
+      return Math.min(Math.max(previewIndex, 0), sidebarItems.length - 1);
+    }
+    return 0;
+  }, [
+    comicData,
+    sidebarItems,
+    activeChapterId,
+    hasAccess,
+    numPages,
+    safeCurrentPage,
+    isPreviewMode,
+    previewIndex,
+  ]);
+
+  const navigateSidebarItem = useCallback(
+    (item: SidebarItem) => {
+      if (!comicData) {
+        if (isPreviewMode) setShowLocked(true);
+        else if (numPages) {
+          setCurrentPage(Math.min(item.page, numPages));
+          setActiveChapterId(item.id);
+        }
+        return;
+      }
+      if (isPreviewMode) {
+        if (item.id === "issue-main") {
+          setPreviewIndex(0);
+          setShowLocked(false);
+          return;
+        }
+        const pdfPrev = /^preview-pdf-(\d+)$/.exec(item.id);
+        if (pdfPrev) {
+          const p = Number(pdfPrev[1]);
+          setPreviewIndex(Math.max(0, p - 1));
+          setShowLocked(false);
+          return;
+        }
+        const imgPrev = /^preview-(\d+)$/.exec(item.id);
+        if (imgPrev) {
+          setPreviewIndex(Number(imgPrev[1]));
+          setShowLocked(false);
+          return;
+        }
+        setShowLocked(true);
+        return;
+      }
+      if (numPages) setCurrentPage(Math.min(item.page, numPages));
+    },
+    [comicData, isPreviewMode, numPages],
+  );
 
   const goBackInReadingOrder = useCallback(() => {
     if (isPreviewMode) {
       if (showLocked) {
         setShowLocked(false);
-        setPreviewIndex(Math.max(0, maxPreview - 1));
+        setPreviewIndex(Math.max(0, previewPageCount > 0 ? previewPageCount - 1 : 0));
       } else {
         setPreviewIndex((p) => Math.max(0, p - 1));
       }
     }
     else if (numPages) setCurrentPage((p) => Math.max(1, p - 1));
-  }, [isPreviewMode, numPages, showLocked, maxPreview]);
+  }, [isPreviewMode, numPages, showLocked, previewPageCount]);
 
   const goForwardInReadingOrder = useCallback(() => {
     if (isPreviewMode) {
-      if (previewIndex >= MAX_PREVIEW_PAGES - 1) setShowLocked(true);
+      const last = Math.max(0, previewPageCount - 1);
+      if (previewIndex >= last) setShowLocked(true);
       else setPreviewIndex((p) => p + 1);
     } else if (numPages) setCurrentPage((p) => Math.min(numPages, p + 1));
-  }, [isPreviewMode, previewIndex, numPages]);
+  }, [isPreviewMode, previewIndex, numPages, previewPageCount]);
 
   useLayoutEffect(() => {
     const el = pdfViewportRef.current;
@@ -297,6 +422,38 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
 
   const file = useMemo(() => effectivePdfPath ? fileUrl(effectivePdfPath) : null, [effectivePdfPath]);
   const canDownload = !!effectivePdfPath && hasAccess;
+  const handleDownloadPdf = useCallback(async () => {
+    if (!effectivePdfPath || !hasAccess) return;
+    const url = fileUrl(effectivePdfPath);
+    const name = sanitizeDownloadFilename(readerTitle || READER_DEFAULT_TITLE) + ".pdf";
+    const token = readStoredAuthToken();
+    setDownloadBusy(true);
+    try {
+      const headers = new Headers();
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+      const res = await fetch(url, { credentials: "include", headers });
+      if (!res.ok) throw new Error(`Download failed (${res.status})`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = name;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2500);
+    } catch (e) {
+      console.error("[ReaderExperience] PDF download fallback", e);
+      const open = typeof window !== "undefined" ? window.open(url, "_blank", "noopener,noreferrer") : null;
+      if (!open && typeof window !== "undefined") {
+        window.location.assign(url);
+      }
+    } finally {
+      setDownloadBusy(false);
+    }
+  }, [effectivePdfPath, hasAccess, readerTitle]);
+
   const handleBackToComics = () => router.push("/");
   const handleAddToCart = useCallback(() => {
     if (!comicData) return;
@@ -376,7 +533,10 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   useEffect(() => {
     let cancelled = false;
     const token = readStoredAuthToken();
-    if (!comicData?.pdfUrl || !user?.id) {
+    const itemId = comicData?.itemId || comicData?.slug;
+    const itemType: PurchasableItemType =
+      comicData?.itemType ?? (comicData?.bookType ? "character_book" : "comic");
+    if (!itemId && !comicData?.pdfUrl) {
       setHasAccess(false);
       setAccessResolved(true);
       setAccessError(null);
@@ -390,7 +550,26 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
     }
     setAccessResolved(false);
     setAccessError(null);
-    checkLibraryAccessByPdfUrl({ pdfUrl: comicData.pdfUrl, customerId: String(user.id), token })
+
+    const checkAccess = async () => {
+      // Current backend contract validates by pdf_url + customer_id.
+      if (comicData?.pdfUrl && user?.id) {
+        const pdfAccess = await checkLibraryAccessByPdfUrl({
+          pdfUrl: comicData.pdfUrl,
+          customerId: String(user.id),
+          token,
+        });
+        if (pdfAccess) return true;
+      }
+
+      // Fallback for newer backend versions that support item_type + item_id.
+      if (itemId) {
+        return checkLibraryAccess({ itemType, itemId: String(itemId), token });
+      }
+      return false;
+    };
+
+    checkAccess()
       .then((access) => {
         if (cancelled) return;
         setHasAccess(access);
@@ -436,8 +615,14 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
               ) : null}
             </Link>
             {canDownload ? (
-              <button type="button" className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/20 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/30 sm:px-4 sm:text-[11px]">
-                <i className="fa-solid fa-download text-[11px]" aria-hidden />Download PDF
+              <button
+                type="button"
+                disabled={downloadBusy}
+                onClick={() => void handleDownloadPdf()}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/20 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/30 disabled:opacity-60 sm:px-4 sm:text-[11px]"
+              >
+                <i className="fa-solid fa-download text-[11px]" aria-hidden />
+                {downloadBusy ? "Preparing..." : "Download PDF"}
               </button>
             ) : (
               <>
@@ -464,16 +649,18 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
         <aside className="hidden w-[min(100%,260px)] shrink-0 border-white/10 bg-black/50 backdrop-blur-2xl lg:block lg:border-r">
           <div className="flex h-[calc(100dvh-3.5rem)] flex-col overflow-y-auto p-5">
             <p className="font-serif text-xl font-semibold text-white">Contents</p>
-            <p className="mt-1 text-xs text-zinc-400">{isPreviewMode ? "Preview — tap to jump." : "Chapters — tap to jump."}</p>
+            <p className="mt-1 text-xs text-zinc-400">
+              {sidebarItems.length > 5
+                ? `${sidebarItems.length} entries — tap to jump.`
+                : isPreviewMode
+                  ? comicData ? "Preview — tap sample to jump." : "Preview — tap to jump."
+                  : "Pages — tap to jump."}
+            </p>
             <div className="mt-6 space-y-1 border-t border-white/10 pt-5">
               {sidebarItems.map((item, idx) => {
                 const isActive = idx === activeChapterIndex;
                 return (
-                  <button key={item.id} type="button" onClick={() => {
-                    if (isPreviewMode) {
-                      setShowLocked(true);
-                    } else if (numPages) { setCurrentPage(Math.min(item.page, numPages)); setActiveChapterId(item.id); }
-                  }} className={`flex w-full flex-col gap-1 rounded-xl border px-3 py-2.5 text-left transition ${isActive ? "border-brand/45 bg-brand/10 shadow-[0_0_20px_rgba(88,232,193,0.12)]" : "border-transparent hover:border-white/10 hover:bg-white/5"}`}>
+                  <button key={item.id} type="button" onClick={() => navigateSidebarItem(item)} className={`flex w-full flex-col gap-1 rounded-xl border px-3 py-2.5 text-left transition ${isActive ? "border-brand/45 bg-brand/10 shadow-[0_0_20px_rgba(88,232,193,0.12)]" : "border-transparent hover:border-white/10 hover:bg-white/5"}`}>
                     <div className="flex justify-between gap-2 text-[10px] text-zinc-400">
                       <span className="font-bold text-zinc-300">{item.label}</span>
                       <span>Pg. {String(item.page).padStart(3, "0")}</span>
@@ -557,7 +744,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
             {purchaseError ? <p className="mt-2 text-center text-xs text-red-300">{purchaseError}</p> : null}
 
             <p className="mt-6 shrink-0 text-center text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-400">
-              {isPreviewMode ? (<>Preview <span className="text-white">{previewIndex + 1}</span> / <span className="tabular-nums">{maxPreview}</span> <span className="ml-2 text-zinc-500">(Sample)</span></>) : (<>Page <span className="text-white">{numPages ? safeCurrentPage : "—"}</span>{numPages ? <><span> / </span><span className="tabular-nums">{numPages}</span></> : null}</>)}
+              {isPreviewMode ? (<>Preview <span className="text-white">{previewIndex + 1}</span> / <span className="tabular-nums">{Math.max(previewPageCount, 1)}</span> <span className="ml-2 text-zinc-500">(Sample)</span></>) : (<>Page <span className="text-white">{numPages ? safeCurrentPage : "—"}</span>{numPages ? <><span> / </span><span className="tabular-nums">{numPages}</span></> : null}</>)}
             </p>
           </div>
         </main>
@@ -588,14 +775,26 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
               </div>
             ) : null}
             <div className="mt-auto border-t border-white/10 pt-5">
-              <div className="space-y-2">
-                <button type="button" onClick={handleAddToCart} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/10 py-3 text-xs font-black uppercase tracking-wide text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/20">
-                  <i className="fa-solid fa-bag-shopping" aria-hidden />Add to Cart
+              {canDownload ? (
+                <button
+                  type="button"
+                  disabled={downloadBusy}
+                  onClick={() => void handleDownloadPdf()}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/20 py-3 text-xs font-black uppercase tracking-wide text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/30 disabled:opacity-60"
+                >
+                  <i className="fa-solid fa-download" aria-hidden />
+                  {downloadBusy ? "Preparing..." : "Download PDF"}
                 </button>
-                <button type="button" onClick={handlePurchaseNow} disabled={isPurchasing} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand py-3 text-xs font-black uppercase tracking-wide text-brand-foreground backdrop-blur-sm transition hover:bg-brand/90 disabled:opacity-70">
-                  <i className="fa-solid fa-bolt" aria-hidden />{isPurchasing ? "Processing..." : "Purchase Now"}
-                </button>
-              </div>
+              ) : (
+                <div className="space-y-2">
+                  <button type="button" onClick={handleAddToCart} disabled={!comicData} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/10 py-3 text-xs font-black uppercase tracking-wide text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/20 disabled:pointer-events-none disabled:opacity-40">
+                    <i className="fa-solid fa-bag-shopping" aria-hidden />Add to Cart
+                  </button>
+                  <button type="button" onClick={handlePurchaseNow} disabled={isPurchasing} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand py-3 text-xs font-black uppercase tracking-wide text-brand-foreground backdrop-blur-sm transition hover:bg-brand/90 disabled:opacity-70">
+                    <i className="fa-solid fa-bolt" aria-hidden />{isPurchasing ? "Processing..." : "Purchase Now"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </aside>
@@ -613,7 +812,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
             <button type="button" className={readerBarRoundBtn} aria-label="Zoom in" disabled={clampedZoom >= ZOOM_MAX} onClick={() => setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP))}><span className="text-[1.45rem] font-semibold leading-none" aria-hidden>+</span></button>
           </div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-400">
-            {isPreviewMode ? (<>Preview <span className="text-white">{previewIndex + 1}</span> / <span className="tabular-nums">{maxPreview}</span></>) : (<>Page <span className="text-white">{numPages ? safeCurrentPage : "—"}</span>{numPages ? <span className="text-zinc-500"> / {numPages}</span> : null}</>)}
+            {isPreviewMode ? (<>Preview <span className="text-white">{previewIndex + 1}</span> / <span className="tabular-nums">{Math.max(previewPageCount, 1)}</span></>) : (<>Page <span className="text-white">{numPages ? safeCurrentPage : "—"}</span>{numPages ? <span className="text-zinc-500"> / {numPages}</span> : null}</>)}
           </p>
         </div>
       </div>
@@ -627,8 +826,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
           <div className="flex-1 overflow-y-auto p-4">
             {sidebarItems.map((item) => (
               <button key={item.id} type="button" className="mb-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left backdrop-blur-sm transition hover:border-brand/35 hover:bg-white/10" onClick={() => {
-                if (isPreviewMode) setShowLocked(true);
-                else if (numPages) setCurrentPage(Math.min(item.page, numPages));
+                navigateSidebarItem(item);
                 setTocOpen(false);
               }}>
                 <span className="text-xs text-zinc-400">{item.label} · Pg. {String(item.page).padStart(3, "0")}</span>

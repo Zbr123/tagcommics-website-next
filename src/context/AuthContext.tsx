@@ -51,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: payload.user_id,
         name: payload.name,
         email: payload.email,
+        isAdmin: Boolean(payload.is_admin),
       };
       setUserState(authUser);
       setToken(stored.token);

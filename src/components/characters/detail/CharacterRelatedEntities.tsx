@@ -26,7 +26,7 @@ export default function CharacterRelatedEntities({ entities }: { entities: Relat
           <Link
             key={e.slug}
             href={`/characters/${e.slug}`}
-            className="group flex w-[5.4rem] shrink-0 flex-col items-center text-center"
+            className="group flex w-[5.4rem] shrink-0 flex-col items-start text-left"
           >
             <div className="relative">
               <div

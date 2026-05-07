@@ -61,7 +61,18 @@ export default async function ReaderSessionPage({
   const numericId = parseInt(id, 10);
   const comic = !isNaN(numericId) ? getReaderComic(numericId) : undefined;
 
-  if (selectedCover) {
+  const hasQueryBackedReaderData = Boolean(
+    selectedCover ||
+      selectedTitle ||
+      selectedPdf ||
+      selectedAuthor ||
+      selectedCategory ||
+      selectedTags ||
+      selectedBookType,
+  );
+
+  if (hasQueryBackedReaderData) {
+    const resolvedCover = selectedCover || comic?.coverImage || "/comic-slider1.png";
     return (
       <ReaderExperienceDynamic
         comicData={{
@@ -69,8 +80,8 @@ export default async function ReaderSessionPage({
           itemId: String(id),
           itemType: selectedBookType ? "character_book" : "comic",
           title: selectedTitle || comic?.title || READER_DEFAULT_TITLE,
-          coverImage: selectedCover,
-          previewPages: selectedPdf ? [] : buildPreviewPages(selectedCover),
+          coverImage: resolvedCover,
+          previewPages: selectedPdf ? [] : buildPreviewPages(resolvedCover),
           pdfUrl: selectedPdf || comic?.pdfUrl,
           isPurchased: false,
           price: Number.isFinite(selectedPrice) ? selectedPrice : undefined,

@@ -145,21 +145,21 @@ function ComicCard({ comic }: { comic: CharacterComic }) {
         <button
           type="button"
           onClick={handleAddToCart}
-          className="mt-4 inline-flex w-full items-center justify-center rounded-full border border-white/18 bg-zinc-900/85 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] text-zinc-200 transition hover:border-brand/50 hover:bg-zinc-800 hover:text-brand active:scale-[0.99]"
+          className="mt-4 inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-white/16 bg-zinc-900/90 px-4 text-[11px] font-black uppercase tracking-[0.16em] text-zinc-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/45 hover:bg-zinc-800 hover:text-brand hover:shadow-[0_0_20px_rgba(88,232,193,0.12)] active:translate-y-0 active:scale-[0.99]"
         >
           Add to Cart
         </button>
         <button
           type="button"
           onClick={handlePurchaseNow}
-          className="mt-4 inline-flex w-full items-center justify-center rounded-full border border-brand/45 bg-brand/10 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] text-brand transition hover:border-brand hover:bg-brand hover:text-brand-foreground hover:shadow-[0_0_28px_rgba(88,232,193,0.35)] active:scale-[0.99]"
+          className="mt-3 inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-brand/45 bg-gradient-to-r from-brand/15 to-brand/10 px-4 text-[11px] font-black uppercase tracking-[0.16em] text-brand transition-all duration-300 hover:-translate-y-0.5 hover:border-brand hover:from-brand hover:to-[#35c5de] hover:text-brand-foreground hover:shadow-[0_0_30px_rgba(88,232,193,0.35)] active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none"
           disabled={isPurchasing}
         >
           {isPurchasing ? "Processing..." : "Purchase Now"}
         </button>
         <Link
           href={readHref}
-          className="mt-4 inline-flex w-full items-center justify-center rounded-full border border-white/15 bg-zinc-900/70 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] text-zinc-300 transition hover:border-white/30 hover:bg-zinc-800"
+          className="mt-3 inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl border border-white/14 bg-[#0d131b] px-4 text-[11px] font-black uppercase tracking-[0.16em] text-zinc-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/30 hover:bg-zinc-800 hover:text-white active:translate-y-0"
         >
           Read Preview
         </Link>

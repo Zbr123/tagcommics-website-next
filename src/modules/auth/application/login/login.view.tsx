@@ -135,15 +135,17 @@ export default function LoginFormView({
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-400">
-            Don&apos;t have an account?{" "}
-            <Link
-              href={redirectTo !== "/" ? `/signup?redirect=${encodeURIComponent(redirectTo)}` : "/signup"}
-              className="font-bold text-[#58E8C1] transition-colors hover:text-cyan-300"
-            >
-              Sign up
-            </Link>
-          </p>
+          {redirectTo && redirectTo.startsWith("/admin") ? null : (
+            <p className="mt-6 text-center text-sm text-gray-400">
+              Don&apos;t have an account?{" "}
+              <Link
+                href={redirectTo !== "/" ? `/signup?redirect=${encodeURIComponent(redirectTo)}` : "/signup"}
+                className="font-bold text-[#58E8C1] transition-colors hover:text-cyan-300"
+              >
+                Sign up
+              </Link>
+            </p>
+          )}
         </div>
       </div>
     </div>

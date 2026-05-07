@@ -200,11 +200,11 @@ export default function SignupFormView({
                 />
                 <span className="text-sm text-gray-400 group-hover:text-gray-300">
                   I agree to the{" "}
-                  <Link href="" className="text-[#58E8C1] transition-colors hover:text-cyan-300">
+                  <Link href="/terms" className="text-[#58E8C1] transition-colors hover:text-cyan-300">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link href="" className="text-[#58E8C1] transition-colors hover:text-cyan-300">
+                  <Link href="/privacy" className="text-[#58E8C1] transition-colors hover:text-cyan-300">
                     Privacy Policy
                   </Link>
                   .

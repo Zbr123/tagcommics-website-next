@@ -7,6 +7,7 @@ import SettingsSectionCard from "@/src/components/account/SettingsSectionCard";
 import UniverseHeroCard from "@/src/components/account/UniverseHeroCard";
 import { useAuth } from "@/src/hooks/use-auth";
 import { fetchLibrary, type LibraryItem } from "@/src/lib/purchase-api";
+import { buildReaderHref } from "@/src/lib/readerHref";
 
 export default function AccountPage() {
   const router = useRouter();
@@ -76,11 +77,16 @@ export default function AccountPage() {
                     <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{item.item_type}</p>
                   </div>
                   <Link
-                    href={
-                      `/reader/${encodeURIComponent(item.id)}?title=${encodeURIComponent(item.title)}${
-                        item.item_type === "character_book" ? "&bookType=character_book" : ""
-                      }`
-                    }
+                    href={buildReaderHref({
+                      id: item.id,
+                      title: item.title,
+                      coverImage: item.image_url,
+                      pdfUrl: item.pdf_url,
+                      author: item.author,
+                      category: item.category,
+                      tags: item.tags,
+                      bookType: item.item_type === "character_book" ? item.book_type || "character_book" : undefined,
+                    })}
                     className="rounded-lg border border-white/12 px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-zinc-300 transition hover:border-[#58E8C1]/35 hover:text-white"
                   >
                     Open

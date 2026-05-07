@@ -7,19 +7,16 @@ import { useAuth } from "@/src/hooks/use-auth";
 
 console.log("[AdminCharacters] Module loaded");
 
-const ALIGNMENTS: { value: CharacterAlignment; label: string }[] = [
-  { value: "hero", label: "Hero" },
-  { value: "villain", label: "Villain" },
-  { value: "anti-hero", label: "Anti-Hero" },
-  { value: "entity", label: "Entity" },
-];
-
-const ALIGNMENT_COLORS: Record<CharacterAlignment, string> = {
-  "hero": "bg-green-500/20 text-green-400 border-green-500/30",
-  "villain": "bg-red-500/20 text-red-400 border-red-500/30",
-  "anti-hero": "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  "entity": "bg-blue-500/20 text-blue-400 border-blue-500/30",
-};
+function getAlignmentBadgeClass(alignment: string): string {
+  const normalized = alignment.trim().toLowerCase();
+  if (normalized === "hero") return "bg-green-500/20 text-green-400 border-green-500/30";
+  if (normalized === "villain") return "bg-red-500/20 text-red-400 border-red-500/30";
+  if (normalized === "anti-hero" || normalized === "anti_hero") {
+    return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+  }
+  if (normalized === "entity") return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+  return "bg-gray-500/20 text-gray-300 border-gray-500/30";
+}
 
 interface LoreItemInput {
   id?: string;
@@ -59,7 +56,7 @@ const EMPTY_FORM: FormData = {
   tags: "",
   first_appearance: "",
   creator: "",
-  alignment: "hero",
+  alignment: "",
   cover_image: null,
   cover_image_preview: "",
   universe: "",
@@ -83,7 +80,7 @@ export default function AdminCharacters() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterAlignment, setFilterAlignment] = useState<string>("All");
+  const [filterAlignment, setFilterAlignment] = useState<string>("");
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   console.log("[AdminCharacters] authToken:", authToken, "isLoaded:", isLoaded);
@@ -181,13 +178,36 @@ export default function AdminCharacters() {
       setFormError("Creator is required");
       return;
     }
+    if (!formData.alignment.trim()) {
+      setFormError("Alignment is required");
+      return;
+    }
+    if (!formData.editing_id && !formData.cover_image) {
+      setFormError("Cover image is required for new characters");
+      return;
+    }
+    if (formData.lore_items.length === 0) {
+      setFormError("At least one lore item is required");
+      return;
+    }
+    const hasInvalidLoreItem = formData.lore_items.some(
+      (item) => !item.title.trim() || !item.body.trim(),
+    );
+    if (hasInvalidLoreItem) {
+      setFormError("Each lore item must include both title and body");
+      return;
+    }
 
     setIsSubmitting(true);
 
     // Prepare lore_items as JSON string if present
-    const loreItemsJson = formData.lore_items.length > 0
-      ? JSON.stringify(formData.lore_items)
-      : undefined;
+    const loreItemsJson = JSON.stringify(
+      formData.lore_items.map((item, index) => ({
+        id: item.id || `lore-${index + 1}`,
+        title: item.title.trim(),
+        body: item.body.trim(),
+      })),
+    );
 
     let result;
     if (formData.editing_id) {
@@ -265,7 +285,8 @@ export default function AdminCharacters() {
       char.tags.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesAlignment =
-      filterAlignment === "All" || char.alignment === filterAlignment;
+      !filterAlignment.trim() ||
+      char.alignment.toLowerCase().includes(filterAlignment.trim().toLowerCase());
 
     return matchesSearch && matchesAlignment;
   });
@@ -306,18 +327,12 @@ export default function AdminCharacters() {
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-400 mb-2">Alignment</label>
-            <select
+            <input
               value={filterAlignment}
               onChange={(e) => setFilterAlignment(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand cursor-pointer"
-            >
-              <option value="All">All Alignments</option>
-              {ALIGNMENTS.map((a) => (
-                <option key={a.value} value={a.value}>
-                  {a.label}
-                </option>
-              ))}
-            </select>
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
+              placeholder="Filter by alignment (e.g., hero, villain)"
+            />
           </div>
         </div>
       </div>
@@ -399,7 +414,7 @@ export default function AdminCharacters() {
                       <p className="text-gray-300 text-sm">{character.creator}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${ALIGNMENT_COLORS[character.alignment]}`}>
+                      <span className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${getAlignmentBadgeClass(character.alignment)}`}>
                         {character.alignment.charAt(0).toUpperCase() + character.alignment.slice(1)}
                       </span>
                     </td>
@@ -518,18 +533,13 @@ export default function AdminCharacters() {
                       <label className="block text-sm font-semibold text-gray-400 mb-2">
                         Alignment *
                       </label>
-                      <select
+                      <input
                         required
                         value={formData.alignment}
                         onChange={(e) => setFormData({ ...formData, alignment: e.target.value as CharacterAlignment })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand cursor-pointer"
-                      >
-                        {ALIGNMENTS.map((a) => (
-                          <option key={a.value} value={a.value}>
-                            {a.label}
-                          </option>
-                        ))}
-                      </select>
+                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
+                        placeholder="Enter alignment (e.g., hero, villain, neutral)"
+                      />
                     </div>
 
                     {/* First Appearance */}
@@ -577,7 +587,7 @@ export default function AdminCharacters() {
                     {/* Cover Image */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-semibold text-gray-400 mb-2">
-                        Cover Image
+                        Cover Image {!formData.editing_id ? "*" : ""}
                       </label>
                       <input
                         ref={imageInputRef}
@@ -731,7 +741,7 @@ export default function AdminCharacters() {
                     {/* Lore Items Section */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-semibold text-gray-400 mb-2">
-                        Lore Items
+                        Lore Items *
                       </label>
                       <div className="space-y-3">
                         {formData.lore_items.map((item, index) => (

@@ -6,6 +6,8 @@ import CharacterLoreAccordion from "@/src/components/characters/detail/Character
 import CharacterComicsSection from "@/src/components/characters/detail/CharacterComicsSection";
 import CharacterRelatedEntities from "@/src/components/characters/detail/CharacterRelatedEntities";
 import { getNormalizedCharacterBySlug } from "@/src/lib/characters-public-data";
+import { characterNameToSlug } from "@/src/lib/character-slug";
+import { getPublicCharacters } from "@/src/lib/characters-api";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -28,6 +30,19 @@ export default async function CharacterDetailPage({ params }: Props) {
   if (!row) notFound();
 
   const profile = buildCharacterDetailProfileFromApi(row);
+  const relatedFromApi = profile.related;
+  const relatedFallback =
+    relatedFromApi.length > 0
+      ? relatedFromApi
+      : (await getPublicCharacters())
+          .filter((c) => characterNameToSlug(c.character_name) !== slug)
+          .slice(0, 5)
+          .map((c, i) => ({
+            slug: characterNameToSlug(c.character_name),
+            name: c.character_name,
+            image: c.cover_image_url,
+            relation: c.role || c.alignment || c.universe || "Related",
+          }));
 
   return (
     <main className="bg-black text-white">
@@ -35,8 +50,8 @@ export default async function CharacterDetailPage({ params }: Props) {
       <CharacterComicsSection comics={profile.comics} />
       <CharacterKeyAttributes attributes={profile.attributes} />
       <CharacterLoreAccordion items={profile.lore} />
-      {profile.related.length > 0 ? (
-        <CharacterRelatedEntities entities={profile.related} />
+      {relatedFallback.length > 0 ? (
+        <CharacterRelatedEntities entities={relatedFallback} />
       ) : null}
     </main>
   );
