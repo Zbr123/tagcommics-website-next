@@ -17,6 +17,7 @@ function ComicCard({ comic }: { comic: CharacterComic }) {
   const [added, setAdded] = useState(false);
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
+
   const readHref = buildReaderHref({
     id: comic.catalogComicId ?? comic.id,
     coverImage: comic.image,
@@ -36,6 +37,9 @@ function ComicCard({ comic }: { comic: CharacterComic }) {
       : undefined;
 
   const handleAddToCart = () => {
+    const itemType: PurchasableItemType =
+      typeof comic.bookType === "string" && comic.bookType.trim() ? "character_book" : "comic";
+    console.log("ADD TO CART: ", comic);
     addToCart({
       id: comic.id,
       title: comic.title,
@@ -47,6 +51,7 @@ function ComicCard({ comic }: { comic: CharacterComic }) {
       category: comic.category,
       tags: comic.tags,
       bookType: comic.bookType,
+      itemType,
     });
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2000);
@@ -180,9 +185,13 @@ export default function CharacterComicsSection({ comics }: { comics: CharacterCo
           </p>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {comics.map((comic) => (
+            {comics.map((comic) => {
+
+              console.log("comic card: ", comic);
+
+              return(
               <ComicCard key={String(comic.id)} comic={comic} />
-            ))}
+            )})}
           </div>
         )}
       </div>

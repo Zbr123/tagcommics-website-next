@@ -192,3 +192,23 @@ export async function checkLibraryAccess(params: {
   const body = (await res.json()) as ApiEnvelope<{ access?: boolean }>;
   return Boolean(body?.data?.access);
 }
+
+export async function checkLibraryAccessByPdfUrl(params: {
+  pdfUrl: string;
+  customerId: string;
+  token?: string | null;
+}): Promise<boolean> {
+  const authToken = resolveToken(params.token);
+  const query = new URLSearchParams({
+    pdf_url: params.pdfUrl,
+    customer_id: params.customerId,
+  }).toString();
+  const res = await fetch(getApiUrl(`/library/check-access?${query}`), {
+    method: "GET",
+    headers: { Authorization: `Bearer ${authToken}` },
+  });
+  if (!res.ok) throw new Error(await readErrorMessage(res));
+
+  const body = (await res.json()) as ApiEnvelope<{ access?: boolean }>;
+  return Boolean(body?.data?.access);
+}
