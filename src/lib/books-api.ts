@@ -1,9 +1,9 @@
 import { cache } from "react";
 import { getPublicCharacters, type CharacterBook } from "@/src/lib/characters-api";
 import { buildReaderHref } from "@/src/lib/readerHref";
+import { API_URL as BASE_URL, API_BASE } from "@/src/lib/api-public-config";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
-const API_ORIGIN = BASE_URL.replace(/\/api\/v1\/?$/, "");
+const API_ORIGIN = API_BASE || BASE_URL.replace(/\/api\/v1\/?$/, "");
 
 interface ApiEnvelope<T> {
   message?: string;

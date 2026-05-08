@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+import { API_URL as BASE_URL } from "@/src/lib/api-public-config";
 
 /** Path under `/api/v1` or absolute URL for admin list endpoint. */
 const INQUIRIES_PATH = process.env.DESIGN_TEAM_INQUIRIES_PATH?.trim() || "/design-team/inquiries";

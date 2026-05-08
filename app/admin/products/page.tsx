@@ -86,6 +86,7 @@ export default function AdminProducts() {
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterTag, setFilterTag] = useState("All");
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
 
@@ -240,6 +241,7 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
     if (!formData.title?.trim()) {
       alert("Please enter a title");
@@ -277,21 +279,26 @@ export default function AdminProducts() {
       pdf_file: pdfInputRef.current?.files?.[0],
     };
 
-    // Add or update book based on edit mode
-    const result = editingProduct?.book_id
-      ? await updateBook(selectedCharacterId, editingProduct.book_id, payload)
-      : await addBookToCharacter(selectedCharacterId, payload);
+    try {
+      setIsSubmitting(true);
+      // Add or update book based on edit mode
+      const result = editingProduct?.book_id
+        ? await updateBook(selectedCharacterId, editingProduct.book_id, payload)
+        : await addBookToCharacter(selectedCharacterId, payload);
 
-    if (result.success) {
-      // Reload books from API to get fresh data
-      const chars = await getCharacters();
-      setCharacters(chars);
+      if (result.success) {
+        // Reload books from API to get fresh data
+        const chars = await getCharacters();
+        setCharacters(chars);
 
-      setProducts(mapCharactersToProducts(chars));
+        setProducts(mapCharactersToProducts(chars));
 
-      handleCloseForm();
-    } else {
-      alert(result.error || "Failed to save book");
+        handleCloseForm();
+      } else {
+        alert(result.error || "Failed to save book");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -777,7 +784,7 @@ export default function AdminProducts() {
                           />
                           <span className="text-white font-semibold">E-book</span>
                         </label>
-                        <label className="flex items-center gap-3 cursor-pointer group">
+                        {/* <label className="flex items-center gap-3 cursor-pointer group">
                           <input
                             type="checkbox"
                             checked={formData.isPhysical || false}
@@ -787,7 +794,7 @@ export default function AdminProducts() {
                             className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-brand focus:ring-brand"
                           />
                           <span className="text-white font-semibold">Physical / Hard book</span>
-                        </label>
+                        </label> */}
                       </div>
                       {formData.isEbook && (
                         <div className="pt-2">
@@ -856,15 +863,19 @@ export default function AdminProducts() {
                     <button
                       type="button"
                       onClick={handleCloseForm}
+                      disabled={isSubmitting}
                       className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-gradient-to-r from-brand to-brand-400 hover:from-brand-400 hover:to-brand text-brand-foreground font-bold rounded-lg transition-all cursor-pointer"
+                      disabled={isSubmitting}
+                      className="px-6 py-3 bg-gradient-to-r from-brand to-brand-400 hover:from-brand-400 hover:to-brand text-brand-foreground font-bold rounded-lg transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {editingProduct ? "Update Product" : "Add Product"}
+                      {isSubmitting
+                        ? (editingProduct ? "Updating..." : "Adding...")
+                        : (editingProduct ? "Update Product" : "Add Product")}
                     </button>
                   </div>
                 </form>

@@ -1,6 +1,6 @@
 import type { AuthUser } from "@/src/types/auth";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+import { API_URL as BASE_URL } from "@/src/lib/api-public-config";
 
 export function getAuthApiUrl(path: string): string {
   return `${BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;

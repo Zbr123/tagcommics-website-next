@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { buildReaderHref } from "@/src/lib/readerHref";
 
 /** Hero backgrounds — same URLs and order as before (slider data unchanged). */
 const slides = [
@@ -39,7 +37,6 @@ const featuredBySlide = [
 
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -50,38 +47,7 @@ export default function HeroSection() {
     return () => clearInterval(timer);
   }, [nextSlide]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const saved = window.localStorage.getItem("tagcomics-favorites");
-      if (!saved) return;
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) {
-        const numericIds = parsed.map((item) => Number(item)).filter((item) => Number.isFinite(item));
-        setFavoriteIds(numericIds as number[]);
-      }
-    } catch {
-      // Ignore malformed local storage payloads.
-    }
-  }, []);
-
   const copy = featuredBySlide[currentSlide] ?? featuredBySlide[0];
-  const isFavorite = favoriteIds.includes(copy.id);
-  const readerHref = buildReaderHref({
-    id: copy.id,
-    coverImage: copy.coverImage,
-    title: `${copy.title1} ${copy.title2}`,
-  });
-
-  const toggleFavorite = () => {
-    const next = isFavorite ? favoriteIds.filter((id) => id !== copy.id) : [...favoriteIds, copy.id];
-    setFavoriteIds(next);
-    try {
-      window.localStorage.setItem("tagcomics-favorites", JSON.stringify(next));
-    } catch {
-      // Silently fail if storage is unavailable.
-    }
-  };
 
   return (
     <section className="bg-black px-4 pb-6 pt-4 sm:px-6 md:pb-8 md:pt-6 lg:px-8">
@@ -160,47 +126,6 @@ export default function HeroSection() {
               {copy.description}
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href={readerHref}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-black shadow-[0_0_36px_rgba(255,255,255,0.18)] transition hover:bg-zinc-100 hover:shadow-[0_0_48px_rgba(255,255,255,0.22)]"
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  />
-                </svg>
-                {copy.cta}
-              </Link>
-              <button
-                type="button"
-                onClick={toggleFavorite}
-                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-                className={`inline-flex h-[52px] w-[52px] items-center justify-center rounded-full border backdrop-blur-md transition ${
-                  isFavorite
-                    ? "border-brand/60 bg-brand/20 text-brand shadow-[0_0_24px_rgba(88,232,193,0.28)]"
-                    : "border-white/20 bg-white/10 text-white hover:border-brand/40 hover:bg-white/15"
-                }`}
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill={isFavorite ? "currentColor" : "none"}
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                  />
-                </svg>
-              </button>
-            </div>
           </div>
         </div>
 

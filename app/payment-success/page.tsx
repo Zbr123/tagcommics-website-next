@@ -56,9 +56,9 @@ export default function PaymentSuccessPage() {
                     <p className="text-sm font-semibold text-white">{item.title}</p>
                     <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">{item.item_type}</p>
                   </div>
-                  <Link href={`/reader/${encodeURIComponent(item.id)}?title=${encodeURIComponent(item.title)}${item.item_type === "character_book" ? "&bookType=character_book" : ""}`} className="text-xs font-bold uppercase tracking-[0.08em] text-brand hover:text-brand/80">
+                  {/* <Link href={`/reader/${encodeURIComponent(item.id)}?title=${encodeURIComponent(item.title)}${item.item_type === "character_book" ? "&bookType=character_book" : ""}`} className="text-xs font-bold uppercase tracking-[0.08em] text-brand hover:text-brand/80">
                     Open
-                  </Link>
+                  </Link> */}
                 </div>
               ))}
             </div>
@@ -66,7 +66,7 @@ export default function PaymentSuccessPage() {
         </div>
 
         <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/" className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 px-8 rounded-lg transition-all">
+          <Link href="/" className="border border-brand/40 bg-brand/20 hover:bg-brand/30 text-brand font-bold py-3 px-8 rounded-lg transition-all shadow-[0_0_18px_rgba(88,232,193,0.2)]">
             Continue Shopping
           </Link>
           <Link href="/account#library" className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg border border-gray-700 transition-all">

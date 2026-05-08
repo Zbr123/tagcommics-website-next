@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+import { API_URL as BASE_URL } from "@/src/lib/api-public-config";
 const OVERVIEW_PATH = "/admin/dashboard/overview";
 
 function upstreamOverviewUrl(): string {

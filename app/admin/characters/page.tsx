@@ -639,48 +639,6 @@ export default function AdminCharacters() {
                       </select>
                     </div>
 
-                    {/* Title Line 1 */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-400 mb-2">
-                        Title Line 1
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.title_line1}
-                        onChange={(e) => setFormData({ ...formData, title_line1: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
-                        placeholder="e.g., THE MIGHTY"
-                      />
-                    </div>
-
-                    {/* Title Line 2 */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-400 mb-2">
-                        Title Line 2
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.title_line2}
-                        onChange={(e) => setFormData({ ...formData, title_line2: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand"
-                        placeholder="e.g., MUTANT"
-                      />
-                    </div>
-
-                    {/* Spotlight Body */}
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-semibold text-gray-400 mb-2">
-                        Spotlight Body
-                      </label>
-                      <textarea
-                        value={formData.spotlight_body}
-                        onChange={(e) => setFormData({ ...formData, spotlight_body: e.target.value })}
-                        rows={2}
-                        className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-brand resize-none"
-                        placeholder="Detailed character spotlight text..."
-                      />
-                    </div>
-
                     {/* Attribute Scores Section */}
                     <div className="md:col-span-2">
                       <label className="block text-sm font-semibold text-gray-400 mb-2">

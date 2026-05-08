@@ -1,5 +1,6 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
-const API_ORIGIN = BASE_URL.replace(/\/api\/v1\/?$/, "");
+import { API_URL as BASE_URL, API_BASE } from "@/src/lib/api-public-config";
+
+const API_ORIGIN = API_BASE || BASE_URL.replace(/\/api\/v1\/?$/, "");
 
 const DEBUG = true;
 
@@ -15,8 +16,6 @@ function resolveUrl(path: string | undefined | null): string {
   if (!path) return "/comic_page_slider.png";
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
 
-  // If it's just a filename (no slashes), it's stored on the backend at /uploads/characters/
-  // Full URL format: http://localhost:5000/api/v1/uploads/characters/{filename}
   if (!path.startsWith("/")) {
     return `${BASE_URL}/uploads/characters/${path}`;
   }

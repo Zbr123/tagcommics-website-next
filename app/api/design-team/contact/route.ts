@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+import { API_URL as BASE_URL } from "@/src/lib/api-public-config";
 
 /** Override full URL or path under `/api/v1` (default: `/design-team/contact`). */
 const CONTACT_PATH = process.env.DESIGN_TEAM_CONTACT_PATH?.trim() || "/design-team/contact";

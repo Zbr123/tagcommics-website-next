@@ -1,5 +1,6 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
-const BASE_BACKEND = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000";
+import { API_URL as BASE_URL, API_BASE } from "@/src/lib/api-public-config";
+
+const BASE_BACKEND = API_BASE || BASE_URL.replace(/\/api\/v1\/?$/, "");
 
 const DEBUG = true;
 
