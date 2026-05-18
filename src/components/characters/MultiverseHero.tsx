@@ -18,7 +18,7 @@ export default function MultiverseHero() {
         <div className="hero-gradient absolute inset-0" aria-hidden />
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 flex-col items-center justify-center px-6 pb-20 pt-20 text-center md:pb-0 md:pt-32 lg:pt-40">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 flex-col items-center justify-center px-6 pb-20 pt-6 text-center max-sm:-mt-6 sm:mt-0 sm:pt-20 md:pb-0 md:pt-32 lg:pt-40">
         <span
           className="mb-4 inline-block rounded-full border border-cyan-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest bg-transparent"
           style={{ color: "rgb(93, 214, 182)" }}
