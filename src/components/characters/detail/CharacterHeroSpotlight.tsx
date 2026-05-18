@@ -1,6 +1,6 @@
  "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { CharacterDetailProfile } from "@/src/data/characterDetailProfile";
 import type { CharacterRole } from "@/src/data/characters";
@@ -59,9 +59,18 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
     profile;
   const roleLabel = character.role.replaceAll("_", "-");
   const [isSaved, setIsSaved] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(0);
 
-  // Truncate spotlightBody to max 35 words
-  const displayText = spotlightBody.split(" ").slice(0, 35).join(" ") + (spotlightBody.split(" ").length > 35 ? "..." : "");
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const is2xl = windowWidth >= 1536;
+  const wordLimit = is2xl ? 75 : 35;
+  const displayText = spotlightBody.split(" ").slice(0, wordLimit).join(" ") + (spotlightBody.split(" ").length > wordLimit ? "..." : "");
 
   return (
     <section className="relative h-[100vh] min-h-[100vh] w-full overflow-hidden bg-black">
