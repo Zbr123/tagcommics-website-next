@@ -69,13 +69,13 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
   }, []);
 
   const is2xl = windowWidth >= 1536;
-  const wordLimit = is2xl ? 75 : 35;
+  const wordLimit = is2xl ? 45 : 35;
   const displayText = spotlightBody.split(" ").slice(0, wordLimit).join(" ") + (spotlightBody.split(" ").length > wordLimit ? "..." : "");
 
   return (
-    <section className="relative h-[100vh] min-h-[100vh] w-full overflow-hidden bg-black">
+    <section className="relative h-[min(100dvh,680px)] w-full overflow-hidden bg-black sm:h-[100vh] sm:min-h-[100vh]">
       {/* Immersive background */}
-      <div className="absolute inset-0 z-0 scale-[1.02]">
+      <div className="absolute inset-0 z-0 scale-[1.02] max-sm:scale-[0.92] max-sm:origin-[38%_24%]">
         <Image
           src={character.image}
           alt={character.name}
@@ -110,11 +110,11 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
         aria-hidden
       />
 
-      <div className="relative z-20 mx-auto flex h-full min-h-0 w-full max-w-[1600px] flex-col px-4 pb-8 pt-12 sm:px-8 sm:pt-12 md:px-10 md:pb-12 md:pt-12 lg:px-12 lg:pb-16 lg:pt-32 xl:px-14 xl:pb-20 xl:pt-36">
+      <div className="relative z-20 mx-auto flex h-full min-h-0 w-full max-w-[1600px] flex-col px-4 pb-24 pt-12 sm:px-8 sm:pb-8 sm:pt-12 md:px-10 md:pb-12 md:pt-12 lg:px-12 lg:pb-16 lg:pt-32 xl:px-14 xl:pb-20 xl:pt-36">
         <div className="flex min-h-0 flex-1 flex-col gap-12 lg:flex-row lg:items-stretch lg:gap-0 lg:pb-2">
           {/* Bottom-left narrative */}
-          <div className="flex flex-1 flex-col justify-end -mt-24 sm:mt-0 sm:pt-16 md:-mt-20 lg:max-w-[52%] lg:justify-end lg:pr-10 xl:max-w-[48%]">
-            <div className="mb-7 flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-1 flex-col justify-end max-sm:absolute max-sm:inset-x-0 max-sm:bottom-24 max-sm:z-20 max-sm:w-full max-sm:box-border max-sm:px-4 max-sm:-translate-y-14 max-sm:mb-10 sm:relative sm:inset-auto sm:bottom-auto sm:z-auto sm:w-auto sm:translate-y-0 sm:px-0 sm:mb-0 sm:flex-1 sm:pt-16 md:-mt-20 lg:max-w-[52%] lg:justify-end lg:pr-10 xl:max-w-[48%]">
+            <div className="mb-5 flex flex-wrap items-center gap-2.5 sm:mb-7">
               {roleBadge(character.role, roleLabel)}
               <span className="rounded-md border border-white/[0.12] bg-white/[0.06] px-3.5 py-1.5 text-[10px] font-black uppercase tracking-[0.32em] text-white shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md">
                 {universeBadge}
@@ -141,11 +141,11 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
               </span>
             </h1>
 
-            <p className="mt-6 md:mt-8 max-w-[85%] text-[13px] font-normal leading-relaxed text-zinc-200 sm:text-sm sm:max-w-[75%] sm:pt-1 md:text-base md:max-w-lg lg:text-[17px] lg:leading-[1.75]">
+            <p className="mt-4 max-w-[85%] text-[15px] font-normal leading-[1.65] text-zinc-200 sm:mt-6 sm:text-sm sm:leading-relaxed sm:max-w-[75%] sm:pt-1 md:mt-8 md:text-base md:max-w-lg lg:text-[17px] lg:leading-[1.75]">
               {displayText}
             </p>
 
-            <div className="mt-8 md:mt-11 flex flex-wrap items-center gap-3 md:gap-4">
+            <div className="mt-6 flex flex-wrap items-center gap-3 sm:mt-8 md:mt-11 md:gap-4">
               <button
                 type="button"
                 onClick={() => setIsSaved((prev) => !prev)}
