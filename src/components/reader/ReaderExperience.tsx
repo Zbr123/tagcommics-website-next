@@ -141,6 +141,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const readerTitle = comicData?.title?.trim() || title;
   const effectivePdfPath = comicData?.pdfUrl || pdfPath;
@@ -614,26 +615,14 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
                 </span>
               ) : null}
             </Link>
-            {canDownload ? (
-              <button
-                type="button"
-                disabled={downloadBusy}
-                onClick={() => void handleDownloadPdf()}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/20 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/30 disabled:opacity-60 sm:px-4 sm:text-[11px]"
-              >
-                <i className="fa-solid fa-download text-[11px]" aria-hidden />
-                {downloadBusy ? "Preparing..." : "Download PDF"}
-              </button>
-            ) : (
-              <>
-                <button type="button" onClick={handleAddToCart} disabled={!comicData} className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/20 sm:px-4 sm:text-[11px] disabled:pointer-events-none disabled:opacity-40">
-                  <i className="fa-solid fa-bag-shopping text-[11px]" aria-hidden />Add to Cart
-                </button>
-                <button type="button" onClick={handlePurchaseNow} disabled={isPurchasing} className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand-foreground backdrop-blur-sm transition hover:bg-brand/90 sm:px-4 sm:text-[11px] disabled:opacity-70">
-                  <i className="fa-solid fa-bolt text-[11px]" aria-hidden />{isPurchasing ? "Processing..." : "Purchase Now"}
-                </button>
-              </>
-            )}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-zinc-400 transition hover:border-[#58E8C1]/45 hover:text-brand"
+              aria-label="Open menu"
+            >
+              <i className="fa-solid fa-bars text-sm" aria-hidden />
+            </button>
           </div>
         </div>
         {justAdded ? (
@@ -645,8 +634,8 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
         ) : null}
       </header>
 
-      <div className="mx-auto flex w-full max-w-[1920px] flex-1 flex-col overflow-hidden lg:flex-row">
-        <aside className="hidden w-[min(100%,260px)] shrink-0 border-white/10 bg-black/50 backdrop-blur-2xl lg:block lg:border-r">
+      <div className="mx-auto flex w-full max-w-[1920px] flex-1 flex-col overflow-y-auto md:flex-row">
+        <aside className="hidden w-[min(100%,260px)] shrink-0 border-white/10 bg-black/50 backdrop-blur-2xl md:block md:border-r">
           <div className="flex h-[calc(100dvh-3.5rem)] flex-col overflow-y-auto p-5">
             <p className="font-serif text-xl font-semibold text-white">Contents</p>
             <p className="mt-1 text-xs text-zinc-400">
@@ -681,14 +670,14 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
           </div>
         </aside>
 
-        <main id="reader-stage" className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-black/80 backdrop-blur-md lg:min-h-[calc(100dvh-3.5rem)]">
+        <main id="reader-stage" className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-black/80 backdrop-blur-md md:min-h-[calc(100dvh-3.5rem)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="flex min-h-0 flex-1 flex-col px-4 pb-28 pt-6 sm:px-10 sm:pb-32">
-            <button type="button" onClick={() => setTocOpen(true)} className="mb-4 flex shrink-0 flex-col items-center gap-1 text-zinc-400 transition hover:text-white lg:hidden">
+            <button type="button" onClick={() => setTocOpen(true)} className="mb-4 flex shrink-0 flex-col items-center gap-1 text-zinc-400 transition hover:text-white md:hidden">
               <i className="fa-solid fa-book-open text-2xl" />
               <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
             </button>
 
-            <div ref={pdfViewportRef} className="flex min-h-[50dvh] w-full flex-1 flex-col items-center justify-center overflow-hidden sm:min-h-[56dvh]">
+            <div ref={pdfViewportRef} className="flex w-full flex-1 flex-col items-center justify-center overflow-y-scroll sm:min-h-[56dvh]" style={{ scrollbarWidth: "none" }}>
               {!accessResolved ? (
                 <div className="flex min-h-[40vh] w-full items-center justify-center">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-xl">
@@ -749,7 +738,7 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
           </div>
         </main>
 
-        <aside className="hidden w-[min(100%,280px)] shrink-0 border-white/10 bg-black/50 backdrop-blur-2xl xl:block xl:border-l">
+        <aside className="hidden w-[min(100%,280px)] shrink-0 border-white/10 bg-black/50 backdrop-blur-2xl md:block md:border-l">
           <div className="flex h-[calc(100dvh-3.5rem)] flex-col gap-6 overflow-y-auto p-5">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-400">Details</p>
@@ -836,6 +825,53 @@ export default function ReaderExperience({ comicData, pdfPath, title = READER_DE
           </div>
         </div>
       ) : null}
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-black/70 backdrop-blur-xl" role="dialog" aria-modal>
+          <div className="flex items-center justify-between border-b border-white/10 bg-black/90 px-4 py-3 backdrop-blur-md">
+            <p className="text-sm font-bold uppercase tracking-widest text-white">Menu</p>
+            <button type="button" onClick={() => setMobileMenuOpen(false)} className="text-2xl leading-none text-zinc-400 transition hover:text-white" aria-label="Close">×</button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            {specs.length > 0 && (
+              <div className="mb-6 border-t border-white/10 pt-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-400">Details</p>
+                <div className="mt-3 space-y-2 text-sm">
+                  {specs.map((row) => (<div key={row.k} className="flex justify-between gap-3 border-b border-white/5 py-2 text-[11px] last:border-b-0"><span className="text-zinc-500">{row.k}</span><span className="text-right text-zinc-300">{row.v}</span></div>))}
+                </div>
+              </div>
+            )}
+            {readerTags.length > 0 && (
+              <div className="mb-6 border-t border-white/10 pt-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-zinc-400">Tags</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {readerTags.map((t) => (<span key={t} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] text-zinc-300 backdrop-blur-sm">{t}</span>))}
+                </div>
+              </div>
+            )}
+            <div className="space-y-3">
+              {canDownload ? (
+                <button type="button" disabled={downloadBusy} onClick={() => { void handleDownloadPdf(); setMobileMenuOpen(false); }} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/20 py-3 text-xs font-black uppercase tracking-wide text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/30 disabled:opacity-60">
+                  <i className="fa-solid fa-download" aria-hidden />{downloadBusy ? "Preparing..." : "Download PDF"}
+                </button>
+              ) : (
+                <>
+                  <button type="button" onClick={() => { handleAddToCart(); setMobileMenuOpen(false); }} disabled={!comicData} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand/10 py-3 text-xs font-black uppercase tracking-wide text-brand backdrop-blur-sm transition hover:border-brand/50 hover:bg-brand/20 disabled:opacity-40">
+                    <i className="fa-solid fa-bag-shopping" aria-hidden />Add to Cart
+                  </button>
+                  <button type="button" onClick={() => { handlePurchaseNow(); setMobileMenuOpen(false); }} disabled={isPurchasing} className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/30 bg-brand py-3 text-xs font-black uppercase tracking-wide text-brand-foreground backdrop-blur-sm transition hover:bg-brand/90 disabled:opacity-70">
+                    <i className="fa-solid fa-bolt" aria-hidden />{isPurchasing ? "Processing..." : "Purchase Now"}
+                  </button>
+                </>
+              )}
+              <button type="button" onClick={() => { router.push("/"); setMobileMenuOpen(false); }} className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 py-3 text-xs font-black uppercase tracking-wide text-zinc-300 backdrop-blur-sm transition hover:bg-white/10 hover:text-white">
+                Back to Comics
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

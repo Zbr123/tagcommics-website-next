@@ -63,7 +63,7 @@ export default function CharactersHub({ characters }: { characters: Character[] 
     <div className="min-h-screen bg-black font-sans text-white">
       <MultiverseHero />
 
-      <section className="relative z-20 mx-auto mb-12 w-full max-w-[1440px] px-6 md:-mt-8">
+      <section className="relative z-20 mx-auto mb-12 w-full max-w-[1440px] px-6 md:-mt-8 xl:mt-16">
         <CharactersFilterBar
           search={search}
           onSearchChange={setSearch}

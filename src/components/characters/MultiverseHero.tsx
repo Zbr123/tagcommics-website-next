@@ -18,14 +18,14 @@ export default function MultiverseHero() {
         <div className="hero-gradient absolute inset-0" aria-hidden />
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 flex-col items-center justify-center px-6 pb-28 pt-16 text-center md:pb-0 md:pt-40">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-1 flex-col items-center justify-center px-6 pb-20 pt-20 text-center md:pb-0 md:pt-32 lg:pt-40">
         <span
           className="mb-4 inline-block rounded-full border border-cyan-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest bg-transparent"
           style={{ color: "rgb(93, 214, 182)" }}
         >
           The Multiverse Hub
         </span>
-        <h1 className="text-glow mb-6 max-w-4xl text-5xl font-black leading-tight tracking-tighter text-white md:text-7xl">
+        <h1 className="text-glow mb-6 max-w-4xl text-4xl font-black leading-tight tracking-tighter text-white md:text-5xl lg:text-6xl 2xl:text-7xl">
   Discover Legendary
   <br />
   <span className="bg-gradient-to-r from-[#22E6D6] via-[#6EF3E7] to-[#EAFDFC] bg-clip-text text-transparent">

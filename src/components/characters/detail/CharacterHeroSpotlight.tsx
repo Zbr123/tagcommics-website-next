@@ -8,13 +8,13 @@ import type { CharacterRole } from "@/src/data/characters";
 function FloatingFact({ label, value }: { label: string; value: string }) {
   return (
     <div
-      className="group relative w-full max-w-[20rem] cursor-default overflow-hidden rounded-2xl border border-white/[0.1] border-l-[3px] border-l-brand bg-white/[0.06] py-5 pl-6 pr-5 shadow-[0_20px_56px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-[box-shadow,background-color,border-color] duration-500 ease-out hover:border-white/[0.16] hover:bg-white/[0.09] hover:shadow-[0_24px_64px_rgba(0,0,0,0.55),0_0_38px_rgba(88,232,193,0.12)] lg:max-w-none"
+      className="group relative w-full max-w-[20rem] cursor-default overflow-hidden rounded-2xl border border-white/[0.1] border-l-[3px] border-l-brand bg-white/[0.06] py-4 pl-5 pr-4 shadow-[0_16px_48px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-[box-shadow,background-color,border-color] duration-500 ease-out hover:border-white/[0.16] hover:bg-white/[0.09] hover:shadow-[0_20px_56px_rgba(0,0,0,0.55),0_0_32px_rgba(88,232,193,0.12)] lg:max-w-none"
       style={{ WebkitBackdropFilter: "blur(22px)" }}
     >
-      <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-zinc-500 transition-colors duration-500 group-hover:text-zinc-400">
+      <p className="text-[8px] 2xl:text-[10px] font-bold uppercase tracking-[0.28em] text-zinc-500 transition-colors duration-500 group-hover:text-zinc-400">
         {label}
       </p>
-      <p className="mt-2.5 text-[15px] font-semibold leading-snug tracking-tight text-white md:text-base">{value}</p>
+      <p className="mt-2 text-[13px] 2xl:text-[15px] font-semibold leading-snug tracking-tight text-base">{value}</p>
       <div
         className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         style={{
@@ -60,6 +60,9 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
   const roleLabel = character.role.replaceAll("_", "-");
   const [isSaved, setIsSaved] = useState(false);
 
+  // Truncate spotlightBody to max 35 words
+  const displayText = spotlightBody.split(" ").slice(0, 35).join(" ") + (spotlightBody.split(" ").length > 35 ? "..." : "");
+
   return (
     <section className="relative h-[100vh] min-h-[100vh] w-full overflow-hidden bg-black">
       {/* Immersive background */}
@@ -98,10 +101,10 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
         aria-hidden
       />
 
-      <div className="relative z-20 mx-auto flex h-full min-h-0 w-full max-w-[1600px] flex-col px-6 pb-10 pt-28 sm:px-10 sm:pb-14 sm:pt-32 lg:px-14 lg:pb-20 lg:pt-36">
+      <div className="relative z-20 mx-auto flex h-full min-h-0 w-full max-w-[1600px] flex-col px-4 pb-8 pt-12 sm:px-8 sm:pt-12 md:px-10 md:pb-12 md:pt-12 lg:px-12 lg:pb-16 lg:pt-32 xl:px-14 xl:pb-20 xl:pt-36">
         <div className="flex min-h-0 flex-1 flex-col gap-12 lg:flex-row lg:items-stretch lg:gap-0 lg:pb-2">
           {/* Bottom-left narrative */}
-          <div className="flex flex-1 flex-col justify-end lg:max-w-[52%] lg:justify-end lg:pr-10 xl:max-w-[48%]">
+          <div className="flex flex-1 flex-col justify-end -mt-24 sm:mt-0 sm:pt-16 md:-mt-20 lg:max-w-[52%] lg:justify-end lg:pr-10 xl:max-w-[48%]">
             <div className="mb-7 flex flex-wrap items-center gap-2.5">
               {roleBadge(character.role, roleLabel)}
               <span className="rounded-md border border-white/[0.12] bg-white/[0.06] px-3.5 py-1.5 text-[10px] font-black uppercase tracking-[0.32em] text-white shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md">
@@ -111,7 +114,7 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
 
             <h1 className="select-none uppercase">
               <span
-                className="block text-[clamp(3.25rem,11vw,7.5rem)] font-black leading-[0.82] tracking-[-0.04em] text-white sm:text-8xl md:text-9xl"
+                className="block text-[clamp(3rem,8vw,7.5rem)] font-black leading-[0.82] tracking-[-0.04em] text-white sm:text-6xl md:text-7xl lg:text-7xl xl:text-7xl 2xl:text-9xl"
                 style={{
                   textShadow: "0 4px 48px rgba(0,0,0,0.95), 0 2px 16px rgba(0,0,0,0.8)",
                 }}
@@ -119,7 +122,7 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
                 {titleLine1}
               </span>
               <span
-                className="mt-1 block text-[clamp(3.25rem,11vw,7.5rem)] font-black leading-[0.82] tracking-[-0.04em] text-brand sm:text-8xl md:text-9xl"
+                className="mt-1 block text-[clamp(3rem,8vw,7.5rem)] font-black leading-[0.82] tracking-[-0.04em] text-brand sm:text-6xl md:text-7xl lg:text-7xl xl:text-7xl 2xl:text-9xl"
                 style={{
                   textShadow:
                     "0 0 48px rgba(88,232,193,0.45), 0 0 80px rgba(88,232,193,0.2), 0 8px 40px rgba(0,0,0,0.75)",
@@ -129,16 +132,16 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
               </span>
             </h1>
 
-            <p className="mt-8 max-w-xl text-[15px] font-normal leading-relaxed text-zinc-200 sm:text-base md:max-w-lg md:text-[17px] md:leading-[1.75]">
-              {spotlightBody}
+            <p className="mt-6 md:mt-8 max-w-[85%] text-[13px] font-normal leading-relaxed text-zinc-200 sm:text-sm sm:max-w-[75%] sm:pt-1 md:text-base md:max-w-lg lg:text-[17px] lg:leading-[1.75]">
+              {displayText}
             </p>
 
-            <div className="mt-11 flex flex-wrap items-center gap-4">
+            <div className="mt-8 md:mt-11 flex flex-wrap items-center gap-3 md:gap-4">
               <button
                 type="button"
                 onClick={() => setIsSaved((prev) => !prev)}
                 aria-pressed={isSaved}
-                className={`inline-flex min-h-[52px] min-w-[12rem] items-center justify-center gap-2.5 rounded-full px-10 text-sm font-black uppercase tracking-[0.1em] shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_20px_50px_rgba(0,0,0,0.5)] transition duration-300 active:scale-[0.99] ${
+                className={`inline-flex min-h-[44px] min-w-[10rem] items-center justify-center gap-2 rounded-full px-6 md:px-8 md:min-h-[52px] md:min-w-[12rem] text-xs md:text-sm font-black uppercase tracking-[0.1em] shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_16px_40px_rgba(0,0,0,0.5)] transition duration-300 active:scale-[0.99] ${
                   isSaved
                     ? "border border-brand/60 bg-brand text-brand-foreground hover:scale-[1.02] hover:bg-[#63f3cf] hover:shadow-[0_0_60px_rgba(88,232,193,0.4)]"
                     : "bg-white text-black hover:scale-[1.02] hover:bg-zinc-100 hover:shadow-[0_0_60px_rgba(255,255,255,0.18)]"
@@ -150,8 +153,8 @@ export default function CharacterHeroSpotlight({ profile }: { profile: Character
             </div>
           </div>
 
-          {/* Center-right floating facts */}
-          <div className="flex shrink-0 flex-col justify-center gap-4 lg:ml-auto lg:w-[min(100%,22rem)] lg:pl-6 xl:w-[24rem]">
+          {/* Center-right floating facts - hidden on mobile, shown on lg+ */}
+          <div className="hidden lg:flex shrink-0 flex-col justify-center gap-3 lg:gap-4 lg:ml-auto lg:w-[min(100%,18rem)] lg:pl-4 xl:w-[22rem] xl:pl-6">
             <FloatingFact label="First Appearance" value={firstAppearance} />
             <FloatingFact label="Creator" value={creator} />
             <FloatingFact label="Alignment" value={alignment} />
