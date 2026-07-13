@@ -91,10 +91,17 @@ async function readErrorMessage(res: Response): Promise<string> {
 
 export async function fetchServerCart(token: string): Promise<ApiCartItem[]> {
   const authToken = resolveToken(token);
+
+  console.log("Cart API URL:", getApiUrl("/cart"));
+  console.log("Token exists:", Boolean(authToken));
+  console.log("Token preview:", authToken?.slice(0, 20));
+
   const res = await fetch(getApiUrl("/cart"), {
     method: "GET",
     headers: authHeaders(authToken),
   });
+
+  console.log("Cart response status:", res.status);
   if (!res.ok) throw new Error(`GET /cart failed: ${await readErrorMessage(res)}`);
   const body = (await res.json()) as ApiCartResponse;
   return Array.isArray(body?.data?.items) ? body.data.items : [];
