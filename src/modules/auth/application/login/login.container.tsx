@@ -52,11 +52,11 @@ export function LoginFormContainer() {
         router.replace("/admin");
         return;
       }
-      // const isAdminRoute = redirectTo.startsWith("/admin");
-      // if (isAdminRoute && !isAdmin) {
-      //   setError("Only admin accounts can access the admin panel.");
-      //   return;
-      // }
+      const isAdminRoute = redirectTo.startsWith("/admin");
+      if (isAdminRoute && !isAdmin) {
+        setError("Only admin accounts can access the admin panel.");
+        return;
+      }
       setError(null);
       router.replace("/");
     },
