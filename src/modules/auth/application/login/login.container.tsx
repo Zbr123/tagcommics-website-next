@@ -47,14 +47,18 @@ export function LoginFormContainer() {
       return { token, authUser, isAdmin: Boolean(payload.is_admin) };
     },
     onSuccess: ({ token, authUser, isAdmin }) => {
-      const isAdminRoute = redirectTo.startsWith("/admin");
-      if (isAdminRoute && !isAdmin) {
-        setError("Only admin accounts can access the admin panel.");
+      login(token, authUser);
+      if(isAdmin){
+        router.replace("/admin");
         return;
       }
+      // const isAdminRoute = redirectTo.startsWith("/admin");
+      // if (isAdminRoute && !isAdmin) {
+      //   setError("Only admin accounts can access the admin panel.");
+      //   return;
+      // }
       setError(null);
-      login(token, authUser);
-      router.push(redirectTo);
+      router.replace("/");
     },
     onError: (err) => {
       setError(err instanceof Error ? err.message : "Login failed");
